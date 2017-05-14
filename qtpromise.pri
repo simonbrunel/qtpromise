@@ -1,0 +1,2 @@
+INCLUDEPATH += $$PWD/src
+DEPENDPATH += $$PWD/src
