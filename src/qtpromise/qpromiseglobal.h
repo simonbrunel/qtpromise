@@ -6,12 +6,29 @@
 
 // STL
 #include <functional>
+#include <array>
 
 namespace QtPromisePrivate
 {
 // https://rmf.io/cxx11/even-more-traits#unqualified_types
 template <typename T>
 using Unqualified = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+
+/*!
+ * \struct HasCallOperator
+ * http://stackoverflow.com/a/5839442
+ */
+template <typename T>
+struct HasCallOperator
+{
+    template <class U>
+    static auto check(const U* u)
+        -> decltype(&U::operator(), char(0));
+
+    static std::array<char, 2> check(...);
+
+    static const bool value = (sizeof(check((T*)0)) == 1);
+};
 
 /*!
  * \struct ArgsOf
@@ -23,6 +40,7 @@ struct ArgsTraits
 {
     using types = std::tuple<Args...>;
     using first = typename std::tuple_element<0, types>::type;
+    static const size_t count = std::tuple_size<types>::value;
 };
 
 template <>
@@ -30,14 +48,16 @@ struct ArgsTraits<>
 {
     using types = std::tuple<>;
     using first = void;
+    static const size_t count = 0;
 };
 
-template <typename T>
-struct ArgsOf : public ArgsOf<decltype(&T::operator())>
+template <typename T, typename Enable = void>
+struct ArgsOf : public ArgsTraits<>
 { };
 
-template <>
-struct ArgsOf<std::nullptr_t> : public ArgsTraits<>
+template <typename T>
+struct ArgsOf<T, typename std::enable_if<HasCallOperator<T>::value>::type>
+    : public ArgsOf<decltype(&T::operator())>
 { };
 
 template <typename TReturn, typename... Args>
@@ -99,25 +119,6 @@ struct ArgsOf<volatile T&&> : public ArgsOf<T>
 template <typename T>
 struct ArgsOf<const volatile T&&> : public ArgsOf<T>
 { };
-
-/*!
- * \fn to_exception_ptr
- */
-template <typename T>
-std::exception_ptr to_exception_ptr(const T& value)
-{
-    try {
-        throw value;
-    } catch(...) {
-        return std::current_exception();
-    }
-}
-
-template <>
-std::exception_ptr to_exception_ptr(const std::exception_ptr& value)
-{
-    return value;
-}
 
 } // namespace QtPromisePrivate
 

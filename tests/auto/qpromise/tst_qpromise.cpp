@@ -5,15 +5,13 @@
 #include <QtTest>
 
 using namespace QtPromise;
-
-static const int ASYNC_DELAY = 256;
+using namespace QtPromisePrivate;
 
 class tst_qpromise: public QObject
 {
     Q_OBJECT
 
 private Q_SLOTS:
-
     void finallyReturns();
     void finallyThrows();
     void finallyDelayedFulfilled();
@@ -26,75 +24,68 @@ QTEST_MAIN(tst_qpromise)
 
 void tst_qpromise::finallyReturns()
 {
-    {
-        QPromise<int> p;
+    {   // fulfilled
         QVector<int> values;
-        auto next = p.finally([&values]() {
+        auto next = QPromise<int>::resolve(42).finally([&]() {
             values << 8;
-            return 16;
+            return 16; // ignored!
         });
 
-        p.fulfill(42);
-        next.then([&values](int r) {
+        next.then([&](int r) {
             values << r;
         }).wait();
 
-        QVERIFY(p.isFulfilled());
         QVERIFY(next.isFulfilled());
         QCOMPARE(values, QVector<int>({8, 42}));
     }
-    {
-        QPromise<int> p;
-        QVector<int> values;
-        auto next = p.finally([&values]() {
-            values << 8;
-            return 16;
+    {   // rejected
+        QString error;
+        int value = -1;
+        auto next = QPromise<int>([](const QPromiseResolve<int>) {
+            throw QString("foo");
+        }).finally([&]() {
+            value = 8;
+            return 16; // ignored!
         });
 
-        p.reject(QString("foo"));
-        next.then([&values](int r) {
-            values << r;
+        next.fail([&](const QString& err) {
+            error = err;
+            return 42;
         }).wait();
 
-        QVERIFY(p.isRejected());
         QVERIFY(next.isRejected());
-        QCOMPARE(values, QVector<int>({8}));
+        QCOMPARE(error, QString("foo"));
+        QCOMPARE(value, 8);
     }
 }
 
 void tst_qpromise::finallyThrows()
 {
-    {
-        QPromise<int> p;
+    {   // fulfilled
         QString error;
-        auto next = p.finally([]() {
+        auto next = QPromise<int>::resolve(42).finally([&]() {
             throw QString("bar");
         });
 
-        p.fulfill(42);
-        next.fail([&error](const QString& err) {
+        next.fail([&](const QString& err) {
             error = err;
             return 0;
         }).wait();
 
-        QVERIFY(p.isFulfilled());
         QVERIFY(next.isRejected());
         QCOMPARE(error, QString("bar"));
     }
-    {
-        QPromise<int> p;
+    {   // rejected
         QString error;
-        auto next = p.finally([]() {
+        auto next = QPromise<int>::reject(QString("foo")).finally([&]() {
             throw QString("bar");
         });
 
-        p.reject(QString("foo"));
-        next.fail([&error](const QString& err) {
+        next.fail([&](const QString& err) {
             error = err;
             return 0;
         }).wait();
 
-        QVERIFY(p.isRejected());
         QVERIFY(next.isRejected());
         QCOMPARE(error, QString("bar"));
     }
@@ -102,97 +93,89 @@ void tst_qpromise::finallyThrows()
 
 void tst_qpromise::finallyDelayedFulfilled()
 {
-    {
-        QPromise<int> p0;
+    {   // fulfilled
         QVector<int> values;
-        auto next = p0.finally([&values]() {
-            QPromise<int> p1;
-            QTimer::singleShot(ASYNC_DELAY, [p1, &values]() mutable {
-                values << 64;
-                p1.fulfill(16);
+        auto next = QPromise<int>::resolve(42).finally([&]() {
+            QPromise<int> p([&](const QPromiseResolve<int>& resolve) {
+                qtpromise_defer([=, &values]() {
+                    values << 64;
+                    resolve(16); // ignored!
+                });
             });
 
             values << 8;
-            return p1;
+            return p;
         });
 
-        p0.fulfill(42);
-        next.then([&values](int r) {
+        next.then([&](int r) {
             values << r;
         }).wait();
 
-        QVERIFY(p0.isFulfilled());
         QVERIFY(next.isFulfilled());
         QCOMPARE(values, QVector<int>({8, 64, 42}));
     }
-    {
-        QPromise<int> p0;
+    {   // rejected
+        QString error;
         QVector<int> values;
-        auto next = p0.finally([&values]() {
-            QPromise<int> p1;
-            QTimer::singleShot(ASYNC_DELAY, [p1, &values]() mutable {
-                values << 64;
-                p1.fulfill(16);
+        auto next = QPromise<int>::reject(QString("foo")).finally([&]() {
+            QPromise<int> p([&](const QPromiseResolve<int>& resolve) {
+                qtpromise_defer([=, &values]() {
+                    values << 64;
+                    resolve(16); // ignored!
+                });
             });
 
             values << 8;
-            return p1;
+            return p;
         });
 
-        p0.reject(QString("foo"));
-        next.then([&values](int r) {
+        next.then([&](int r) {
             values << r;
+        }, [&](const QString& err) {
+            error = err;
         }).wait();
 
-        QVERIFY(p0.isRejected());
         QVERIFY(next.isRejected());
+        QCOMPARE(error, QString("foo"));
         QCOMPARE(values, QVector<int>({8, 64}));
     }
 }
 
 void tst_qpromise::finallyDelayedRejected()
 {
-    {
-        QPromise<int> p0;
+    {   // fulfilled
         QString error;
-        auto next = p0.finally([]() {
-            QPromise<int> p1;
-            QTimer::singleShot(ASYNC_DELAY, [p1]() mutable {
-                p1.reject(QString("bar"));
+        auto next = QPromise<int>::resolve(42).finally([]() {
+            return QPromise<int>([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+                qtpromise_defer([=]() {
+                    reject(QString("bar"));
+                });
             });
-
-            return p1;
         });
 
-        p0.fulfill(42);
-        next.fail([&error](const QString& err) {
+        next.fail([&](const QString& err) {
             error = err;
             return 0;
         }).wait();
 
-        QVERIFY(p0.isFulfilled());
         QVERIFY(next.isRejected());
         QCOMPARE(error, QString("bar"));
     }
-    {
-        QPromise<int> p0;
+    {   // rejected
         QString error;
-        auto next = p0.finally([]() {
-            QPromise<int> p1;
-            QTimer::singleShot(ASYNC_DELAY, [p1]() mutable {
-                p1.reject(QString("bar"));
+        auto next = QPromise<int>::reject(QString("foo")).finally([]() {
+            return QPromise<int>([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+                qtpromise_defer([=]() {
+                    reject(QString("bar"));
+                });
             });
-
-            return p1;
         });
 
-        p0.reject(QString("foo"));
-        next.fail([&error](const QString& err) {
+        next.fail([&](const QString& err) {
             error = err;
             return 0;
         }).wait();
 
-        QVERIFY(p0.isRejected());
         QVERIFY(next.isRejected());
         QCOMPARE(error, QString("bar"));
     }

@@ -4,76 +4,61 @@
 namespace QtPromisePrivate {
 
 template <typename T>
-struct QPromiseDeduce<QFuture<T> >
-    : public QPromiseDeduce<T>
+struct PromiseDeduce<QFuture<T> >
+    : public PromiseDeduce<T>
 { };
 
 template <typename T>
-struct QPromiseFulfill<QFuture<T>, QPromise<T> >
+struct PromiseFulfill<QFuture<T> >
 {
-    static void call(QPromise<T> next, const QFuture<T>& future)
+    static void call(
+        const QFuture<T>& future,
+        const QtPromise::QPromiseResolve<T>& resolve,
+        const QtPromise::QPromiseReject<T>& reject)
     {
         using Watcher = QFutureWatcher<T>;
 
         Watcher* watcher = new Watcher();
-        QObject::connect(
-            watcher, &Watcher::finished,
-            [next, watcher]() mutable {
-                T res;
-                try {
-                    res = watcher->result();
-                } catch(...) {
-                    next.reject(std::current_exception());
-                }
+        QObject::connect(watcher, &Watcher::finished, [=]() mutable {
+            try {
+                T res = watcher->result();
+                PromiseFulfill<T>::call(res, resolve, reject);
+            } catch(...) {
+                reject(std::current_exception());
+            }
 
-                watcher->deleteLater();
-                if (next.isPending()) {
-                    QPromiseFulfill<T>::call(next, res);
-                }
-            });
+            watcher->deleteLater();
+        });
 
         watcher->setFuture(future);
     }
 };
 
 template <>
-struct QPromiseFulfill<QFuture<void>, QPromise<void> >
+struct PromiseFulfill<QFuture<void> >
 {
-    static void call(QPromise<void> next, const QFuture<void>& future)
+    static void call(
+        const QFuture<void>& future,
+        const QtPromise::QPromiseResolve<void>& resolve,
+        const QtPromise::QPromiseReject<void>& reject)
     {
         using Watcher = QFutureWatcher<void>;
 
         Watcher* watcher = new Watcher();
-        QObject::connect(
-            watcher, &Watcher::finished,
-            [next, watcher]() mutable {
-                try {
-                    // let's rethrown possibe exception
-                    watcher->waitForFinished();
-                } catch(...) {
-                    next.reject(std::current_exception());
-                }
+        QObject::connect(watcher, &Watcher::finished, [=]() mutable {
+            try {
+                // let's rethrown possibe exception
+                watcher->waitForFinished();
+                resolve();
+            } catch(...) {
+                reject(std::current_exception());
+            }
 
-                watcher->deleteLater();
-                if (next.isPending()) {
-                    next.fulfill();
-                }
-            });
+            watcher->deleteLater();
+        });
 
         watcher->setFuture(future);
     }
 };
-
-} // namespace QtPromisePrivate
-
-namespace QtPromise {
-
-template <typename T>
-QPromise<T> qPromise(const QFuture<T>& future)
-{
-    QPromise<T> next;
-    QPromiseFulfill<QFuture<T> >::call(next, future);
-    return next;
-}
 
 } // namespace QtPromise
