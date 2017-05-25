@@ -104,6 +104,5 @@ private:
 } // namespace QtPromise
 
 #include "qpromise.inl"
-#include "qpromise_qfuture.inl"
 
 #endif // ifndef _QTPROMISE_QPROMISE_H

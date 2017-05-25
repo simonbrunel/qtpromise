@@ -6,7 +6,6 @@
 #include "qpromiseglobal.h"
 
 // Qt
-#include <QCoreApplication>
 #include <QTimer>
 #include <QSharedData>
 #include <QVector>

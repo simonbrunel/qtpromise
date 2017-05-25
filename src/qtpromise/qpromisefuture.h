@@ -1,3 +1,6 @@
+#ifndef _QTPROMISE_QPROMISEFUTURE_P_H
+#define _QTPROMISE_QPROMISEFUTURE_P_H
+
 #include <QFutureWatcher>
 #include <QFuture>
 
@@ -62,3 +65,5 @@ struct PromiseFulfill<QFuture<void> >
 };
 
 } // namespace QtPromise
+
+#endif // _QTPROMISE_QPROMISEFUTURE_P_H

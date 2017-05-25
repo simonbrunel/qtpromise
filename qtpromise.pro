@@ -1,10 +1,12 @@
 TEMPLATE = subdirs
 SUBDIRS = \
-    src \
     tests
 
-tests.depends = src
+_qt_creator_ {
+    SUBDIRS += src
+}
 
 OTHER_FILES = \
     package/features/*.prf \
+    include/* \
     qtpromise.pri

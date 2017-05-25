@@ -1,5 +1,5 @@
 // QtPromise
-#include <qtpromise/qpromise.h>
+#include <QtPromise>
 
 // Qt
 #include <QtTest>

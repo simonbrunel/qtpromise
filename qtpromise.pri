@@ -1,2 +1,2 @@
-INCLUDEPATH += $$PWD/src
-DEPENDPATH += $$PWD/src
+INCLUDEPATH += $$PWD/include $$PWD/src
+DEPENDPATH += $$PWD/include $$PWD/src
