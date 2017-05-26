@@ -1,1 +1,7 @@
-/*.user
+*.gcno
+*.gcda
+*.moc
+*.o
+*.user
+Makefile
+coverage.info
