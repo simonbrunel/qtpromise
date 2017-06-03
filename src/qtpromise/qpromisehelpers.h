@@ -7,14 +7,14 @@
 namespace QtPromise {
 
 template <typename T>
-typename QtPromisePrivate::PromiseDeduce<T>::Type qPromise(const T& value)
+typename QtPromisePrivate::PromiseDeduce<T>::Type qPromise(T&& value)
 {
     using namespace QtPromisePrivate;
     using Promise = typename PromiseDeduce<T>::Type;
-    return Promise([=](
+    return Promise([&](
         const QPromiseResolve<typename Promise::Type>& resolve,
         const QPromiseReject<typename Promise::Type>& reject) {
-        PromiseFulfill<T>::call(value, resolve, reject);
+        PromiseFulfill<T>::call(std::forward<T>(value), resolve, reject);
     });
 }
 

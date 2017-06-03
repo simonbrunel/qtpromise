@@ -4,141 +4,87 @@
 
 namespace QtPromise {
 
-template <class T = void>
+template <class T>
 class QPromiseResolve
 {
 public:
-    QPromiseResolve(const QPromise<T>& p)
-        : m_promise(p)
+    QPromiseResolve(QPromise<T> p)
+        : m_promise(new QPromise<T>(std::move(p)))
     { }
 
-    void operator()(const T& value) const
+    void operator()(const T& value) const {
+        resolve(value);
+    }
+
+    void operator()(T&& value) const
     {
-        auto p = m_promise;
-        if (p.isPending()) {
-            p.m_d->rejected = false;
-            p.m_d->resolved = true;
-            p.m_d->value = value;
-            p.dispatch();
-        }
+        resolve(std::move(value));
     }
 
 private:
-    QPromise<T> m_promise;
+    QSharedPointer<QPromise<T> > m_promise;
+
+    template <typename U>
+    void resolve(U&& value) const
+    {
+        Q_ASSERT(!m_promise.isNull());
+        if (m_promise->isPending()) {
+            m_promise->m_d->resolve(std::forward<U>(value));
+            m_promise->m_d->dispatch();
+        }
+    }
 };
 
 template <>
 class QPromiseResolve<void>
 {
 public:
-    QPromiseResolve(const QPromise<void>& p)
-        : m_promise(p)
+    QPromiseResolve(QPromise<void> p)
+        : m_promise(new QPromise<void>(std::move(p)))
     { }
 
     void operator()() const
     {
-        auto p = m_promise;
-        if (p.isPending()) {
-            p.m_d->rejected = false;
-            p.m_d->resolved = true;
-            p.dispatch();
+        Q_ASSERT(!m_promise.isNull());
+        if (m_promise->isPending()) {
+            m_promise->m_d->resolve();
+            m_promise->m_d->dispatch();
         }
     }
 
 private:
-    QPromise<void> m_promise;
+    QSharedPointer<QPromise<void> > m_promise;
 };
 
-template <class T = void>
+template <class T>
 class QPromiseReject
 {
 public:
-    QPromiseReject()
+    QPromiseReject(QPromise<T> p)
+        : m_promise(new QPromise<T>(std::move(p)))
     { }
 
-    QPromiseReject(const QPromise<T>& p)
-        : m_promise(p)
-    { }
-
-    void operator()(const QPromiseError& error) const
+    template <typename E>
+    void operator()(E&& error) const
     {
-        auto p = m_promise;
-        if (p.isPending()) {
-            p.m_d->rejected = true;
-            p.m_d->resolved = true;
-            p.m_d->error = error;
-            p.dispatch();
+        Q_ASSERT(!m_promise.isNull());
+        if (m_promise->isPending()) {
+            m_promise->m_d->reject(std::forward<E>(error));
+            m_promise->m_d->dispatch();
         }
     }
 
 private:
-    QPromise<T> m_promise;
+    QSharedPointer<QPromise<T> > m_promise;
 };
-
-template <typename T>
-template <typename TFulfilled, typename TRejected>
-inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
-QPromiseBase<T>::then(TFulfilled fulfilled, TRejected rejected)
-{
-    using namespace QtPromisePrivate;
-    using PromiseType = typename PromiseHandler<T, TFulfilled>::Promise;
-
-    PromiseType next([=](
-        const QPromiseResolve<typename PromiseType::Type>& resolve,
-        const QPromiseReject<typename PromiseType::Type>& reject) {
-        m_d->handlers << PromiseHandler<T, TFulfilled>::create(fulfilled, resolve, reject);
-        m_d->catchers << PromiseCatcher<T, TRejected>::create(rejected, resolve, reject);
-    });
-
-    if (m_d->resolved) {
-        dispatch();
-    }
-
-    return next;
-}
-
-template <typename T>
-template <typename TRejected>
-inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
-QPromiseBase<T>::fail(TRejected rejected)
-{
-    return then(nullptr, rejected);
-}
-
-template <typename T>
-inline QPromise<T> QPromiseBase<T>::wait() const
-{
-    // @TODO wait timeout + global timeout
-    while (!m_d->resolved) {
-        QCoreApplication::processEvents(QEventLoop::AllEvents);
-        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
-    }
-
-    return *this;
-}
-
-template <typename T>
-template <typename E>
-inline QPromise<T> QPromiseBase<T>::reject(const E& error)
-{
-    return QPromise<T>([=](const QPromiseResolve<T>&) {
-        throw error;
-    });
-}
-
-template <typename T>
-inline QPromiseBase<T>::QPromiseBase()
-    : m_d(new QtPromisePrivate::PromiseData<T>())
-{
-}
 
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
 inline QPromiseBase<T>::QPromiseBase(F resolver)
     : m_d(new QtPromisePrivate::PromiseData<T>())
 {
-    auto resolve = QPromiseResolve<T>(*this);
-    auto reject = QPromiseReject<T>(*this);
+    QPromiseResolve<T> resolve(*this);
+    QPromiseReject<T> reject(*this);
 
     try {
         resolver(resolve);
@@ -152,8 +98,8 @@ template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count
 inline QPromiseBase<T>::QPromiseBase(F resolver)
     : m_d(new QtPromisePrivate::PromiseData<T>())
 {
-    auto resolve = QPromiseResolve<T>(*this);
-    auto reject = QPromiseReject<T>(*this);
+    QPromiseResolve<T> resolve(*this);
+    QPromiseReject<T> reject(*this);
 
     try {
         resolver(resolve, reject);
@@ -163,33 +109,59 @@ inline QPromiseBase<T>::QPromiseBase(F resolver)
 }
 
 template <typename T>
-inline void QPromiseBase<T>::dispatch()
+template <typename TFulfilled, typename TRejected>
+inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
+QPromiseBase<T>::then(const TFulfilled& fulfilled, const TRejected& rejected) const
 {
     using namespace QtPromisePrivate;
+    using PromiseType = typename PromiseHandler<T, TFulfilled>::Promise;
 
-    Q_ASSERT(m_d->resolved);
+    PromiseType next([&](
+        const QPromiseResolve<typename PromiseType::Type>& resolve,
+        const QPromiseReject<typename PromiseType::Type>& reject) {
+        m_d->addHandler(PromiseHandler<T, TFulfilled>::create(fulfilled, resolve, reject));
+        m_d->addCatcher(PromiseCatcher<T, TRejected>::create(rejected, resolve, reject));
+    });
 
-    typename PromiseData<T>::HandlerList handlers;
-    typename PromiseData<T>::CatcherList catchers;
-
-    handlers.swap(m_d->handlers);
-    catchers.swap(m_d->catchers);
-
-    if (m_d->rejected) {
-        const QPromiseError error = m_d->error;
-        qtpromise_defer([=]() {
-            for (auto catcher: catchers) {
-                catcher(error);
-            }
-        });
-    } else {
-        notify(handlers);
+    if (!m_d->isPending()) {
+        m_d->dispatch();
     }
+
+    return next;
+}
+
+template <typename T>
+template <typename TRejected>
+inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
+QPromiseBase<T>::fail(TRejected&& rejected) const
+{
+    return then(nullptr, std::forward<TRejected>(rejected));
+}
+
+template <typename T>
+inline QPromise<T> QPromiseBase<T>::wait() const
+{
+    // @TODO wait timeout + global timeout
+    while (m_d->isPending()) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents);
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    }
+
+    return *this;
+}
+
+template <typename T>
+template <typename E>
+inline QPromise<T> QPromiseBase<T>::reject(E&& error)
+{
+    return QPromise<T>([&](const QPromiseResolve<T>&, const QPromiseReject<T>& reject) {
+        reject(std::forward<E>(error));
+    });
 }
 
 template <typename T>
 template <typename THandler>
-inline QPromise<T> QPromise<T>::finally(THandler handler)
+inline QPromise<T> QPromise<T>::finally(THandler handler) const
 {
     return this->then([=](const T& res) {
         return QPromise<void>::resolve().then(handler).then([=](){
@@ -220,7 +192,7 @@ inline QPromise<QVector<T> > QPromise<T>::all(const QVector<QPromise<T> >& promi
         QSharedPointer<QVector<T> > results(new QVector<T>(count));
 
         for (int i=0; i<count; ++i) {
-            QPromise<T>(promises[i]).then([=](const T& res) mutable {
+            promises[i].then([=](const T& res) mutable {
                 (*results)[i] = res;
                 if (--(*remaining) == 0) {
                     resolve(*results);
@@ -236,26 +208,15 @@ inline QPromise<QVector<T> > QPromise<T>::all(const QVector<QPromise<T> >& promi
 }
 
 template <typename T>
-inline QPromise<T> QPromise<T>::resolve(const T& value)
+inline QPromise<T> QPromise<T>::resolve(T&& value)
 {
-    return QPromise<T>([=](const QPromiseResolve<T>& resolve) {
-        resolve(value);
-    });
-}
-
-template <typename T>
-inline void QPromise<T>::notify(const typename QtPromisePrivate::PromiseData<T>::HandlerList& handlers) const
-{
-    const T value = this->m_d->value;
-    QtPromisePrivate::qtpromise_defer([handlers, value]() {
-        for (auto handler: handlers) {
-            handler(value);
-        }
+    return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
+       resolve(std::forward<T>(value));
     });
 }
 
 template <typename THandler>
-inline QPromise<void> QPromise<void>::finally(THandler handler)
+inline QPromise<void> QPromise<void>::finally(THandler handler) const
 {
     return this->then([=]() {
         return QPromise<void>::resolve().then(handler).then([](){});
@@ -281,7 +242,7 @@ inline QPromise<void> QPromise<void>::all(const QVector<QPromise<void> >& promis
         QSharedPointer<int> remaining(new int(promises.size()));
 
         for (const auto& promise: promises) {
-            QPromise<void>(promise).then([=]() {
+            promise.then([=]() {
                 if (--(*remaining) == 0) {
                     resolve();
                 }
@@ -299,15 +260,6 @@ inline QPromise<void> QPromise<void>::resolve()
 {
     return QPromise<void>([](const QPromiseResolve<void>& resolve) {
         resolve();
-    });
-}
-
-inline void QPromise<void>::notify(const typename QtPromisePrivate::PromiseData<void>::HandlerList& handlers) const
-{
-    QtPromisePrivate::qtpromise_defer([handlers]() {
-        for (const auto& handler: handlers) {
-            handler();
-        }
     });
 }
 

@@ -16,33 +16,9 @@ class QPromiseBase
 public:
     using Type = T;
 
-    virtual ~QPromiseBase() { }
-
-    bool isFulfilled() const { return m_d->resolved && !m_d->rejected; }
-    bool isRejected() const { return m_d->resolved && m_d->rejected; }
-    bool isPending() const { return !m_d->resolved; }
-
-    template <typename TFulfilled, typename TRejected = std::nullptr_t>
-    inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
-    then(TFulfilled fulfilled, TRejected rejected = nullptr);
-
-    template <typename TRejected>
-    inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
-    fail(TRejected rejected);
-
-    inline QPromise<T> wait() const;
-
-public: // STATIC
-    template <typename E>
-    inline static QPromise<T> reject(const E& error);
-
-protected:
-    friend class QPromiseResolve<T>;
-    friend class QPromiseReject<T>;
-
-    QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T> > m_d;
-
-    inline QPromiseBase();
+    QPromiseBase(const QPromiseBase<T>& other): m_d(other.m_d) {}
+    QPromiseBase(const QPromise<T>& other): m_d(other.m_d) {}
+    QPromiseBase(QPromiseBase<T>&& other) { swap(other); }
 
     template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type = 0>
     inline QPromiseBase(F resolver);
@@ -50,9 +26,33 @@ protected:
     template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
-    virtual void notify(const typename QtPromisePrivate::PromiseData<T>::HandlerList& handlers) const = 0;
+    virtual ~QPromiseBase() { }
 
-    inline void dispatch();
+    bool isFulfilled() const { return m_d->isFulfilled(); }
+    bool isRejected() const { return m_d->isRejected(); }
+    bool isPending() const { return m_d->isPending(); }
+
+    template <typename TFulfilled, typename TRejected = std::nullptr_t>
+    inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
+    then(const TFulfilled& fulfilled, const TRejected& rejected = nullptr) const;
+
+    template <typename TRejected>
+    inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
+    fail(TRejected&& rejected) const;
+
+    inline QPromise<T> wait() const;
+
+    void swap(QPromiseBase<T>& other) { qSwap(m_d, other.m_d); }
+
+public: // STATIC
+    template <typename E>
+    inline static QPromise<T> reject(E&& error);
+
+protected:
+    friend class QPromiseResolve<T>;
+    friend class QPromiseReject<T>;
+
+    QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T> > m_d;
 };
 
 template <typename T>
@@ -60,22 +60,17 @@ class QPromise: public QPromiseBase<T>
 {
 public:
     template <typename F>
-    QPromise(F resolver): QPromiseBase<T>(resolver) { }
+    QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
     template <typename THandler>
-    inline QPromise<T> finally(THandler handler);
+    inline QPromise<T> finally(THandler handler) const;
 
 public: // STATIC
     inline static QPromise<QVector<T> > all(const QVector<QPromise<T> >& promises);
-    inline static QPromise<T> resolve(const T& value);
-
-protected:
-    inline void notify(const typename QtPromisePrivate::PromiseData<T>::HandlerList& handlers) const Q_DECL_OVERRIDE;
+    inline static QPromise<T> resolve(T&& value);
 
 private:
     friend class QPromiseBase<T>;
-
-    QPromise(const QPromiseBase<T>& p) : QPromiseBase<T>(p) { }
 };
 
 template <>
@@ -83,22 +78,17 @@ class QPromise<void>: public QPromiseBase<void>
 {
 public:
     template <typename F>
-    QPromise(F resolver): QPromiseBase<void>(resolver) { }
+    QPromise(F&& resolver): QPromiseBase<void>(std::forward<F>(resolver)) { }
 
     template <typename THandler>
-    inline QPromise<void> finally(THandler handler);
+    inline QPromise<void> finally(THandler handler) const;
 
 public: // STATIC
     inline static QPromise<void> all(const QVector<QPromise<void> >& promises);
     inline static QPromise<void> resolve();
 
-protected:
-    inline void notify(const typename QtPromisePrivate::PromiseData<void>::HandlerList& handlers) const Q_DECL_OVERRIDE;
-
 private:
     friend class QPromiseBase<void>;
-
-    QPromise(const QPromiseBase<void>& p) : QPromiseBase<void>(p) { }
 };
 
 } // namespace QtPromise

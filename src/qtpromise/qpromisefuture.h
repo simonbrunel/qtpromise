@@ -48,8 +48,7 @@ struct PromiseFulfill<QFuture<T> >
                     watcher->waitForFinished();
                     reject(QtPromise::QPromiseCanceledException());
                 } else {
-                    T res = watcher->result();
-                    PromiseFulfill<T>::call(res, resolve, reject);
+                    PromiseFulfill<T>::call(watcher->result(), resolve, reject);
                 }
             } catch(...) {
                 reject(std::current_exception());
