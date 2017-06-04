@@ -103,13 +103,13 @@ QFuture<int> future = QtConcurrent::run([]() {
     return 42;
 });
 
-QPromise<int> promise = qtPromise(future);
+QPromise<int> promise = qPromise(future);
 ```
 
 or simply:
 
 ```cpp
-auto promise = qtPromise(QtConcurrent::run([]() {
+auto promise = qPromise(QtConcurrent::run([]() {
     // {...}
 }));
 ```
@@ -153,6 +153,11 @@ promise.then([](int res) {
     // {...}
 });
 ```
+
+## Thread-Safety
+ QPromise is thread-safe and can be copied and accessed across different threads. QPromise relies on [explicitly data sharing](http://doc.qt.io/qt-5/qexplicitlyshareddatapointer.html#details) and thus `auto p2 = p1` represents the same promise: when `p1` resolves, handlers registered on `p1` and `p2` are called, the fulfilled value being shared between both instances.
+
+> **Note:** while it's safe to access the resolved value from different threads using [`then`](#qpromise-then), QPromise provides no guarantee about the object being pointed to. Thread-safety and reentrancy rules for that object still apply.
 
 ## QPromise
 ### <a name="qpromise-qpromise"></a> `QPromise<T>::QPromise(resolver)`

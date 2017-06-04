@@ -2,7 +2,6 @@
 #include <QtPromise>
 
 // Qt
-#include <QtConcurrent>
 #include <QtTest>
 
 using namespace QtPromise;
@@ -11,11 +10,11 @@ class tst_benchmark: public QObject
 {
     Q_OBJECT
 
+private Q_SLOTS:
     void valueResolve();
     void valueReject();
     void valueThen();
     void errorReject();
-private Q_SLOTS:
     void errorThen();
 
 }; // class tst_benchmark

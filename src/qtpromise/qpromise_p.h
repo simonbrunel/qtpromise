@@ -6,10 +6,14 @@
 #include "qpromiseglobal.h"
 
 // Qt
-#include <QTimer>
+#include <QCoreApplication>
+#include <QAbstractEventDispatcher>
+#include <QThread>
+#include <QVector>
+#include <QReadWriteLock>
 #include <QSharedPointer>
 #include <QSharedData>
-#include <QVector>
+#include <QPointer>
 
 namespace QtPromise {
 
@@ -26,10 +30,22 @@ class QPromiseReject;
 
 namespace QtPromisePrivate {
 
+// https://stackoverflow.com/a/21653558
 template <typename F>
-inline void qtpromise_defer(F&& f)
+static void qtpromise_defer(F&& f, QThread* thread = nullptr)
 {
-    QTimer::singleShot(0, std::forward<F>(f));
+    struct Event : public QEvent
+    {
+        using FType = typename std::decay<F>::type;
+        Event(FType&& f) : QEvent(QEvent::None), m_f(std::move(f)) { }
+        Event(const FType& f) : QEvent(QEvent::None), m_f(f) { }
+        ~Event() { m_f(); }
+        FType m_f;
+    };
+
+    QObject* target = QAbstractEventDispatcher::instance(thread);
+    Q_ASSERT_X(target, "postMetaCall", "Target thread must have an event loop");
+    QCoreApplication::postEvent(target, new Event(std::forward<F>(f)));
 }
 
 template <typename T>
@@ -320,21 +336,35 @@ class PromiseDataBase: public QSharedData
 {
 public:
     using Error = QtPromise::QPromiseError;
-    using Catcher = std::function<void(const Error&)>;
+    using Catcher = std::pair<QPointer<QThread>, std::function<void(const Error&)> >;
 
     virtual ~PromiseDataBase() {}
 
-    bool isFulfilled() const { return m_settled && m_error.isNull(); }
-    bool isRejected() const { return m_settled && !m_error.isNull(); }
-    bool isPending() const { return !m_settled; }
-
-    void addCatcher(Catcher catcher)
+    bool isFulfilled() const
     {
-        m_catchers.append(std::move(catcher));
+        return !isPending() && m_error.isNull();
+    }
+
+    bool isRejected() const
+    {
+        return !isPending() && !m_error.isNull();
+    }
+
+    bool isPending() const
+    {
+        QReadLocker lock(&m_lock);
+        return !m_settled;
+    }
+
+    void addCatcher(std::function<void(const Error&)> catcher)
+    {
+        QWriteLocker lock(&m_lock);
+        m_catchers.append({QThread::currentThread(), std::move(catcher)});
     }
 
     void reject(Error error)
     {
+        Q_ASSERT(isPending());
         Q_ASSERT(m_error.isNull());
         m_error.reset(new Error(std::move(error)));
         setSettled();
@@ -342,26 +372,36 @@ public:
 
     void dispatch()
     {
-        Q_ASSERT(!isPending());
+        if (isPending()) {
+            return;
+        }
 
-        if (isFulfilled()) {
+        if (m_error.isNull()) {
             notify();
             return;
         }
 
-        Q_ASSERT(isRejected());
-        QSharedPointer<Error> error = m_error;
+        m_lock.lockForWrite();
         QVector<Catcher> catchers(std::move(m_catchers));
+        m_lock.unlock();
+
+        QSharedPointer<Error> error = m_error;
+        Q_ASSERT(!error.isNull());
+
         for (const auto& catcher: catchers) {
+            const auto& fn = catcher.second;
             qtpromise_defer([=]() {
-                catcher(*error);
-            });
+                fn(*error);
+            }, catcher.first);
         }
     }
 
 protected:
+    mutable QReadWriteLock m_lock;
+
     void setSettled()
     {
+        QWriteLocker lock(&m_lock);
         Q_ASSERT(!m_settled);
         m_settled = true;
     }
@@ -377,18 +417,13 @@ private:
 template <typename T>
 class PromiseData: public PromiseDataBase<T>
 {
+    using Handler = std::pair<QPointer<QThread>, std::function<void(const T&)> >;
+
 public:
-    using Handler = std::function<void(const T&)>;
-
-    void addHandler(Handler handler)
+    void addHandler(std::function<void(const T&)> handler)
     {
-        m_handlers.append(std::move(handler));
-    }
-
-    const T& value() const
-    {
-        Q_ASSERT(!m_value.isNull());
-        return *m_value;
+        QWriteLocker lock(&this->m_lock);
+        m_handlers.append({QThread::currentThread(), std::move(handler)});
     }
 
     void resolve(T&& value)
@@ -407,13 +442,18 @@ public:
 
     void notify() Q_DECL_OVERRIDE
     {
-        Q_ASSERT(this->isFulfilled());
-        QSharedPointer<T> value(m_value);
+        this->m_lock.lockForWrite();
         QVector<Handler> handlers(std::move(m_handlers));
+        this->m_lock.unlock();
+
+        QSharedPointer<T> value(m_value);
+        Q_ASSERT(!value.isNull());
+
         for (const auto& handler: handlers) {
+            const auto& fn = handler.second;
             qtpromise_defer([=]() {
-                handler(*value);
-            });
+                fn(*value);
+            }, handler.first);
         }
     }
 
@@ -425,12 +465,13 @@ private:
 template <>
 class PromiseData<void>: public PromiseDataBase<void>
 {
-public:
-    using Handler = std::function<void()>;
+    using Handler = std::pair<QPointer<QThread>, std::function<void()> >;
 
-    void addHandler(Handler handler)
+public:
+    void addHandler(std::function<void()> handler)
     {
-        m_handlers.append(std::move(handler));
+        QWriteLocker lock(&m_lock);
+        m_handlers.append({QThread::currentThread(), std::move(handler)});
     }
 
     void resolve() { setSettled(); }
@@ -438,12 +479,12 @@ public:
 protected:
     void notify() Q_DECL_OVERRIDE
     {
-        Q_ASSERT(isFulfilled());
+        this->m_lock.lockForWrite();
         QVector<Handler> handlers(std::move(m_handlers));
+        this->m_lock.unlock();
+
         for (const auto& handler: handlers) {
-            qtpromise_defer([=]() {
-                handler();
-            });
+            qtpromise_defer(handler.second, handler.first);
         }
     }
 
