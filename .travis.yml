@@ -24,7 +24,7 @@ before_script:
 script:
   - qmake qtpromise.pro CONFIG+=coverage
   - make -j4
-  - make -j4 check --quiet
+  - make check --quiet
   - lcov -capture --directory . --o coverage.info
   - lcov -e coverage.info '**/src/**/*' -o coverage.info
 
