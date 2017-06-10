@@ -1,5 +1,5 @@
-#ifndef _QTPROMISE_QPROMISEGLOBAL_H
-#define _QTPROMISE_QPROMISEGLOBAL_H
+#ifndef QTPROMISE_QPROMISEGLOBAL_H
+#define QTPROMISE_QPROMISEGLOBAL_H
 
 // QtCore
 #include <QtGlobal>
@@ -122,4 +122,4 @@ struct ArgsOf<const volatile T&&> : public ArgsOf<T>
 
 } // namespace QtPromisePrivate
 
-#endif // ifndef _QTPROMISE_QPROMISEGLOBAL_H
+#endif // ifndef QTPROMISE_QPROMISEGLOBAL_H

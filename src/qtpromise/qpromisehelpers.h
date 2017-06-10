@@ -1,5 +1,5 @@
-#ifndef _QTPROMISE_QPROMISEHELPERS_H
-#define _QTPROMISE_QPROMISEHELPERS_H
+#ifndef QTPROMISE_QPROMISEHELPERS_H
+#define QTPROMISE_QPROMISEHELPERS_H
 
 // QtPromise
 #include "qpromise_p.h"
@@ -39,4 +39,4 @@ QPromise<void> qPromiseAll(const QVector<QPromise<void> >& promises)
 
 } // namespace QtPromise
 
-#endif // _QTPROMISE_QPROMISEHELPERS_H
+#endif // QTPROMISE_QPROMISEHELPERS_H

@@ -1,5 +1,5 @@
-#ifndef _QTPROMISE_QPROMISEERROR_H
-#define _QTPROMISE_QPROMISEERROR_H
+#ifndef QTPROMISE_QPROMISEERROR_H
+#define QTPROMISE_QPROMISEERROR_H
 
 // QtPromise
 #include "qpromiseglobal.h"
@@ -14,7 +14,7 @@ public:
     {
         try {
             throw value;
-        } catch(...) {
+        } catch (...) {
             m_exception = std::current_exception();
         }
     }
@@ -55,4 +55,4 @@ private:
 
 } // namespace QtPromise
 
-#endif // _QTPROMISE_QPROMISEERROR_H
+#endif // QTPROMISE_QPROMISEERROR_H

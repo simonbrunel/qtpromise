@@ -1,5 +1,5 @@
-#ifndef _QTPROMISE_QPROMISEFUTURE_P_H
-#define _QTPROMISE_QPROMISEFUTURE_P_H
+#ifndef QTPROMISE_QPROMISEFUTURE_P_H
+#define QTPROMISE_QPROMISEFUTURE_P_H
 
 // Qt
 #include <QFutureWatcher>
@@ -7,7 +7,7 @@
 
 namespace QtPromise {
 
-class QPromiseCanceledException: public QException
+class QPromiseCanceledException : public QException
 {
 public:
     void raise() const Q_DECL_OVERRIDE { throw *this; }
@@ -50,7 +50,7 @@ struct PromiseFulfill<QFuture<T> >
                 } else {
                     PromiseFulfill<T>::call(watcher->result(), resolve, reject);
                 }
-            } catch(...) {
+            } catch (...) {
                 reject(std::current_exception());
             }
 
@@ -81,7 +81,7 @@ struct PromiseFulfill<QFuture<void> >
                 } else {
                     resolve();
                 }
-            } catch(...) {
+            } catch (...) {
                 reject(std::current_exception());
             }
 
@@ -94,4 +94,4 @@ struct PromiseFulfill<QFuture<void> >
 
 } // namespace QtPromisePrivate
 
-#endif // _QTPROMISE_QPROMISEFUTURE_P_H
+#endif // QTPROMISE_QPROMISEFUTURE_P_H

@@ -7,7 +7,7 @@
 
 using namespace QtPromise;
 
-class tst_thread: public QObject
+class tst_thread : public QObject
 {
     Q_OBJECT
 

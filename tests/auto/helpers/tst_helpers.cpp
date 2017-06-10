@@ -6,7 +6,7 @@
 
 using namespace QtPromise;
 
-class tst_helpers: public QObject
+class tst_helpers : public QObject
 {
     Q_OBJECT
 

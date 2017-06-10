@@ -7,7 +7,7 @@
 using namespace QtPromise;
 using namespace QtPromisePrivate;
 
-class tst_qpromise: public QObject
+class tst_qpromise : public QObject
 {
     Q_OBJECT
 

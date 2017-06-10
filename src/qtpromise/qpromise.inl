@@ -12,7 +12,8 @@ public:
         : m_promise(new QPromise<T>(std::move(p)))
     { }
 
-    void operator()(const T& value) const {
+    void operator()(const T& value) const
+    {
         resolve(value);
     }
 
@@ -88,7 +89,7 @@ inline QPromiseBase<T>::QPromiseBase(F resolver)
 
     try {
         resolver(resolve);
-    } catch(...) {
+    } catch (...) {
         reject(std::current_exception());
     }
 }
@@ -103,7 +104,7 @@ inline QPromiseBase<T>::QPromiseBase(F resolver)
 
     try {
         resolver(resolve, reject);
-    } catch(...) {
+    } catch (...) {
         reject(std::current_exception());
     }
 }

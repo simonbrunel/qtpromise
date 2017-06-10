@@ -7,7 +7,7 @@
 
 using namespace QtPromise;
 
-class tst_future: public QObject
+class tst_future : public QObject
 {
     Q_OBJECT
 
@@ -30,7 +30,7 @@ private Q_SLOTS:
 
 }; // class tst_future
 
-class MyException: public QException
+class MyException : public QException
 {
 public:
     MyException(const QString& error)

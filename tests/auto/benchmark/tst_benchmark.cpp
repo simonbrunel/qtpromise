@@ -6,7 +6,7 @@
 
 using namespace QtPromise;
 
-class tst_benchmark: public QObject
+class tst_benchmark : public QObject
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ public: // STATICS
     static Logs& logs() { static Logs logs; return logs; }
 };
 
-struct Data: public Logger
+struct Data : public Logger
 {
     Data(int v): Logger(), m_value(v) {}
     int value() const { return m_value; }

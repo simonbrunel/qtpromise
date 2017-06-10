@@ -1,5 +1,5 @@
-#ifndef _QTPROMISE_QPROMISE_H
-#define _QTPROMISE_QPROMISE_H
+#ifndef QTPROMISE_QPROMISE_H
+#define QTPROMISE_QPROMISE_H
 
 // QtPromise
 #include "qpromise_p.h"
@@ -95,4 +95,4 @@ private:
 
 #include "qpromise.inl"
 
-#endif // ifndef _QTPROMISE_QPROMISE_H
+#endif // ifndef QTPROMISE_QPROMISE_H

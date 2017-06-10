@@ -1,5 +1,5 @@
-#ifndef _QTPROMISE_QPROMISE_P_H
-#define _QTPROMISE_QPROMISE_P_H
+#ifndef QTPROMISE_QPROMISE_P_H
+#define QTPROMISE_QPROMISE_P_H
 
 // QtPromise
 #include "qpromiseerror.h"
@@ -284,7 +284,7 @@ struct PromiseCatcher
                 error.rethrow();
             } catch (const TArg& error) {
                 PromiseDispatch<TArg, ResType>::call(error, handler, resolve, reject);
-            } catch(...) {
+            } catch (...) {
                 reject(std::current_exception());
             }
         };
@@ -332,7 +332,7 @@ struct PromiseCatcher<T, std::nullptr_t, void>
 template <typename T> class PromiseData;
 
 template <typename T>
-class PromiseDataBase: public QSharedData
+class PromiseDataBase : public QSharedData
 {
 public:
     using Error = QtPromise::QPromiseError;
@@ -415,7 +415,7 @@ private:
 };
 
 template <typename T>
-class PromiseData: public PromiseDataBase<T>
+class PromiseData : public PromiseDataBase<T>
 {
     using Handler = std::pair<QPointer<QThread>, std::function<void(const T&)> >;
 
@@ -463,7 +463,7 @@ private:
 };
 
 template <>
-class PromiseData<void>: public PromiseDataBase<void>
+class PromiseData<void> : public PromiseDataBase<void>
 {
     using Handler = std::pair<QPointer<QThread>, std::function<void()> >;
 
@@ -494,4 +494,4 @@ private:
 
 } // namespace QtPromise
 
-#endif // ifndef _QTPROMISE_QPROMISE_H
+#endif // ifndef QTPROMISE_QPROMISE_H

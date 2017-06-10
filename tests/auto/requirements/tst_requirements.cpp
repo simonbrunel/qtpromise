@@ -8,7 +8,7 @@ using namespace QtPromise;
 using namespace QtPromisePrivate;
 
 // https://promisesaplus.com/#requirements
-class tst_requirements: public QObject
+class tst_requirements : public QObject
 {
     Q_OBJECT
 
