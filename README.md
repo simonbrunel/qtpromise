@@ -1,7 +1,7 @@
 <a href="https://promisesaplus.com/" title="Promises/A+ 1.1"><img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+" align="right"/></a>
 
 # QtPromise
-[![Travis](https://img.shields.io/travis/simonbrunel/qtpromise.svg?style=flat-square)](https://travis-ci.org/simonbrunel/qtpromise) [![coverage](https://img.shields.io/codecov/c/github/simonbrunel/qtpromise.svg?style=flat-square)](https://codecov.io/gh/simonbrunel/qtpromise)
+[![qpm](https://img.shields.io/github/release/simonbrunel/qtpromise.svg?style=flat-square&label=qpm&colorB=4CAF50)](http://www.qpm.io/packages/com.github.simonbrunel.qtpromise/index.html) [![Travis](https://img.shields.io/travis/simonbrunel/qtpromise.svg?style=flat-square)](https://travis-ci.org/simonbrunel/qtpromise) [![coverage](https://img.shields.io/codecov/c/github/simonbrunel/qtpromise.svg?style=flat-square)](https://codecov.io/gh/simonbrunel/qtpromise)
 
 [Promises/A+](https://promisesaplus.com/) implementation for [Qt/C++](https://www.qt.io/).
 
@@ -10,6 +10,13 @@ Requires [Qt 5.4](https://www.qt.io/download/) (or later) with [C++11 support en
 ## Getting Started
 ### Installation
 QtPromise is a [header-only](https://en.wikipedia.org/wiki/Header-only) library, simply download the [latest release](https://github.com/simonbrunel/qtpromise/releases/latest) (or [`git submodule`](https://git-scm.com/docs/git-submodule])) and include `qtpromise.pri` from your project `.pro`.
+
+### qpm
+Alternatively and **only** if your project relies on [qpm](http://www.qpm.io/), you can install QtPromise as follow:
+
+```bash
+qpm install com.github.simonbrunel.qtpromise
+```
 
 ### Usage
 The recommended way to use QtPromise is to include the single module header:
@@ -72,7 +79,7 @@ It's then easy to chain the whole asynchronous process using promises:
 - [`then`](#qpromise-then) *and only if download succeeded*, uncompress received data,
 - [`then`](#qpromise-then) validate and process the uncompressed entries,
 - [`finally`](#qpromise-finally) perform operations whatever the process succeeded or failed,
-- and hande specific errors using [`fail`](#qpromise-fail).
+- and handle specific errors using [`fail`](#qpromise-fail).
 
 ```cpp
 download(url).then(&uncompress).then([](const Entries& entries) {
@@ -397,4 +404,4 @@ auto output = qPromiseAll(promises);
 ```
 
 ## License
-QtPromise is available under the [MIT license](LICENSE.md).
+QtPromise is available under the [MIT license](LICENSE).
