@@ -7,7 +7,7 @@
 namespace QtPromise {
 
 template <typename T>
-typename QtPromisePrivate::PromiseDeduce<T>::Type qPromise(T&& value)
+static inline typename QtPromisePrivate::PromiseDeduce<T>::Type qPromise(T&& value)
 {
     using namespace QtPromisePrivate;
     using Promise = typename PromiseDeduce<T>::Type;
@@ -18,7 +18,7 @@ typename QtPromisePrivate::PromiseDeduce<T>::Type qPromise(T&& value)
     });
 }
 
-QPromise<void> qPromise()
+static inline QPromise<void> qPromise()
 {
     return QPromise<void>([](
         const QPromiseResolve<void>& resolve) {
@@ -27,12 +27,12 @@ QPromise<void> qPromise()
 }
 
 template <typename T>
-QPromise<QVector<T> > qPromiseAll(const QVector<QPromise<T> >& promises)
+static inline QPromise<QVector<T> > qPromiseAll(const QVector<QPromise<T> >& promises)
 {
     return QPromise<T>::all(promises);
 }
 
-QPromise<void> qPromiseAll(const QVector<QPromise<void> >& promises)
+static inline QPromise<void> qPromiseAll(const QVector<QPromise<void> >& promises)
 {
     return QPromise<void>::all(promises);
 }
