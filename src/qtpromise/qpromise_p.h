@@ -331,11 +331,12 @@ struct PromiseCatcher<T, std::nullptr_t, void>
 
 template <typename T> class PromiseData;
 
-template <typename T>
+template <typename T, typename F>
 class PromiseDataBase : public QSharedData
 {
 public:
     using Error = QtPromise::QPromiseError;
+    using Handler = std::pair<QPointer<QThread>, std::function<F> >;
     using Catcher = std::pair<QPointer<QThread>, std::function<void(const Error&)> >;
 
     virtual ~PromiseDataBase() {}
@@ -354,6 +355,12 @@ public:
     {
         QReadLocker lock(&m_lock);
         return !m_settled;
+    }
+
+    void addHandler(std::function<F> handler)
+    {
+        QWriteLocker lock(&m_lock);
+        m_handlers.append({QThread::currentThread(), std::move(handler)});
     }
 
     void addCatcher(std::function<void(const Error&)> catcher)
@@ -376,14 +383,22 @@ public:
             return;
         }
 
-        if (m_error.isNull()) {
-            notify();
-            return;
-        }
+        // A promise can't be resolved multiple times so once settled, its state can't
+        // change. When fulfilled, handlers must be called (a single time) and catchers
+        // ignored indefinitely (or vice-versa when the promise is rejected), so make
+        // sure to clear both handlers AND catchers when dispatching. This also prevents
+        // shared pointer circular reference memory leaks when the owning promise is
+        // captured in the handler and/or catcher lambdas.
 
         m_lock.lockForWrite();
+        QVector<Handler> handlers(std::move(m_handlers));
         QVector<Catcher> catchers(std::move(m_catchers));
         m_lock.unlock();
+
+        if (m_error.isNull()) {
+            notify(handlers);
+            return;
+        }
 
         QSharedPointer<Error> error = m_error;
         Q_ASSERT(!error.isNull());
@@ -406,26 +421,21 @@ protected:
         m_settled = true;
     }
 
-    virtual void notify() = 0;
+    virtual void notify(const QVector<Handler>&) = 0;
 
 private:
     bool m_settled = false;
+    QVector<Handler> m_handlers;
     QVector<Catcher> m_catchers;
     QSharedPointer<Error> m_error;
 };
 
 template <typename T>
-class PromiseData : public PromiseDataBase<T>
+class PromiseData : public PromiseDataBase<T, void(const T&)>
 {
-    using Handler = std::pair<QPointer<QThread>, std::function<void(const T&)> >;
+    using Handler = typename PromiseDataBase<T, void(const T&)>::Handler;
 
 public:
-    void addHandler(std::function<void(const T&)> handler)
-    {
-        QWriteLocker lock(&this->m_lock);
-        m_handlers.append({QThread::currentThread(), std::move(handler)});
-    }
-
     void resolve(T&& value)
     {
         Q_ASSERT(m_value.isNull());
@@ -440,12 +450,8 @@ public:
         this->setSettled();
     }
 
-    void notify() Q_DECL_OVERRIDE
+    void notify(const QVector<Handler>& handlers) Q_DECL_OVERRIDE
     {
-        this->m_lock.lockForWrite();
-        QVector<Handler> handlers(std::move(m_handlers));
-        this->m_lock.unlock();
-
         QSharedPointer<T> value(m_value);
         Q_ASSERT(!value.isNull());
 
@@ -458,38 +464,24 @@ public:
     }
 
 private:
-    QVector<Handler> m_handlers;
     QSharedPointer<T> m_value;
 };
 
 template <>
-class PromiseData<void> : public PromiseDataBase<void>
+class PromiseData<void> : public PromiseDataBase<void, void()>
 {
-    using Handler = std::pair<QPointer<QThread>, std::function<void()> >;
+    using Handler = typename PromiseDataBase<void, void()>::Handler;
 
 public:
-    void addHandler(std::function<void()> handler)
-    {
-        QWriteLocker lock(&m_lock);
-        m_handlers.append({QThread::currentThread(), std::move(handler)});
-    }
-
     void resolve() { setSettled(); }
 
 protected:
-    void notify() Q_DECL_OVERRIDE
+    void notify(const QVector<Handler>& handlers) Q_DECL_OVERRIDE
     {
-        this->m_lock.lockForWrite();
-        QVector<Handler> handlers(std::move(m_handlers));
-        this->m_lock.unlock();
-
         for (const auto& handler: handlers) {
             qtpromise_defer(handler.second, handler.first);
         }
     }
-
-private:
-    QVector<Handler> m_handlers;
 };
 
 } // namespace QtPromise
