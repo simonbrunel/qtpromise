@@ -12,28 +12,18 @@ public:
         : m_promise(new QPromise<T>(std::move(p)))
     { }
 
-    void operator()(const T& value) const
+    template <typename V>
+    void operator()(V&& value) const
     {
-        resolve(value);
-    }
-
-    void operator()(T&& value) const
-    {
-        resolve(std::move(value));
+        Q_ASSERT(!m_promise.isNull());
+        if (m_promise->isPending()) {
+            m_promise->m_d->resolve(std::forward<V>(value));
+            m_promise->m_d->dispatch();
+        }
     }
 
 private:
     QSharedPointer<QPromise<T> > m_promise;
-
-    template <typename U>
-    void resolve(U&& value) const
-    {
-        Q_ASSERT(!m_promise.isNull());
-        if (m_promise->isPending()) {
-            m_promise->m_d->resolve(std::forward<U>(value));
-            m_promise->m_d->dispatch();
-        }
-    }
 };
 
 template <>

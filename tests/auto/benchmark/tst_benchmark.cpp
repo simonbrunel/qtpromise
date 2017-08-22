@@ -14,6 +14,7 @@ private Q_SLOTS:
     void valueResolve();
     void valueReject();
     void valueThen();
+    void valueDelayed();
     void errorReject();
     void errorThen();
 
@@ -153,6 +154,36 @@ void tst_benchmark::valueThen()
         QPromise<int>::resolve(42).then([&](int res) {
             throw QString("foo");
             return Data(res+2);
+        }).wait();
+
+        QCOMPARE(Data::logs().ctor, 0);
+        QCOMPARE(Data::logs().copy, 0);
+        QCOMPARE(Data::logs().move, 0);
+        QCOMPARE(Data::logs().refs, 0);
+    }
+}
+
+void tst_benchmark::valueDelayed()
+{
+    {   // should not copy the value on continutation if fulfilled
+        int value = -1;
+        Data::logs().reset();
+        QPromise<int>::resolve(42).then([&](int res) {
+            return QPromise<Data>::resolve(Data(res + 1));
+        }).then([&](const Data& res) {
+            value = res.value();
+        }).wait();
+
+        QCOMPARE(Data::logs().ctor, 1);
+        QCOMPARE(Data::logs().copy, 0);
+        QCOMPARE(Data::logs().move, 1);     // move value to the input promise data
+        QCOMPARE(Data::logs().refs, 0);
+        QCOMPARE(value, 43);
+    }
+    {   // should not create value on continutation if rejected
+        Data::logs().reset();
+        QPromise<int>::resolve(42).then([&]() {
+            return QPromise<Data>::reject(QString("foo"));
         }).wait();
 
         QCOMPARE(Data::logs().ctor, 0);

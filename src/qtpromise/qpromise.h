@@ -49,6 +49,7 @@ public: // STATIC
     inline static QPromise<T> reject(E&& error);
 
 protected:
+    friend struct QtPromisePrivate::PromiseFulfill<QPromise<T> >;
     friend class QPromiseResolve<T>;
     friend class QPromiseReject<T>;
 

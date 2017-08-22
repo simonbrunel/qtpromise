@@ -79,13 +79,17 @@ struct PromiseFulfill<QtPromise::QPromise<T> >
         const QtPromise::QPromiseResolve<T>& resolve,
         const QtPromise::QPromiseReject<T>& reject)
     {
-        promise.then(
-            [=](const T& value) {
-                resolve(value);
-            },
-            [=]() { // catch all
-                reject(std::current_exception());
+        if (promise.isFulfilled()) {
+            resolve(promise.m_d->value());
+        } else if (promise.isRejected()) {
+            reject(promise.m_d->error());
+        } else {
+            promise.then([=]() {
+                resolve(promise.m_d->value());
+            }, [=]() { // catch all
+                reject(promise.m_d->error());
             });
+        }
     }
 };
 
@@ -98,13 +102,17 @@ struct PromiseFulfill<QtPromise::QPromise<void> >
         const TResolve& resolve,
         const TReject& reject)
     {
-        promise.then(
-            [=]() {
+        if (promise.isFulfilled()) {
+            resolve();
+        } else if (promise.isRejected()) {
+            reject(promise.m_d->error());
+        } else {
+            promise.then([=]() {
                 resolve();
-            },
-            [=]() { // catch all
-                reject(std::current_exception());
+            }, [=]() { // catch all
+                reject(promise.m_d->error());
             });
+        }
     }
 };
 
@@ -377,6 +385,20 @@ public:
         setSettled();
     }
 
+    void reject(const QSharedPointer<Error>& error)
+    {
+        Q_ASSERT(isPending());
+        Q_ASSERT(m_error.isNull());
+        m_error = error;
+        this->setSettled();
+    }
+
+    const QSharedPointer<Error>& error() const
+    {
+        Q_ASSERT(isRejected());
+        return m_error;
+    }
+
     void dispatch()
     {
         if (isPending()) {
@@ -438,6 +460,7 @@ class PromiseData : public PromiseDataBase<T, void(const T&)>
 public:
     void resolve(T&& value)
     {
+        Q_ASSERT(this->isPending());
         Q_ASSERT(m_value.isNull());
         m_value.reset(new T(std::move(value)));
         this->setSettled();
@@ -445,9 +468,24 @@ public:
 
     void resolve(const T& value)
     {
+        Q_ASSERT(this->isPending());
         Q_ASSERT(m_value.isNull());
         m_value.reset(new T(value));
         this->setSettled();
+    }
+
+    void resolve(const QSharedPointer<T>& value)
+    {
+        Q_ASSERT(this->isPending());
+        Q_ASSERT(m_value.isNull());
+        m_value = value;
+        this->setSettled();
+    }
+
+    const QSharedPointer<T>& value() const
+    {
+        Q_ASSERT(this->isFulfilled());
+        return m_value;
     }
 
     void notify(const QVector<Handler>& handlers) Q_DECL_OVERRIDE
@@ -473,7 +511,10 @@ class PromiseData<void> : public PromiseDataBase<void, void()>
     using Handler = typename PromiseDataBase<void, void()>::Handler;
 
 public:
-    void resolve() { setSettled(); }
+    void resolve()
+    {
+        setSettled();
+    }
 
 protected:
     void notify(const QVector<Handler>& handlers) Q_DECL_OVERRIDE
