@@ -39,6 +39,15 @@ private Q_SLOTS:
     void finallyDelayedResolved();
     void finallyDelayedRejected();
 
+    void tapFulfilled();
+    void tapFulfilled_void();
+    void tapRejected();
+    void tapRejected_void();
+    void tapThrows();
+    void tapThrows_void();
+    void tapDelayedResolved();
+    void tapDelayedRejected();
+
 }; // class tst_qpromise
 
 QTEST_MAIN(tst_qpromise)
@@ -527,4 +536,121 @@ void tst_qpromise::finallyDelayedRejected()
         QCOMPARE(waitForError(p, QString()), QString("bar"));
         QCOMPARE(p.isRejected(), true);
     }
+}
+
+void tst_qpromise::tapFulfilled()
+{
+    int value = -1;
+    auto p = QPromise<int>::resolve(42).tap([&](int res) {
+        value = res + 1;
+        return 8;
+    });
+
+    QCOMPARE(waitForValue(p, 42), 42);
+    QCOMPARE(p.isFulfilled(), true);
+    QCOMPARE(value, 43);
+}
+
+void tst_qpromise::tapFulfilled_void()
+{
+    int value = -1;
+    auto p = QPromise<void>::resolve().tap([&]() {
+        value = 43;
+        return 8;
+    });
+
+    QCOMPARE(waitForValue(p, -1, 42), 42);
+    QCOMPARE(p.isFulfilled(), true);
+    QCOMPARE(value, 43);
+}
+
+void tst_qpromise::tapRejected()
+{
+    int value = -1;
+    auto p = QPromise<int>::reject(QString("foo")).tap([&](int res) {
+        value = res + 1;
+    });
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QCOMPARE(value, -1);
+}
+
+void tst_qpromise::tapRejected_void()
+{
+    int value = -1;
+    auto p = QPromise<void>::reject(QString("foo")).tap([&]() {
+        value = 43;
+    });
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QCOMPARE(value, -1);
+}
+
+void tst_qpromise::tapThrows()
+{
+    auto p = QPromise<int>::resolve(42).tap([&](int) {
+        throw QString("foo");
+    });
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+}
+
+void tst_qpromise::tapThrows_void()
+{
+    auto p = QPromise<void>::resolve().tap([&]() {
+        throw QString("foo");
+    });
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+}
+
+void tst_qpromise::tapDelayedResolved()
+{
+    QVector<int> values;
+    auto p = QPromise<int>::resolve(1).tap([&](int) {
+        QPromise<int> p([&](const QPromiseResolve<int>& resolve) {
+            qtpromise_defer([=, &values]() {
+                values << 3;
+                resolve(4); // ignored!
+            });
+        });
+
+        values << 2;
+        return p;
+    });
+
+    p.then([&](int r) {
+        values << r;
+    }).wait();
+
+    QCOMPARE(p.isFulfilled(), true);
+    QCOMPARE(values, QVector<int>({2, 3, 1}));
+}
+
+void tst_qpromise::tapDelayedRejected()
+{
+    QVector<int> values;
+    auto p = QPromise<int>::resolve(1).tap([&](int) {
+        QPromise<int> p([&](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+            qtpromise_defer([=, &values]() {
+                values << 3;
+                reject(QString("foo"));
+            });
+        });
+
+        values << 2;
+        return p;
+    });
+
+    p.then([&](int r) {
+        values << r;
+    }).wait();
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QCOMPARE(values, QVector<int>({2, 3}));
 }
