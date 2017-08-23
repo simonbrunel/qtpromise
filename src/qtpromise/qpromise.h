@@ -40,6 +40,9 @@ public:
     inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
     fail(TRejected&& rejected) const;
 
+    template <typename THandler>
+    inline QPromise<T> finally(THandler handler) const;
+
     inline QPromise<T> wait() const;
 
     void swap(QPromiseBase<T>& other) { qSwap(m_d, other.m_d); }
@@ -63,9 +66,6 @@ public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
-    template <typename THandler>
-    inline QPromise<T> finally(THandler handler) const;
-
 public: // STATIC
     inline static QPromise<QVector<T> > all(const QVector<QPromise<T> >& promises);
     inline static QPromise<T> resolve(T&& value);
@@ -80,9 +80,6 @@ class QPromise<void>: public QPromiseBase<void>
 public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<void>(std::forward<F>(resolver)) { }
-
-    template <typename THandler>
-    inline QPromise<void> finally(THandler handler) const;
 
 public: // STATIC
     inline static QPromise<void> all(const QVector<QPromise<void> >& promises);

@@ -30,8 +30,10 @@ private Q_SLOTS:
     void failBaseClass();
     void failCatchAll();
 
-    void finallyReturns();
-    void finallyReturns_void();
+    void finallyFulfilled();
+    void finallyFulfilled_void();
+    void finallyRejected();
+    void finallyRejected_void();
     void finallyThrows();
     void finallyThrows_void();
     void finallyDelayedResolved();
@@ -355,60 +357,60 @@ void tst_qpromise::failCatchAll()
     QCOMPARE(error, QString("bar"));
 }
 
-void tst_qpromise::finallyReturns()
+void tst_qpromise::finallyFulfilled()
 {
-    {   // fulfilled
-        int value = -1;
-        auto p = QPromise<int>::resolve(42).finally([&]() {
-            value = 8;
-            return 16; // ignored!
-        });
+    int value = -1;
+    auto p = QPromise<int>::resolve(42).finally([&]() {
+        value = 8;
+        return 16; // ignored!
+    });
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int> >::value));
-        QCOMPARE(waitForValue(p, -1), 42);
-        QCOMPARE(p.isFulfilled(), true);
-        QCOMPARE(value, 8);
-    }
-    {   // rejected
-        int value = -1;
-        auto p = QPromise<int>::reject(QString("foo")).finally([&]() {
-            value = 8;
-            return 16; // ignored!
-        });
-
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int> >::value));
-        QCOMPARE(waitForError(p, QString()), QString("foo"));
-        QCOMPARE(p.isRejected(), true);
-        QCOMPARE(value, 8);
-    }
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int> >::value));
+    QCOMPARE(waitForValue(p, -1), 42);
+    QCOMPARE(p.isFulfilled(), true);
+    QCOMPARE(value, 8);
 }
 
-void tst_qpromise::finallyReturns_void()
+void tst_qpromise::finallyFulfilled_void()
 {
-    {   // fulfilled
-        int value = -1;
-        auto p = QPromise<void>::resolve().finally([&]() {
-            value = 8;
-            return 16; // ignored!
-        });
+    int value = -1;
+    auto p = QPromise<void>::resolve().finally([&]() {
+        value = 8;
+        return 16; // ignored!
+    });
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
-        QCOMPARE(waitForValue(p, -1, 42), 42);
-        QCOMPARE(p.isFulfilled(), true);
-        QCOMPARE(value, 8);
-    }
-    {   // rejected
-        int value = -1;
-        auto p = QPromise<void>::reject(QString("foo")).finally([&]() {
-            value = 8;
-            return 16; // ignored!
-        });
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    QCOMPARE(waitForValue(p, -1, 42), 42);
+    QCOMPARE(p.isFulfilled(), true);
+    QCOMPARE(value, 8);
+}
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
-        QCOMPARE(waitForError(p, QString()), QString("foo"));
-        QCOMPARE(p.isRejected(), true);
-        QCOMPARE(value, 8);
-    }
+void tst_qpromise::finallyRejected()
+{
+    int value = -1;
+    auto p = QPromise<int>::reject(QString("foo")).finally([&]() {
+        value = 8;
+        return 16; // ignored!
+    });
+
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int> >::value));
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QCOMPARE(value, 8);
+}
+
+void tst_qpromise::finallyRejected_void()
+{
+    int value = -1;
+    auto p = QPromise<void>::reject(QString("foo")).finally([&]() {
+        value = 8;
+        return 16; // ignored!
+    });
+
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QCOMPARE(value, 8);
 }
 
 void tst_qpromise::finallyThrows()

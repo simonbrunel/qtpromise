@@ -130,6 +130,16 @@ QPromiseBase<T>::fail(TRejected&& rejected) const
 }
 
 template <typename T>
+template <typename THandler>
+inline QPromise<T> QPromiseBase<T>::finally(THandler handler) const
+{
+    QPromise<T> p = *this;
+    return p.then(handler, handler).then([=]() {
+        return p;
+    });
+}
+
+template <typename T>
 inline QPromise<T> QPromiseBase<T>::wait() const
 {
     // @TODO wait timeout + global timeout
@@ -147,23 +157,6 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 {
     return QPromise<T>([&](const QPromiseResolve<T>&, const QPromiseReject<T>& reject) {
         reject(std::forward<E>(error));
-    });
-}
-
-template <typename T>
-template <typename THandler>
-inline QPromise<T> QPromise<T>::finally(THandler handler) const
-{
-    return this->then([=](const T& res) {
-        return QPromise<void>::resolve().then(handler).then([=](){
-            return res;
-        });
-    }, [=]() {
-        const auto exception = std::current_exception();
-        return QPromise<void>::resolve().then(handler).then([=](){
-            std::rethrow_exception(exception);
-            return T();
-        });
     });
 }
 
@@ -203,19 +196,6 @@ inline QPromise<T> QPromise<T>::resolve(T&& value)
 {
     return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
        resolve(std::forward<T>(value));
-    });
-}
-
-template <typename THandler>
-inline QPromise<void> QPromise<void>::finally(THandler handler) const
-{
-    return this->then([=]() {
-        return QPromise<void>::resolve().then(handler).then([](){});
-    }, [=]() {
-        const auto exception = std::current_exception();
-        return QPromise<void>::resolve().then(handler).then([=](){
-            std::rethrow_exception(exception);
-        });
     });
 }
 

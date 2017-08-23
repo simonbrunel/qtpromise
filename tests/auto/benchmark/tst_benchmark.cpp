@@ -14,6 +14,7 @@ private Q_SLOTS:
     void valueResolve();
     void valueReject();
     void valueThen();
+    void valueFinally();
     void valueDelayed();
     void errorReject();
     void errorThen();
@@ -129,7 +130,7 @@ void tst_benchmark::valueThen()
 
         QCOMPARE(Data::logs().ctor, 0);
         QCOMPARE(Data::logs().copy, 0);
-        QCOMPARE(Data::logs().move, 0);     // move value to the promise data
+        QCOMPARE(Data::logs().move, 0);
         QCOMPARE(Data::logs().refs, 0);
         QCOMPARE(error, QString("foo"));
         QCOMPARE(value, -1);
@@ -190,6 +191,36 @@ void tst_benchmark::valueDelayed()
         QCOMPARE(Data::logs().copy, 0);
         QCOMPARE(Data::logs().move, 0);
         QCOMPARE(Data::logs().refs, 0);
+    }
+}
+
+void tst_benchmark::valueFinally()
+{
+    {   // should not copy the value on continutation if fulfilled
+        int value = -1;
+        Data::logs().reset();
+        QPromise<Data>::resolve(Data(42)).finally([&]() {
+            value = 42;
+        }).wait();
+
+        QCOMPARE(Data::logs().ctor, 1);
+        QCOMPARE(Data::logs().copy, 0);
+        QCOMPARE(Data::logs().move, 1);     // move value to the input and output promise data
+        QCOMPARE(Data::logs().refs, 0);
+        QCOMPARE(value, 42);
+    }
+    {   // should not create value on continutation if rejected
+        int value = -1;
+        Data::logs().reset();
+        QPromise<Data>::reject(QString("foo")).finally([&]() {
+            value = 42;
+        }).wait();
+
+        QCOMPARE(Data::logs().ctor, 0);
+        QCOMPARE(Data::logs().copy, 0);
+        QCOMPARE(Data::logs().move, 0);
+        QCOMPARE(Data::logs().refs, 0);
+        QCOMPARE(value, 42);
     }
 }
 
