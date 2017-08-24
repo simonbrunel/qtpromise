@@ -46,6 +46,7 @@ public:
     template <typename THandler>
     inline QPromise<T> tap(THandler handler) const;
 
+    inline QPromise<T> delay(int msec) const;
     inline QPromise<T> wait() const;
 
     void swap(QPromiseBase<T>& other) { qSwap(m_d, other.m_d); }

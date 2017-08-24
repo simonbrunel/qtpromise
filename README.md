@@ -304,6 +304,7 @@ If `handler` returns a promise (or QFuture), the `output` promise is delayed unt
 This `handler` allows to observe the value of the `input` promise, without changing the propagated value. The `output` promise will be resolved with the same value as the `input` promise (the `handler` returned value will be ignored). However, if `handler` throws, `output` is rejected with the new exception. Unlike [`finally`](#qpromise-finally), this handler is **not** called for rejections.
 
 ```cpp
+QPromise<int> input = {...}
 auto output = input.tap([](int res) {
     log(res);
 }).then([](int res) {
@@ -312,6 +313,16 @@ auto output = input.tap([](int res) {
 ```
 
 If `handler` returns a promise (or QFuture), the `output` promise is delayed until the returned promise is resolved and under the same conditions: the delayed value is ignored, the error transmitted to the `output` promise.
+
+### <a name="qpromise-delay"></a> `QPromise<T>::delay(handler) -> QPromise<T>`
+This method returns a promise that will be fulfilled with the same value as the `input` promise and after at least `msec` milliseconds. If the `input` promise is rejected, the `output` promise is immediately rejected with the same reason.
+
+```cpp
+QPromise<int> input = {...}
+auto output = input.delay(2000).then([](int res) {
+    // called 2 seconds after `input` is fulfilled
+});
+```
 
 ### <a name="qpromise-wait"></a> `QPromise<T>::wait() -> QPromise<T>`
 This method holds the execution of the remaining code **without** blocking the event loop of the current thread:

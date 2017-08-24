@@ -1,6 +1,7 @@
 // Qt
 #include <QCoreApplication>
 #include <QSharedPointer>
+#include <QTimer>
 
 namespace QtPromise {
 
@@ -146,6 +147,16 @@ inline QPromise<T> QPromiseBase<T>::tap(THandler handler) const
     QPromise<T> p = *this;
     return p.then(handler).then([=]() {
         return p;
+    });
+}
+
+template <typename T>
+inline QPromise<T> QPromiseBase<T>::delay(int msec) const
+{
+    return tap([=]() {
+        return QPromise<void>([&](const QPromiseResolve<void>& resolve) {
+            QTimer::singleShot(msec, resolve);
+        });
     });
 }
 

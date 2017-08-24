@@ -3,6 +3,7 @@
 
 // Qt
 #include <QtTest>
+#include <QElapsedTimer>
 
 using namespace QtPromise;
 using namespace QtPromisePrivate;
@@ -47,6 +48,9 @@ private Q_SLOTS:
     void tapThrows_void();
     void tapDelayedResolved();
     void tapDelayedRejected();
+
+    void delayFulfilled();
+    void delayRejected();
 
 }; // class tst_qpromise
 
@@ -653,4 +657,37 @@ void tst_qpromise::tapDelayedRejected()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(values, QVector<int>({2, 3}));
+}
+
+void tst_qpromise::delayFulfilled()
+{
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+
+    timer.start();
+
+    auto p = QPromise<int>::resolve(42).delay(1000).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+    QCOMPARE(waitForValue(p, -1), 42);
+    QCOMPARE(p.isFulfilled(), true);
+    QVERIFY(elapsed >= 1000 * 0.95);    // Qt::CoarseTimer (default) Coarse timers try to
+    QVERIFY(elapsed <= 1000 * 1.05);    // keep accuracy within 5% of the desired interval.
+}
+
+void tst_qpromise::delayRejected()
+{
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+
+    timer.start();
+
+    auto p = QPromise<int>::reject(QString("foo")).delay(1000).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QVERIFY(elapsed < 5);
 }
