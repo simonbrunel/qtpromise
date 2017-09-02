@@ -49,6 +49,10 @@ private Q_SLOTS:
     void tapDelayedResolved();
     void tapDelayedRejected();
 
+    void timeoutFulfilled();
+    void timeoutRejected();
+    void timeoutReject();
+
     void delayFulfilled();
     void delayRejected();
 
@@ -657,6 +661,75 @@ void tst_qpromise::tapDelayedRejected()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(values, QVector<int>({2, 3}));
+}
+
+void tst_qpromise::timeoutFulfilled()
+{
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+
+    timer.start();
+
+    auto p = QPromise<int>([](const QPromiseResolve<int>& resolve) {
+        QTimer::singleShot(1000, [=]() {
+            resolve(42);
+        });
+    }).timeout(2000).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+    QCOMPARE(waitForValue(p, -1), 42);
+    QCOMPARE(p.isFulfilled(), true);
+    QVERIFY(elapsed < 2000);
+}
+
+void tst_qpromise::timeoutRejected()
+{
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+
+    timer.start();
+
+    auto p = QPromise<int>([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+        QTimer::singleShot(1000, [=]() {
+            reject(QString("foo"));
+        });
+    }).timeout(2000).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QVERIFY(elapsed < 2000);
+}
+
+void tst_qpromise::timeoutReject()
+{
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+    bool failed = false;
+
+    timer.start();
+
+    auto p = QPromise<int>([](const QPromiseResolve<int>& resolve) {
+        QTimer::singleShot(4000, [=]() {
+            resolve(42);
+        });
+    }).timeout(2000).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+    p.fail([&](const QPromiseTimeoutException&) {
+        failed = true;
+        return -1;
+    }).wait();
+
+    QCOMPARE(waitForValue(p, -1), -1);
+    QCOMPARE(p.isRejected(), true);
+    QCOMPARE(failed, true);
+    QVERIFY(elapsed >= 2000 * 0.95);    // Qt::CoarseTimer (default) Coarse timers try to
+    QVERIFY(elapsed <= 2000 * 1.05);    // keep accuracy within 5% of the desired interval.
 }
 
 void tst_qpromise::delayFulfilled()

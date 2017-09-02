@@ -4,6 +4,9 @@
 // QtPromise
 #include "qpromiseglobal.h"
 
+// Qt
+#include <QException>
+
 namespace QtPromise {
 
 class QPromiseError
@@ -51,6 +54,16 @@ public:
 
 private:
     std::exception_ptr m_exception;
+};
+
+class QPromiseTimeoutException : public QException
+{
+public:
+    void raise() const Q_DECL_OVERRIDE { throw *this; }
+    QPromiseTimeoutException* clone() const Q_DECL_OVERRIDE
+    {
+        return new QPromiseTimeoutException(*this);
+    }
 };
 
 } // namespace QtPromise

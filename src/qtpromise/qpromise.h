@@ -46,6 +46,9 @@ public:
     template <typename THandler>
     inline QPromise<T> tap(THandler handler) const;
 
+    template <typename E = QPromiseTimeoutException>
+    inline QPromise<T> timeout(int msec, E&& error = E()) const;
+
     inline QPromise<T> delay(int msec) const;
     inline QPromise<T> wait() const;
 

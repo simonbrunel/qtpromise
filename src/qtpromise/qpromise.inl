@@ -151,6 +151,26 @@ inline QPromise<T> QPromiseBase<T>::tap(THandler handler) const
 }
 
 template <typename T>
+template <typename E>
+inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
+{
+    QPromise<T> p = *this;
+    return QPromise<T>([&](
+        const QPromiseResolve<T>& resolve,
+        const QPromiseReject<T>& reject) {
+
+        QTimer::singleShot(msec, [=]() {
+            // we don't need to verify the current promise state, reject()
+            // takes care of checking if the promise is already resolved,
+            // and thus will ignore this rejection.
+            reject(std::move(error));
+        });
+
+        QtPromisePrivate::PromiseFulfill<QPromise<T> >::call(p, resolve, reject);
+    });
+}
+
+template <typename T>
 inline QPromise<T> QPromiseBase<T>::delay(int msec) const
 {
     return tap([=]() {
