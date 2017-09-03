@@ -262,7 +262,7 @@ void tst_future::fail()
     auto input = QPromise<QString>::reject(MyException("bar"));
     auto output = input.fail([](const MyException& e) {
         return QtConcurrent::run([=]() {
-            return QString("foo") + e.error();
+            return QString("foo%1").arg(e.error());
         });
     });
 

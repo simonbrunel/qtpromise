@@ -123,6 +123,14 @@ QPromiseBase<T>::then(const TFulfilled& fulfilled, const TRejected& rejected) co
 }
 
 template <typename T>
+template <typename TFulfilled>
+inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
+QPromiseBase<T>::then(TFulfilled&& fulfilled) const
+{
+    return then(std::forward<TFulfilled>(fulfilled), nullptr);
+}
+
+template <typename T>
 template <typename TRejected>
 inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
 QPromiseBase<T>::fail(TRejected&& rejected) const

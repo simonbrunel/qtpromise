@@ -32,9 +32,13 @@ public:
     bool isRejected() const { return m_d->isRejected(); }
     bool isPending() const { return m_d->isPending(); }
 
-    template <typename TFulfilled, typename TRejected = std::nullptr_t>
+    template <typename TFulfilled, typename TRejected>
     inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
-    then(const TFulfilled& fulfilled, const TRejected& rejected = nullptr) const;
+    then(const TFulfilled& fulfilled, const TRejected& rejected) const;
+
+    template <typename TFulfilled>
+    inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
+    then(TFulfilled&& fulfilled) const;
 
     template <typename TRejected>
     inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
@@ -67,7 +71,7 @@ protected:
 };
 
 template <typename T>
-class QPromise: public QPromiseBase<T>
+class QPromise : public QPromiseBase<T>
 {
 public:
     template <typename F>
@@ -82,7 +86,7 @@ private:
 };
 
 template <>
-class QPromise<void>: public QPromiseBase<void>
+class QPromise<void> : public QPromiseBase<void>
 {
 public:
     template <typename F>

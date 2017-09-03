@@ -216,7 +216,7 @@ void tst_requirements::thenOnFulfilled()
     // with promise’s value as its first argument.
     QVERIFY(p0.isFulfilled());
     QVERIFY(p1.isFulfilled());
-    QCOMPARE(values, QVector<int>({42}));
+    QCOMPARE(values, QVector<int>{42});
 }
 
 void tst_requirements::thenOnRejected()

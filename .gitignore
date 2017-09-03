@@ -2,6 +2,11 @@
 *.gcda
 *.moc
 *.o
+*.obj
+*.exe
 *.user
-Makefile
+Makefile*
+moc_*.cpp
+moc_*.h
 coverage.info
+target_wrapper.bat

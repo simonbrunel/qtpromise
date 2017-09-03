@@ -508,7 +508,7 @@ private:
 template <>
 class PromiseData<void> : public PromiseDataBase<void, void()>
 {
-    using Handler = typename PromiseDataBase<void, void()>::Handler;
+    using Handler = PromiseDataBase<void, void()>::Handler;
 
 public:
     void resolve()

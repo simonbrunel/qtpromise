@@ -16,18 +16,18 @@ using Unqualified = typename std::remove_cv<typename std::remove_reference<T>::t
 
 /*!
  * \struct HasCallOperator
- * http://stackoverflow.com/a/5839442
+ * http://stackoverflow.com/a/5117641
  */
 template <typename T>
 struct HasCallOperator
 {
-    template <class U>
-    static auto check(const U* u)
-        -> decltype(&U::operator(), char(0));
+    template <typename U>
+    static char check(decltype(&U::operator(), char(0)));
 
-    static std::array<char, 2> check(...);
+    template <typename U>
+    static char (&check(...))[2];
 
-    static const bool value = (sizeof(check((T*)0)) == 1);
+    static const bool value = (sizeof(check<T>(0)) == 1);
 };
 
 /*!

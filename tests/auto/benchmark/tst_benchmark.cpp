@@ -4,6 +4,14 @@
 // Qt
 #include <QtTest>
 
+#ifdef Q_CC_MSVC
+    // MSVC calls the copy constructor on std::current_exception AND std::rethrow_exception
+    // https://stackoverflow.com/a/31820854
+    #define EXCEPT_CALL_COPY_CTOR 1
+#else
+    #define EXCEPT_CALL_COPY_CTOR 0
+#endif
+
 using namespace QtPromise;
 
 class tst_benchmark : public QObject
@@ -57,6 +65,35 @@ struct Data : public Logger
 {
     Data(int v): Logger(), m_value(v) {}
     int value() const { return m_value; }
+
+    // MSVC 2013 doesn't support implicit generation of the move constructor and
+    // operator, so we need to explicitly define these methods and thus the copy
+    // constructor and operator also need to be explicitly defined (error C2280).
+    // https://stackoverflow.com/a/26581337
+
+    Data(const Data& other)
+        : Logger(other)
+        , m_value(other.m_value)
+    { }
+
+    Data(Data&& other) : Logger(std::forward<Data>(other))
+    {
+        qSwap(m_value, other.m_value);
+    }
+
+    Data& operator=(const Data& other)
+    {
+        Logger::operator=(other);
+        m_value = other.m_value;
+        return *this;
+    }
+
+    Data& operator=(Data&& other)
+    {
+        Logger::operator=(std::forward<Data>(other));
+        qSwap(m_value, other.m_value);
+        return *this;
+    }
 
 private:
     int m_value;
@@ -264,7 +301,7 @@ void tst_benchmark::errorReject()
         }).wait();
 
         QCOMPARE(Data::logs().ctor, 1);
-        QCOMPARE(Data::logs().copy, 1);     // copy value in std::exception_ptr
+        QCOMPARE(Data::logs().copy, 1 + EXCEPT_CALL_COPY_CTOR);  // copy value in std::exception_ptr
         QCOMPARE(Data::logs().move, 0);
         QCOMPARE(Data::logs().refs, 0);
     }
@@ -276,7 +313,7 @@ void tst_benchmark::errorReject()
         }).wait();
 
         QCOMPARE(Data::logs().ctor, 1);
-        QCOMPARE(Data::logs().copy, 1);    // copy value to the promise data
+        QCOMPARE(Data::logs().copy, 1 + EXCEPT_CALL_COPY_CTOR);  // copy value to the promise data
         QCOMPARE(Data::logs().move, 0);
         QCOMPARE(Data::logs().refs, 0);
     }
@@ -292,7 +329,7 @@ void tst_benchmark::errorThen()
         }).wait();
 
         QCOMPARE(Data::logs().ctor, 1);
-        QCOMPARE(Data::logs().copy, 1);     // (initial) copy value in std::exception_ptr
+        QCOMPARE(Data::logs().copy, 1 + 2 * EXCEPT_CALL_COPY_CTOR);  // (initial) copy value in std::exception_ptr
         QCOMPARE(Data::logs().move, 0);
         QCOMPARE(Data::logs().refs, 0);
         QCOMPARE(value, 42);
@@ -307,7 +344,7 @@ void tst_benchmark::errorThen()
         }).wait();
 
         QCOMPARE(Data::logs().ctor, 1);
-        QCOMPARE(Data::logs().copy, 1);     // (initial) copy value in std::exception_ptr
+        QCOMPARE(Data::logs().copy, 1 + 4 * EXCEPT_CALL_COPY_CTOR);  // (initial) copy value in std::exception_ptr
         QCOMPARE(Data::logs().move, 0);
         QCOMPARE(Data::logs().refs, 0);
         QCOMPARE(value, 42);
