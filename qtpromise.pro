@@ -1,10 +1,9 @@
 TEMPLATE = subdirs
 SUBDIRS = \
+    src \
     tests
 
-_qt_creator_ {
-    SUBDIRS += src
-}
+tests.depends = src
 
 OTHER_FILES = \
     package/features/*.prf \

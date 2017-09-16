@@ -1,0 +1,5 @@
+module QtPromise
+plugin qtpromiseplugin
+typeinfo plugins.qmltypes
+classname QtQmlPromisePlugin
+Promise 1.0 qrc:///QtPromise/qtqmlpromise.js

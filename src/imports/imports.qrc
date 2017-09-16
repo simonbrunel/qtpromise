@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/QtPromise">
+        <file>qtqmlpromise.js</file>
+    </qresource>
+</RCC>

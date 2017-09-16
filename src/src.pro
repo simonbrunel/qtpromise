@@ -1,2 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = qtpromise
+SUBDIRS += \
+    imports \
+    qtpromise \
+    qtqmlpromise

@@ -1,0 +1,5 @@
+import QtQuick.tooling 1.2
+
+Module {
+    dependencies: []
+}

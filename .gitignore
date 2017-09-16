@@ -8,6 +8,7 @@ node_modules
 *.obj
 *.exe
 *.user
+*.qmlc
 Makefile*
 moc_*.cpp
 moc_*.h

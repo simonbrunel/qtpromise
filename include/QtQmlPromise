@@ -1,0 +1,6 @@
+#ifndef QTQMLPROMISE_MODULE_H
+#define QTQMLPROMISE_MODULE_H
+
+#include "../src/qtqmlpromise/qjspromise.h"
+
+#endif // ifndef QTQMLPROMISE_MODULE_H
