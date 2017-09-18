@@ -15,4 +15,7 @@ coverage {
     }
 }
 
+HEADERS += \
+    $$PWD/shared/utils.h
+
 include(../../../qtpromise.pri)

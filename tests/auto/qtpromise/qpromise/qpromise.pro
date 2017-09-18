@@ -1,4 +1,9 @@
-TARGET = tst_qpromise
-SOURCES += $$PWD/tst_qpromise.cpp
-
-include(../qtpromise.pri)
+TEMPLATE = subdirs
+SUBDIRS += \
+    construct \
+    delay \
+    fail \
+    finally \
+    tap \
+    then \
+    timeout

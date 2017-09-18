@@ -5,7 +5,6 @@
 #include <QtTest>
 
 using namespace QtPromise;
-using namespace QtPromisePrivate;
 
 // https://promisesaplus.com/#requirements
 class tst_requirements : public QObject
@@ -41,7 +40,7 @@ void tst_requirements::statePending()
     // 2.1.1.1. may transition to either the fulfilled state
     {
         QPromise<int> p([&](const QPromiseResolve<int>& resolve) {
-            qtpromise_defer([=]() { resolve(42); });
+            QtPromisePrivate::qtpromise_defer([=]() { resolve(42); });
         });
 
         QVERIFY(p.isPending());
@@ -58,7 +57,7 @@ void tst_requirements::statePending()
     // 2.1.1.1. ... or the rejected state
    {
         QPromise<int> p([&](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-            qtpromise_defer([=]() { reject(QString("foo")); });
+            QtPromisePrivate::qtpromise_defer([=]() { reject(QString("foo")); });
         });
 
         QVERIFY(p.isPending());
@@ -82,7 +81,7 @@ void tst_requirements::stateFulfilled()
     QPromise<int> p([](
         const QPromiseResolve<int>& resolve,
         const QPromiseReject<int>& reject) {
-        qtpromise_defer([=]() {
+        QtPromisePrivate::qtpromise_defer([=]() {
             // 2.1.2.2. must have a value, which must not change.
             resolve(42);
             resolve(43);
@@ -115,7 +114,7 @@ void tst_requirements::stateRejected()
     QPromise<int> p([](
         const QPromiseResolve<int>& resolve,
         const QPromiseReject<int>& reject) {
-        qtpromise_defer([=]() {
+        QtPromisePrivate::qtpromise_defer([=]() {
             // 2.1.3.2. must have a reason, which must not change.
             reject(QString("foo"));
             reject(QString("bar"));
@@ -196,7 +195,7 @@ void tst_requirements::thenOnFulfilled()
     // 2.2.2. If onFulfilled is a function:
     QVector<int> values;
     QPromise<int> p0([](const QPromiseResolve<int>& resolve) {
-        qtpromise_defer([=]() {
+        QtPromisePrivate::qtpromise_defer([=]() {
             // 2.2.2.3. it must not be called more than once
             resolve(42);
             resolve(43);
@@ -224,7 +223,7 @@ void tst_requirements::thenOnRejected()
     // 2.2.3. If onRejected is a function:
     QStringList errors;
     QPromise<void> p0([](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
-        qtpromise_defer([=]() {
+        QtPromisePrivate::qtpromise_defer([=]() {
             // 2.2.3.3. it must not be called more than once.
             reject(QString("foo"));
             reject(QString("bar"));
@@ -275,7 +274,7 @@ void tst_requirements::thenMultipleCalls()
     {
         QVector<int> values;
         QPromise<int> p([](const QPromiseResolve<int>& resolve) {
-            qtpromise_defer([=]() {
+            QtPromisePrivate::qtpromise_defer([=]() {
                 resolve(42);
             });
         });
@@ -294,7 +293,7 @@ void tst_requirements::thenMultipleCalls()
     {
         QVector<int> values;
         QPromise<int> p([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-            qtpromise_defer([=]() {
+            QtPromisePrivate::qtpromise_defer([=]() {
                 reject(8);
             });
         });
