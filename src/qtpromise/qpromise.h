@@ -16,17 +16,26 @@ class QPromiseBase
 public:
     using Type = T;
 
-    QPromiseBase(const QPromiseBase<T>& other): m_d(other.m_d) {}
-    QPromiseBase(const QPromise<T>& other): m_d(other.m_d) {}
-    QPromiseBase(QPromiseBase<T>&& other) { swap(other); }
-
     template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
     template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
+    QPromiseBase(const QPromiseBase<T>& other): m_d(other.m_d) {}
+    QPromiseBase(const QPromise<T>& other): m_d(other.m_d) {}
+    QPromiseBase(QPromiseBase<T>&& other) Q_DECL_NOEXCEPT { swap(other); }
+
     virtual ~QPromiseBase() { }
+
+    QPromiseBase<T>& operator=(const QPromiseBase<T>& other) { m_d = other.m_d; return *this;}
+    QPromiseBase<T>& operator=(QPromiseBase<T>&& other) Q_DECL_NOEXCEPT
+    { QPromiseBase<T>(std::move(other)).swap(*this); return *this; }
+
+    bool operator==(const QPromiseBase<T>& other) const { return (m_d == other.m_d); }
+    bool operator!=(const QPromiseBase<T>& other) const { return (m_d != other.m_d); }
+
+    void swap(QPromiseBase<T>& other) Q_DECL_NOEXCEPT { qSwap(m_d, other.m_d); }
 
     bool isFulfilled() const { return m_d->isFulfilled(); }
     bool isRejected() const { return m_d->isRejected(); }
@@ -55,8 +64,6 @@ public:
 
     inline QPromise<T> delay(int msec) const;
     inline QPromise<T> wait() const;
-
-    void swap(QPromiseBase<T>& other) { qSwap(m_d, other.m_d); }
 
 public: // STATIC
     template <typename E>

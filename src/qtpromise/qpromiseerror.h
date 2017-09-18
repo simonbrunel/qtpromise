@@ -36,7 +36,7 @@ public:
         swap(other);
     }
 
-    QPromiseError& operator =(QPromiseError other)
+    QPromiseError& operator=(QPromiseError other)
     {
         swap(other);
         return *this;

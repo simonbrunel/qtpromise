@@ -4,6 +4,7 @@ SUBDIRS += \
     delay \
     fail \
     finally \
+    operators \
     tap \
     then \
     timeout
