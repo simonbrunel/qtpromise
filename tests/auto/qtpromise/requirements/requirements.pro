@@ -1,4 +1,4 @@
 TARGET = tst_requirements
 SOURCES += $$PWD/tst_requirements.cpp
 
-include(../tests.pri)
+include(../qtpromise.pri)
