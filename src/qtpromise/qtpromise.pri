@@ -6,4 +6,5 @@ HEADERS += \
     $$PWD/qpromisefuture.h \
     $$PWD/qpromiseglobal.h \
     $$PWD/qpromisehelpers.h \
-    $$PWD/qpromiseresolver.h
+    $$PWD/qpromiseresolver.h \
+    $$PWD/qpromisesignals.h

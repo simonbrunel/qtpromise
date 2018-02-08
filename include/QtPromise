@@ -3,6 +3,7 @@
 
 #include "../src/qtpromise/qpromise.h"
 #include "../src/qtpromise/qpromisefuture.h"
+#include "../src/qtpromise/qpromisesignals.h"
 #include "../src/qtpromise/qpromisehelpers.h"
 
 #endif // QTPROMISE_MODULE_H
