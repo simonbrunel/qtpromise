@@ -85,7 +85,9 @@ public:
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
 public: // STATIC
-    inline static QPromise<QVector<T> > all(const QVector<QPromise<T> >& promises);
+    template <template <typename, typename...> class Sequence = QVector, typename ...Args>
+    inline static QPromise<QVector<T> > all(const Sequence<QPromise<T>, Args...>& promises);
+
     inline static QPromise<T> resolve(T&& value);
 
 private:
@@ -100,7 +102,9 @@ public:
     QPromise(F&& resolver): QPromiseBase<void>(std::forward<F>(resolver)) { }
 
 public: // STATIC
-    inline static QPromise<void> all(const QVector<QPromise<void> >& promises);
+    template <template <typename, typename...> class Sequence = QVector, typename ...Args>
+    inline static QPromise<void> all(const Sequence<QPromise<void>, Args...>& promises);
+
     inline static QPromise<void> resolve();
 
 private:

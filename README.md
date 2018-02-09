@@ -385,8 +385,10 @@ QPromise<int> compute(const QString& type)
 }
 ```
 
-### <a name="qpromise-all"></a> `[static] QPromise<T>::all(QVector<QPromise<T>>) -> QPromise<QVector<T>>`
+### <a name="qpromise-all"></a> `[static] QPromise<T>::all(Sequence<QPromise<T>>) -> QPromise<QVector<T>>`
 Returns a `QPromise<QVector<T>>` that fulfills when **all** `promises` of (the same) type `T` have been fulfilled. The `output` value is a vector containing **all** the values of `promises`, in the same order. If any of the given `promises` fail, `output` immediately rejects with the error of the promise that rejected, whether or not the other promises are resolved.
+
+`Sequence` is any STL compatible container (eg. `QVector`, `QList`, `std::vector`, etc.)
 
 ```cpp
 QVector<QPromise<QByteArray> > promises{
@@ -417,7 +419,7 @@ auto promise = qPromise(QString("foo"));  // QPromise<QString>
 
 This method also allows to convert `QFuture<T>` to `QPromise<T>` delayed until the `QFuture` is finished ([read more](#qtconcurrent-convert)).
 
-### <a name="helpers-qpromiseall"></a> `qPromiseAll(QVector<QPromise<T> promises) -> QPromise<QVector<T>>`
+### <a name="helpers-qpromiseall"></a> `qPromiseAll(Sequence<QPromise<T> promises) -> QPromise<QVector<T>>`
 This method simply calls the appropriated [`QPromise<T>::all`](#qpromise-all) static method based on the given `QVector` type. In some cases, this method is more convenient than the static one since it avoid some extra typing:
 
 ```cpp

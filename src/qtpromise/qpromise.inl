@@ -210,9 +210,10 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 }
 
 template <typename T>
-inline QPromise<QVector<T> > QPromise<T>::all(const QVector<QPromise<T> >& promises)
+template <template <typename, typename...> class Sequence, typename ...Args>
+inline QPromise<QVector<T> > QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
-    const int count = promises.size();
+    const int count = (int)promises.size();
     if (count == 0) {
         return QPromise<QVector<T> >::resolve({});
     }
@@ -224,8 +225,9 @@ inline QPromise<QVector<T> > QPromise<T>::all(const QVector<QPromise<T> >& promi
         QSharedPointer<int> remaining(new int(count));
         QSharedPointer<QVector<T> > results(new QVector<T>(count));
 
-        for (int i=0; i<count; ++i) {
-            promises[i].then([=](const T& res) mutable {
+        int i = 0;
+        for (const auto& promise: promises) {
+            promise.then([=](const T& res) mutable {
                 (*results)[i] = res;
                 if (--(*remaining) == 0) {
                     resolve(*results);
@@ -236,6 +238,8 @@ inline QPromise<QVector<T> > QPromise<T>::all(const QVector<QPromise<T> >& promi
                     reject(std::current_exception());
                 }
             });
+
+            i++;
         }
     });
 }
@@ -248,9 +252,10 @@ inline QPromise<T> QPromise<T>::resolve(T&& value)
     });
 }
 
-inline QPromise<void> QPromise<void>::all(const QVector<QPromise<void> >& promises)
+template <template <typename, typename...> class Sequence, typename ...Args>
+inline QPromise<void> QPromise<void>::all(const Sequence<QPromise<void>, Args...>& promises)
 {
-    const int count = promises.size();
+    const int count = (int)promises.size();
     if (count == 0) {
         return QPromise<void>::resolve();
     }
@@ -259,7 +264,7 @@ inline QPromise<void> QPromise<void>::all(const QVector<QPromise<void> >& promis
         const QPromiseResolve<void>& resolve,
         const QPromiseReject<void>& reject) {
 
-        QSharedPointer<int> remaining(new int(promises.size()));
+        QSharedPointer<int> remaining(new int(count));
 
         for (const auto& promise: promises) {
             promise.then([=]() {

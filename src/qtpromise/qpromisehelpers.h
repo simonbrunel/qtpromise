@@ -26,13 +26,14 @@ static inline QPromise<void> qPromise()
     });
 }
 
-template <typename T>
-static inline QPromise<QVector<T> > qPromiseAll(const QVector<QPromise<T> >& promises)
+template <typename T, template <typename, typename...> class Sequence = QVector, typename ...Args>
+static inline QPromise<QVector<T> > qPromiseAll(const Sequence<QPromise<T>, Args...>& promises)
 {
     return QPromise<T>::all(promises);
 }
 
-static inline QPromise<void> qPromiseAll(const QVector<QPromise<void> >& promises)
+template <template <typename, typename...> class Sequence = QVector, typename ...Args>
+static inline QPromise<void> qPromiseAll(const Sequence<QPromise<void>, Args...>& promises)
 {
     return QPromise<void>::all(promises);
 }
