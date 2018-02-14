@@ -6,6 +6,7 @@ SUBDIRS += \
     fail \
     finally \
     operators \
+    resolve \
     tap \
     then \
     timeout

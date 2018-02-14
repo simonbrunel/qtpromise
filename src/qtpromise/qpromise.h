@@ -88,6 +88,7 @@ public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
     inline static QPromise<QVector<T> > all(const Sequence<QPromise<T>, Args...>& promises);
 
+    inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);
 
 private:

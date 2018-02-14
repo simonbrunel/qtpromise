@@ -20,6 +20,7 @@ class tst_benchmark : public QObject
 
 private Q_SLOTS:
     void valueResolve();
+    void valueResolveStatic();
     void valueReject();
     void valueThen();
     void valueFinally();
@@ -118,6 +119,31 @@ void tst_benchmark::valueResolve()
             Data value(42);
             resolve(value);
         }).wait();
+
+        QCOMPARE(Data::logs().ctor, 1);
+        QCOMPARE(Data::logs().copy, 1);     // copy value to the promise data
+        QCOMPARE(Data::logs().move, 0);
+        QCOMPARE(Data::logs().refs, 0);
+    }
+}
+
+void tst_benchmark::valueResolveStatic()
+{
+    {   // should move the value when resolved by rvalue
+        Data::logs().reset();
+        QPromise<Data>::resolve(Data(42)).wait();
+
+        QCOMPARE(Data::logs().ctor, 1);
+        QCOMPARE(Data::logs().copy, 0);
+        QCOMPARE(Data::logs().move, 1);     // move value to the promise data
+        QCOMPARE(Data::logs().refs, 0);
+    }
+    {   // should create one copy of the value when resolved by lvalue
+        {
+            Data::logs().reset();
+            Data value(42);
+            QPromise<Data>::resolve(value).wait();
+        }
 
         QCOMPARE(Data::logs().ctor, 1);
         QCOMPARE(Data::logs().copy, 1);     // copy value to the promise data

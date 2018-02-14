@@ -245,6 +245,14 @@ inline QPromise<QVector<T> > QPromise<T>::all(const Sequence<QPromise<T>, Args..
 }
 
 template <typename T>
+inline QPromise<T> QPromise<T>::resolve(const T& value)
+{
+    return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
+       resolve(value);
+    });
+}
+
+template <typename T>
 inline QPromise<T> QPromise<T>::resolve(T&& value)
 {
     return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
