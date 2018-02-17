@@ -11,6 +11,7 @@
 * [`QPromise<T>::isRejected`](qpromise/isrejected.md)
 * [`QPromise<T>::tap`](qpromise/tap.md)
 * [`QPromise<T>::then`](qpromise/then.md)
+* [`QPromise<T>::timeout`](qpromise/timeout.md)
 * [`QPromise<T>::wait`](qpromise/wait.md)
 
 ### Public Static Members

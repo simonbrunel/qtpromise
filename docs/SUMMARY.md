@@ -12,6 +12,7 @@
   * [.isRejected](qtpromise/qpromise/isrejected.md)
   * [.tap](qtpromise/qpromise/tap.md)
   * [.then](qtpromise/qpromise/then.md)
+  * [.timeout](qtpromise/qpromise/timeout.md)
   * [.wait](qtpromise/qpromise/wait.md)
   * [::all (static)](qtpromise/qpromise/all.md)
   * [::reject (static)](qtpromise/qpromise/reject.md)
