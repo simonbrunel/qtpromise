@@ -261,9 +261,9 @@ void tst_future::fail()
     QString result;
     auto input = QPromise<QString>::reject(MyException("bar"));
     auto output = input.fail([](const MyException& e) {
-        return QtConcurrent::run([=]() {
-            return QString("foo%1").arg(e.error());
-        });
+        return QtConcurrent::run([](const QString& error) {
+            return QString("foo%1").arg(error);
+        }, e.error());
     });
 
     QCOMPARE(input.isRejected(), true);
@@ -282,9 +282,9 @@ void tst_future::fail_void()
     QString result;
     auto input = QPromise<void>::reject(MyException("bar"));
     auto output = input.fail([&](const MyException& e) {
-        return QtConcurrent::run([&]() {
-            result = e.error();
-        });
+        return QtConcurrent::run([&](const QString& error) {
+            result = error;
+        }, e.error());
     });
 
     QCOMPARE(input.isRejected(), true);

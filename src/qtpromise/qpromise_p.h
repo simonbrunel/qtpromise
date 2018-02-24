@@ -32,7 +32,7 @@ namespace QtPromisePrivate {
 
 // https://stackoverflow.com/a/21653558
 template <typename F>
-static void qtpromise_defer(F&& f, QThread* thread = nullptr)
+static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
 {
     struct Event : public QEvent
     {
@@ -43,9 +43,32 @@ static void qtpromise_defer(F&& f, QThread* thread = nullptr)
         FType m_f;
     };
 
+    if (!thread || thread->isFinished()) {
+        // Make sure to not call `f` if the captured thread doesn't exist anymore,
+        // which would potentially result in dispatching to the wrong thread (ie.
+        // nullptr == current thread). Since the target thread is gone, it should
+        // be safe to simply skip that notification.
+        return;
+    }
+
     QObject* target = QAbstractEventDispatcher::instance(thread);
+    if (!target && QCoreApplication::closingDown()) {
+        // When the app is shutting down, the even loop is not anymore available
+        // so we don't have any way to dispatch `f`. This case can happen when a
+        // promise is resolved after the app is requested to close, in which case
+        // we should not trigger any error and skip that notification.
+        return;
+    }
+
     Q_ASSERT_X(target, "postMetaCall", "Target thread must have an event loop");
     QCoreApplication::postEvent(target, new Event(std::forward<F>(f)));
+}
+
+template <typename F>
+static void qtpromise_defer(F&& f)
+{
+    Q_ASSERT(QThread::currentThread());
+    qtpromise_defer(std::forward<F>(f), QThread::currentThread());
 }
 
 template <typename T>
