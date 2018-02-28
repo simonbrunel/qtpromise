@@ -75,6 +75,19 @@ inline QPromiseBase<T>::QPromiseBase(F callback)
 }
 
 template <typename T>
+template <typename U>
+inline QPromiseBase<T>::QPromiseBase(const QPromise<U>& other)
+    : m_d(new QtPromisePrivate::PromiseData<T>())
+{
+    using namespace QtPromisePrivate;
+
+    QPromiseResolve<T> resolve(*this);
+    QPromiseReject<T> reject(*this);
+
+    PromiseFulfill<QPromise<U> >::call(other, PromiseCast<U, T>::apply(resolve), reject);
+}
+
+template <typename T>
 template <typename TFulfilled, typename TRejected>
 inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
 QPromiseBase<T>::then(const TFulfilled& fulfilled, const TRejected& rejected) const
@@ -242,6 +255,21 @@ inline QPromise<T> QPromise<T>::resolve(T&& value)
     return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
        resolve(std::forward<T>(value));
     });
+}
+
+template <typename T>
+template <typename U>
+QPromise<T>::operator QPromise<U>()
+{
+    return QPromise<U>::resolve(U());
+}
+
+template <typename T>
+QPromise<void>::QPromise(const QPromise<T>& other)
+    : QPromiseBase<void>([&](const QPromiseResolve<void>& resolve, const QPromiseReject<void>& reject) {
+        QtPromisePrivate::PromiseFulfill<QPromise<T> >::call(other, resolve, reject);
+    })
+{
 }
 
 template <template <typename, typename...> class Sequence, typename ...Args>

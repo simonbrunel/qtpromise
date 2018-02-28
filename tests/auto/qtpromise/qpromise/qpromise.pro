@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     all \
+    cast \
     construct \
     delay \
     fail \

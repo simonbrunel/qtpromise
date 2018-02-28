@@ -122,10 +122,8 @@ struct PromiseDeduce<QtPromise::QPromise<T>>
 template <typename T>
 struct PromiseFulfill
 {
-    static void call(
-        T&& value,
-        const QtPromise::QPromiseResolve<T>& resolve,
-        const QtPromise::QPromiseReject<T>&)
+    template <typename TResolve, typename TReject>
+    static void call(T&& value, const TResolve& resolve, const TReject&)
     {
         resolve(std::move(value));
     }
@@ -134,10 +132,11 @@ struct PromiseFulfill
 template <typename T>
 struct PromiseFulfill<QtPromise::QPromise<T>>
 {
+    template <typename TResolve, typename TReject>
     static void call(
         const QtPromise::QPromise<T>& promise,
-        const QtPromise::QPromiseResolve<T>& resolve,
-        const QtPromise::QPromiseReject<T>& reject)
+        const TResolve& resolve,
+        const TReject& reject)
     {
         if (promise.isFulfilled()) {
             resolve(promise.m_d->value());
@@ -156,9 +155,9 @@ struct PromiseFulfill<QtPromise::QPromise<T>>
 template <>
 struct PromiseFulfill<QtPromise::QPromise<void>>
 {
-    template <typename TPromise, typename TResolve, typename TReject>
+    template <typename TResolve, typename TReject>
     static void call(
-        const TPromise& promise,
+        const QtPromise::QPromise<void>& promise,
         const TResolve& resolve,
         const TReject& reject)
     {
@@ -397,6 +396,67 @@ struct PromiseCatcher<T, std::nullptr_t, void>
     }
 };
 
+template <typename T, typename U>
+struct PromiseCast
+{
+    template <typename F>
+    static auto apply(const F& resolve)
+    {
+        return [=](const QSharedPointer<T>& value) {
+            resolve(static_cast<T>(*value));
+        };
+    }
+};
+
+template <typename T>
+struct PromiseCast<T, void>
+{
+    template <typename F>
+    static auto apply(const F& resolve)
+    {
+        return [=](const QSharedPointer<T>&) {
+            resolve();
+        };
+    }
+};
+
+/*
+template <typename T>
+struct PromiseCast<T, QVariant>
+{
+    static QtPromise::QPromise<QVariant> cast(
+        const QtPromise::QPromiseBase<T>& input)
+    {
+        return input.then([](const T& res) {
+            return QVariant::fromValue(res);
+        });
+    }
+};
+
+template <typename U>
+struct PromiseCast<QVariant, U>
+{
+    static QtPromise::QPromise<U> cast(
+        const QtPromise::QPromiseBase<QVariant>& input)
+    {
+        return input.then([](const QVariant& res) {
+            return res.value<U>();
+        });
+    }
+};
+
+template <>
+struct PromiseCast<void, QVariant>
+{
+    static QtPromise::QPromise<void> cast(
+        const QtPromise::QPromiseBase<QVariant>& input)
+    {
+        return input.then([]() {
+        });
+    }
+};
+*/
+
 template <typename T> class PromiseData;
 
 template <typename T, typename F>
@@ -626,4 +686,4 @@ private:
 
 } // namespace QtPromise
 
-#endif // ifndef QTPROMISE_QPROMISE_H
+#endif // ifndef QTPROMISE_QPROMISE_P_H

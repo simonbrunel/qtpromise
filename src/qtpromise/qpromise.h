@@ -23,6 +23,9 @@ public:
     template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
+    template <typename U>
+    inline QPromiseBase(const QPromise<U>& other);
+
     QPromiseBase(const QPromiseBase<T>& other): m_d(other.m_d) {}
     QPromiseBase(const QPromise<T>& other): m_d(other.m_d) {}
     QPromiseBase(QPromiseBase<T>&& other) Q_DECL_NOEXCEPT { swap(other); }
@@ -94,6 +97,9 @@ public: // STATIC
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);
 
+    template <typename U>
+    operator QPromise<U>();
+
 private:
     friend class QPromiseBase<T>;
 };
@@ -104,6 +110,9 @@ class QPromise<void> : public QPromiseBase<void>
 public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<void>(std::forward<F>(resolver)) { }
+
+    template <typename T>
+    QPromise(const QPromise<T>& other);
 
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
