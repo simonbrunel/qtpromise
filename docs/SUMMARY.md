@@ -11,6 +11,7 @@
   * [.isPending](qtpromise/qpromise/ispending.md)
   * [.isRejected](qtpromise/qpromise/isrejected.md)
   * [.tap](qtpromise/qpromise/tap.md)
+  * [.tapFail](qtpromise/qpromise/tapfail.md)
   * [.then](qtpromise/qpromise/then.md)
   * [.timeout](qtpromise/qpromise/timeout.md)
   * [.wait](qtpromise/qpromise/wait.md)

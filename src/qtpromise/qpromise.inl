@@ -159,6 +159,16 @@ inline QPromise<T> QPromiseBase<T>::tap(THandler handler) const
 }
 
 template <typename T>
+template <typename THandler>
+inline QPromise<T> QPromiseBase<T>::tapFail(THandler handler) const
+{
+    QPromise<T> p = *this;
+    return p.then([](){}, handler).then([=]() {
+        return p;
+    });
+}
+
+template <typename T>
 template <typename E>
 inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
 {

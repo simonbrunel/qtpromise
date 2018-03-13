@@ -8,5 +8,6 @@ SUBDIRS += \
     operators \
     resolve \
     tap \
+    tapfail \
     then \
     timeout
