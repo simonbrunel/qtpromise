@@ -34,9 +34,10 @@ namespace QtPromisePrivate {
 template <typename F>
 static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
 {
+    using FType = typename std::decay<F>::type;
+
     struct Event : public QEvent
     {
-        using FType = typename std::decay<F>::type;
         Event(FType&& f) : QEvent(QEvent::None), m_f(std::move(f)) { }
         Event(const FType& f) : QEvent(QEvent::None), m_f(f) { }
         ~Event() { m_f(); }
