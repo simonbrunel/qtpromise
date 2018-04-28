@@ -3,6 +3,7 @@
 
 // QtPromise
 #include "qpromise_p.h"
+#include "qpromiseerror.h"
 #include "qpromiseglobal.h"
 
 // Qt

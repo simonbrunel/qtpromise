@@ -6,6 +6,7 @@ SUBDIRS += \
     fail \
     finally \
     operators \
+    reject \
     resolve \
     tap \
     tapfail \

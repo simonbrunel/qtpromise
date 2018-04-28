@@ -2,7 +2,6 @@
 #define QTPROMISE_QPROMISE_P_H
 
 // QtPromise
-#include "qpromiseerror.h"
 #include "qpromiseglobal.h"
 
 // Qt
@@ -71,6 +70,43 @@ static void qtpromise_defer(F&& f)
     Q_ASSERT(QThread::currentThread());
     qtpromise_defer(std::forward<F>(f), QThread::currentThread());
 }
+
+template <typename T>
+class PromiseValue
+{
+public:
+    PromiseValue() { }
+    PromiseValue(const T& data) : m_data(new T(data)) { }
+    PromiseValue(T&& data) : m_data(new T(std::move(data))) { }
+    bool isNull() const { return m_data.isNull(); }
+    const T& data() const { return *m_data; }
+
+private:
+    QSharedPointer<T> m_data;
+};
+
+class PromiseError
+{
+public:
+    template <typename T>
+    PromiseError(const T& value)
+    {
+        try {
+            throw value;
+        } catch (...) {
+            m_data = std::current_exception();
+        }
+    }
+
+    PromiseError() { }
+    PromiseError(const std::exception_ptr& exception) : m_data(exception) { }
+    void rethrow() const { std::rethrow_exception(m_data); }
+    bool isNull() const { return m_data == nullptr; }
+
+private:
+    // NOTE(SB) std::exception_ptr is already a shared pointer
+    std::exception_ptr m_data;
+};
 
 template <typename T>
 struct PromiseDeduce
@@ -306,12 +342,12 @@ struct PromiseCatcher
     using ResType = typename std::result_of<THandler(TArg)>::type;
 
     template <typename TResolve, typename TReject>
-    static std::function<void(const QtPromise::QPromiseError&)> create(
+    static std::function<void(const PromiseError&)> create(
         const THandler& handler,
         const TResolve& resolve,
         const TReject& reject)
     {
-        return [=](const QtPromise::QPromiseError& error) {
+        return [=](const PromiseError& error) {
             try {
                 error.rethrow();
             } catch (const TArg& error) {
@@ -329,12 +365,12 @@ struct PromiseCatcher<T, THandler, void>
     using ResType = typename std::result_of<THandler()>::type;
 
     template <typename TResolve, typename TReject>
-    static std::function<void(const QtPromise::QPromiseError&)> create(
+    static std::function<void(const PromiseError&)> create(
         const THandler& handler,
         const TResolve& resolve,
         const TReject& reject)
     {
-        return [=](const QtPromise::QPromiseError& error) {
+        return [=](const PromiseError& error) {
             try {
                 error.rethrow();
             } catch (...) {
@@ -348,12 +384,12 @@ template <typename T>
 struct PromiseCatcher<T, std::nullptr_t, void>
 {
     template <typename TResolve, typename TReject>
-    static std::function<void(const QtPromise::QPromiseError&)> create(
+    static std::function<void(const PromiseError&)> create(
         std::nullptr_t,
         const TResolve&,
         const TReject& reject)
     {
-        return [=](const QtPromise::QPromiseError& error) {
+        return [=](const PromiseError& error) {
             // 2.2.7.4. If onRejected is not a function and promise1 is rejected,
             // promise2 must be rejected with the same reason as promise1
             reject(error);
@@ -367,9 +403,8 @@ template <typename T, typename F>
 class PromiseDataBase : public QSharedData
 {
 public:
-    using Error = QtPromise::QPromiseError;
     using Handler = std::pair<QPointer<QThread>, std::function<F>>;
-    using Catcher = std::pair<QPointer<QThread>, std::function<void(const Error&)>>;
+    using Catcher = std::pair<QPointer<QThread>, std::function<void(const PromiseError&)>>;
 
     virtual ~PromiseDataBase() {}
 
@@ -395,29 +430,22 @@ public:
         m_handlers.append({QThread::currentThread(), std::move(handler)});
     }
 
-    void addCatcher(std::function<void(const Error&)> catcher)
+    void addCatcher(std::function<void(const PromiseError&)> catcher)
     {
         QWriteLocker lock(&m_lock);
         m_catchers.append({QThread::currentThread(), std::move(catcher)});
     }
 
-    void reject(Error error)
+    template <typename E>
+    void reject(E&& error)
     {
         Q_ASSERT(isPending());
         Q_ASSERT(m_error.isNull());
-        m_error.reset(new Error(std::move(error)));
+        m_error = PromiseError(std::forward<E>(error));
         setSettled();
     }
 
-    void reject(const QSharedPointer<Error>& error)
-    {
-        Q_ASSERT(isPending());
-        Q_ASSERT(m_error.isNull());
-        m_error = error;
-        this->setSettled();
-    }
-
-    const QSharedPointer<Error>& error() const
+    const PromiseError& error() const
     {
         Q_ASSERT(isRejected());
         return m_error;
@@ -446,13 +474,13 @@ public:
             return;
         }
 
-        QSharedPointer<Error> error = m_error;
+        PromiseError error(m_error);
         Q_ASSERT(!error.isNull());
 
         for (const auto& catcher: catchers) {
             const auto& fn = catcher.second;
             qtpromise_defer([=]() {
-                fn(*error);
+                fn(error);
             }, catcher.first);
         }
     }
@@ -473,7 +501,7 @@ private:
     bool m_settled = false;
     QVector<Handler> m_handlers;
     QVector<Catcher> m_catchers;
-    QSharedPointer<Error> m_error;
+    PromiseError m_error;
 };
 
 template <typename T>
@@ -482,31 +510,16 @@ class PromiseData : public PromiseDataBase<T, void(const T&)>
     using Handler = typename PromiseDataBase<T, void(const T&)>::Handler;
 
 public:
-    void resolve(T&& value)
+    template <typename V>
+    void resolve(V&& value)
     {
         Q_ASSERT(this->isPending());
         Q_ASSERT(m_value.isNull());
-        m_value.reset(new T(std::move(value)));
+        m_value = PromiseValue<T>(std::forward<V>(value));
         this->setSettled();
     }
 
-    void resolve(const T& value)
-    {
-        Q_ASSERT(this->isPending());
-        Q_ASSERT(m_value.isNull());
-        m_value.reset(new T(value));
-        this->setSettled();
-    }
-
-    void resolve(const QSharedPointer<T>& value)
-    {
-        Q_ASSERT(this->isPending());
-        Q_ASSERT(m_value.isNull());
-        m_value = value;
-        this->setSettled();
-    }
-
-    const QSharedPointer<T>& value() const
+    const PromiseValue<T>& value() const
     {
         Q_ASSERT(this->isFulfilled());
         return m_value;
@@ -514,19 +527,19 @@ public:
 
     void notify(const QVector<Handler>& handlers) Q_DECL_OVERRIDE
     {
-        QSharedPointer<T> value(m_value);
+        PromiseValue<T> value(m_value);
         Q_ASSERT(!value.isNull());
 
         for (const auto& handler: handlers) {
             const auto& fn = handler.second;
             qtpromise_defer([=]() {
-                fn(*value);
+                fn(value.data());
             }, handler.first);
         }
     }
 
 private:
-    QSharedPointer<T> m_value;
+    PromiseValue<T> m_value;
 };
 
 template <>
