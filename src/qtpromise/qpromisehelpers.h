@@ -27,7 +27,7 @@ static inline QPromise<void> qPromise()
 }
 
 template <typename T, template <typename, typename...> class Sequence = QVector, typename ...Args>
-static inline QPromise<QVector<T> > qPromiseAll(const Sequence<QPromise<T>, Args...>& promises)
+static inline QPromise<QVector<T>> qPromiseAll(const Sequence<QPromise<T>, Args...>& promises)
 {
     return QPromise<T>::all(promises);
 }

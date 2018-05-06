@@ -85,7 +85,7 @@ struct ArgsOf<TReturn(T::*)(Args...) const volatile> : public ArgsTraits<Args...
 { };
 
 template <typename T>
-struct ArgsOf<std::function<T> > : public ArgsOf<T>
+struct ArgsOf<std::function<T>> : public ArgsOf<T>
 { };
 
 template <typename T>

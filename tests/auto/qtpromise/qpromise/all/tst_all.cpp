@@ -31,7 +31,7 @@ struct SequenceTester
 };
 
 template <template <typename, typename...> class Sequence, typename ...Args>
-struct SequenceTester<Sequence<QPromise<int>, Args...> >
+struct SequenceTester<Sequence<QPromise<int>, Args...>>
 {
     static void exec()
     {
@@ -47,13 +47,13 @@ struct SequenceTester<Sequence<QPromise<int>, Args...> >
 
         auto p = QPromise<int>::all(promises);
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int> > >::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
         QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 46, 43, 44}));
     }
 };
 
 template <template <typename, typename...> class Sequence, typename ...Args>
-struct SequenceTester<Sequence<QPromise<void>, Args...> >
+struct SequenceTester<Sequence<QPromise<void>, Args...>>
 {
     static void exec()
     {
@@ -69,7 +69,7 @@ struct SequenceTester<Sequence<QPromise<void>, Args...> >
 
         auto p = QPromise<void>::all(promises);
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
         QCOMPARE(waitForValue(p, -1, 42), 42);
     }
 };
@@ -78,26 +78,26 @@ struct SequenceTester<Sequence<QPromise<void>, Args...> >
 
 void tst_qpromise_all::qList()
 {
-    SequenceTester<QList<QPromise<int> > >::exec();
-    SequenceTester<QList<QPromise<void> > >::exec();
+    SequenceTester<QList<QPromise<int>>>::exec();
+    SequenceTester<QList<QPromise<void>>>::exec();
 }
 
 // QVector::push_back/append isn't supported since it requires a default
 // constructor (see https://github.com/simonbrunel/qtpromise/issues/3)
 //void tst_qpromise_all::qVector()
 //{
-//    SequenceTester<QVector<QPromise<int> > >::exec();
-//    SequenceTester<QVector<QPromise<void> > >::exec();
+//    SequenceTester<QVector<QPromise<int>>>::exec();
+//    SequenceTester<QVector<QPromise<void>>>::exec();
 //}
 
 void tst_qpromise_all::stdList()
 {
-    SequenceTester<std::list<QPromise<int> > >::exec();
-    SequenceTester<std::list<QPromise<void> > >::exec();
+    SequenceTester<std::list<QPromise<int>>>::exec();
+    SequenceTester<std::list<QPromise<void>>>::exec();
 }
 
 void tst_qpromise_all::stdVector()
 {
-    SequenceTester<std::vector<QPromise<int> > >::exec();
-    SequenceTester<std::vector<QPromise<void> > >::exec();
+    SequenceTester<std::vector<QPromise<int>>>::exec();
+    SequenceTester<std::vector<QPromise<void>>>::exec();
 }

@@ -22,12 +22,12 @@ public:
 namespace QtPromisePrivate {
 
 template <typename T>
-struct PromiseDeduce<QFuture<T> >
+struct PromiseDeduce<QFuture<T>>
     : public PromiseDeduce<T>
 { };
 
 template <typename T>
-struct PromiseFulfill<QFuture<T> >
+struct PromiseFulfill<QFuture<T>>
 {
     static void call(
         const QFuture<T>& future,
@@ -62,7 +62,7 @@ struct PromiseFulfill<QFuture<T> >
 };
 
 template <>
-struct PromiseFulfill<QFuture<void> >
+struct PromiseFulfill<QFuture<void>>
 {
     static void call(
         const QFuture<void>& future,

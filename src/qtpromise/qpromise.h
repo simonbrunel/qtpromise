@@ -73,11 +73,11 @@ public: // STATIC
     inline static QPromise<T> reject(E&& error);
 
 protected:
-    friend struct QtPromisePrivate::PromiseFulfill<QPromise<T> >;
+    friend struct QtPromisePrivate::PromiseFulfill<QPromise<T>>;
     friend class QPromiseResolve<T>;
     friend class QPromiseReject<T>;
 
-    QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T> > m_d;
+    QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T>> m_d;
 };
 
 template <typename T>
@@ -89,7 +89,7 @@ public:
 
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
-    inline static QPromise<QVector<T> > all(const Sequence<QPromise<T>, Args...>& promises);
+    inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
 
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);

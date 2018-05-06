@@ -33,7 +33,7 @@ void tst_helpers::resolve()
     int value = -1;
     auto p = QtPromise::qPromise(42);
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
 
     QCOMPARE(p.isFulfilled(), true);
 
@@ -49,7 +49,7 @@ void tst_helpers::resolve_void()
     int value = -1;
     auto p = QtPromise::qPromise();
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
     QCOMPARE(p.isFulfilled(), true);
 
@@ -70,7 +70,7 @@ void tst_helpers::resolve_promise()
             });
         }));
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
 
     QCOMPARE(p.isPending(), true);
 
@@ -93,7 +93,7 @@ void tst_helpers::resolve_promise_void()
             });
         }));
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
     QCOMPARE(p.isPending(), true);
 
@@ -115,9 +115,9 @@ void tst_helpers::allFulfilled()
         });
     });
 
-    auto p = qPromiseAll(QVector<QPromise<int> >{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<int>>{p0, p2, p1});
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int> > >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
     QCOMPARE(p.isPending(), true);
     QCOMPARE(p0.isFulfilled(), true);
@@ -144,9 +144,9 @@ void tst_helpers::allFulfilled_void()
         });
     });
 
-    auto p = qPromiseAll(QVector<QPromise<void> >{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<void>>{p0, p2, p1});
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
     QCOMPARE(p.isPending(), true);
     QCOMPARE(p0.isFulfilled(), true);
@@ -169,9 +169,9 @@ void tst_helpers::allRejected()
         });
     });
 
-    auto p = qPromiseAll(QVector<QPromise<int> >{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<int>>{p0, p2, p1});
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int> > >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
     QCOMPARE(p.isPending(), true);
     QCOMPARE(p0.isFulfilled(), true);
@@ -199,9 +199,9 @@ void tst_helpers::allRejected_void()
         });
     });
 
-    auto p = qPromiseAll(QVector<QPromise<void> >{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<void>>{p0, p2, p1});
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
     QCOMPARE(p.isPending(), true);
     QCOMPARE(p0.isFulfilled(), true);
@@ -220,9 +220,9 @@ void tst_helpers::allRejected_void()
 
 void tst_helpers::allEmpty()
 {
-    auto p = qPromiseAll(QVector<QPromise<int> >());
+    auto p = qPromiseAll(QVector<QPromise<int>>());
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int> > >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
     QCOMPARE(p.isFulfilled(), true);
 
@@ -236,9 +236,9 @@ void tst_helpers::allEmpty()
 
 void tst_helpers::allEmpty_void()
 {
-    auto p = qPromiseAll(QVector<QPromise<void> >());
+    auto p = qPromiseAll(QVector<QPromise<void>>());
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void> >::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
     QCOMPARE(p.isFulfilled(), true);
 }

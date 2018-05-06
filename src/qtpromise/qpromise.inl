@@ -24,7 +24,7 @@ public:
     }
 
 private:
-    QSharedPointer<QPromise<T> > m_promise;
+    QSharedPointer<QPromise<T>> m_promise;
 };
 
 template <>
@@ -45,7 +45,7 @@ public:
     }
 
 private:
-    QSharedPointer<QPromise<void> > m_promise;
+    QSharedPointer<QPromise<void>> m_promise;
 };
 
 template <class T>
@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    QSharedPointer<QPromise<T> > m_promise;
+    QSharedPointer<QPromise<T>> m_promise;
 };
 
 template <typename T>
@@ -184,7 +184,7 @@ inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
             reject(std::move(error));
         });
 
-        QtPromisePrivate::PromiseFulfill<QPromise<T> >::call(p, resolve, reject);
+        QtPromisePrivate::PromiseFulfill<QPromise<T>>::call(p, resolve, reject);
     });
 }
 
@@ -221,19 +221,19 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 
 template <typename T>
 template <template <typename, typename...> class Sequence, typename ...Args>
-inline QPromise<QVector<T> > QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
+inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
     const int count = (int)promises.size();
     if (count == 0) {
-        return QPromise<QVector<T> >::resolve({});
+        return QPromise<QVector<T>>::resolve({});
     }
 
-    return QPromise<QVector<T> >([=](
-        const QPromiseResolve<QVector<T> >& resolve,
-        const QPromiseReject<QVector<T> >& reject) {
+    return QPromise<QVector<T>>([=](
+        const QPromiseResolve<QVector<T>>& resolve,
+        const QPromiseReject<QVector<T>>& reject) {
 
         QSharedPointer<int> remaining(new int(count));
-        QSharedPointer<QVector<T> > results(new QVector<T>(count));
+        QSharedPointer<QVector<T>> results(new QVector<T>(count));
 
         int i = 0;
         for (const auto& promise: promises) {

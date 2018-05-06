@@ -75,11 +75,11 @@ static void qtpromise_defer(F&& f)
 template <typename T>
 struct PromiseDeduce
 {
-    using Type = QtPromise::QPromise<Unqualified<T> >;
+    using Type = QtPromise::QPromise<Unqualified<T>>;
 };
 
 template <typename T>
-struct PromiseDeduce<QtPromise::QPromise<T> >
+struct PromiseDeduce<QtPromise::QPromise<T>>
     : public PromiseDeduce<T>
 { };
 
@@ -96,7 +96,7 @@ struct PromiseFulfill
 };
 
 template <typename T>
-struct PromiseFulfill<QtPromise::QPromise<T> >
+struct PromiseFulfill<QtPromise::QPromise<T>>
 {
     static void call(
         const QtPromise::QPromise<T>& promise,
@@ -118,7 +118,7 @@ struct PromiseFulfill<QtPromise::QPromise<T> >
 };
 
 template <>
-struct PromiseFulfill<QtPromise::QPromise<void> >
+struct PromiseFulfill<QtPromise::QPromise<void>>
 {
     template <typename TPromise, typename TResolve, typename TReject>
     static void call(
@@ -368,8 +368,8 @@ class PromiseDataBase : public QSharedData
 {
 public:
     using Error = QtPromise::QPromiseError;
-    using Handler = std::pair<QPointer<QThread>, std::function<F> >;
-    using Catcher = std::pair<QPointer<QThread>, std::function<void(const Error&)> >;
+    using Handler = std::pair<QPointer<QThread>, std::function<F>>;
+    using Catcher = std::pair<QPointer<QThread>, std::function<void(const Error&)>>;
 
     virtual ~PromiseDataBase() {}
 
