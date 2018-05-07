@@ -9,94 +9,68 @@ template <class T>
 class QPromiseResolve
 {
 public:
-    QPromiseResolve(QPromise<T> p)
-        : m_promise(new QPromise<T>(std::move(p)))
+    QPromiseResolve(QtPromisePrivate::PromiseResolver<T> resolver)
+        : m_resolver(std::move(resolver))
     { }
 
     template <typename V>
     void operator()(V&& value) const
     {
-        Q_ASSERT(!m_promise.isNull());
-        if (m_promise->isPending()) {
-            m_promise->m_d->resolve(std::forward<V>(value));
-            m_promise->m_d->dispatch();
-        }
+        m_resolver.resolve(std::forward<V>(value));
     }
-
-private:
-    QSharedPointer<QPromise<T>> m_promise;
-};
-
-template <>
-class QPromiseResolve<void>
-{
-public:
-    QPromiseResolve(QPromise<void> p)
-        : m_promise(new QPromise<void>(std::move(p)))
-    { }
 
     void operator()() const
     {
-        Q_ASSERT(!m_promise.isNull());
-        if (m_promise->isPending()) {
-            m_promise->m_d->resolve();
-            m_promise->m_d->dispatch();
-        }
+        m_resolver.resolve();
     }
 
 private:
-    QSharedPointer<QPromise<void>> m_promise;
+    mutable QtPromisePrivate::PromiseResolver<T> m_resolver;
 };
 
 template <class T>
 class QPromiseReject
 {
 public:
-    QPromiseReject(QPromise<T> p)
-        : m_promise(new QPromise<T>(std::move(p)))
+    QPromiseReject(QtPromisePrivate::PromiseResolver<T> resolver)
+        : m_resolver(std::move(resolver))
     { }
 
     template <typename E>
     void operator()(E&& error) const
     {
-        Q_ASSERT(!m_promise.isNull());
-        if (m_promise->isPending()) {
-            m_promise->m_d->reject(std::forward<E>(error));
-            m_promise->m_d->dispatch();
-        }
+        m_resolver.reject(std::forward<E>(error));
     }
 
 private:
-    QSharedPointer<QPromise<T>> m_promise;
+    mutable QtPromisePrivate::PromiseResolver<T> m_resolver;
 };
 
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
-inline QPromiseBase<T>::QPromiseBase(F resolver)
+inline QPromiseBase<T>::QPromiseBase(F callback)
     : m_d(new QtPromisePrivate::PromiseData<T>())
 {
-    QPromiseResolve<T> resolve(*this);
-    QPromiseReject<T> reject(*this);
+    QtPromisePrivate::PromiseResolver<T> resolver(*this);
 
     try {
-        resolver(resolve);
+        callback(QPromiseResolve<T>(resolver));
     } catch (...) {
-        reject(std::current_exception());
+        resolver.reject(std::current_exception());
     }
 }
 
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type>
-inline QPromiseBase<T>::QPromiseBase(F resolver)
+inline QPromiseBase<T>::QPromiseBase(F callback)
     : m_d(new QtPromisePrivate::PromiseData<T>())
 {
-    QPromiseResolve<T> resolve(*this);
-    QPromiseReject<T> reject(*this);
+    QtPromisePrivate::PromiseResolver<T> resolver(*this);
 
     try {
-        resolver(resolve, reject);
+        callback(QPromiseResolve<T>(resolver), QPromiseReject<T>(resolver));
     } catch (...) {
-        reject(std::current_exception());
+        resolver.reject(std::current_exception());
     }
 }
 

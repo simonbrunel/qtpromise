@@ -75,8 +75,7 @@ public: // STATIC
 
 protected:
     friend struct QtPromisePrivate::PromiseFulfill<QPromise<T>>;
-    friend class QPromiseResolve<T>;
-    friend class QPromiseReject<T>;
+    friend class QtPromisePrivate::PromiseResolver<T>;
 
     QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T>> m_d;
 };
