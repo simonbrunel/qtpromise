@@ -197,7 +197,7 @@ template <typename T>
 template <template <typename, typename...> class Sequence, typename ...Args>
 inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
-    const int count = (int)promises.size();
+    const int count = static_cast<int>(promises.size());
     if (count == 0) {
         return QPromise<QVector<T>>::resolve({});
     }
@@ -247,7 +247,7 @@ inline QPromise<T> QPromise<T>::resolve(T&& value)
 template <template <typename, typename...> class Sequence, typename ...Args>
 inline QPromise<void> QPromise<void>::all(const Sequence<QPromise<void>, Args...>& promises)
 {
-    const int count = (int)promises.size();
+    const int count = static_cast<int>(promises.size());
     if (count == 0) {
         return QPromise<void>::resolve();
     }
