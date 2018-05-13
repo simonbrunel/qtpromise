@@ -14,6 +14,9 @@
 * [`QPromise<T>::then`](qpromise/then.md)
 * [`QPromise<T>::timeout`](qpromise/timeout.md)
 * [`QPromise<T>::wait`](qpromise/wait.md)
+* [`QPromise<T>::map`](qpromise/map.md)
+* [`QPromise<T>::reduce`](qpromise/reduce.md)
+* [`QPromise<T>::filter`](qpromise/filter.md)
 
 ### Public Static Members
 

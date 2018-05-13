@@ -1,6 +1,9 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     all \
+    map \
+    filter \
+    reduce \
     construct \
     delay \
     fail \

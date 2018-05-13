@@ -193,6 +193,85 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
     });
 }
 
+
+template <typename T>
+template <typename THandler, typename R>
+inline QPromise<QVector<R>>
+QPromise<T>::map(THandler handler) const
+{
+    QPromise<T> p = *this;
+    return p.then([=](const QVector<R>& values) {
+        std::vector<QPromise<R>> promises;
+        int index = 0;
+        for( auto value : values ) {
+            promises.push_back(
+                QPromise<R>::resolve(value)
+                .then([=](const R& value){
+                    return handler(value, index);
+                })
+                .then([](const R& value){
+                    return value;
+                })
+            );
+            index++;
+        }
+        return QPromise<R>::all(promises);
+    });
+}
+
+template <typename T>
+template <typename THandler, typename R>
+inline QPromise<QVector<R>>
+QPromise<T>::filter(THandler handler) const
+{
+    QPromise<T> p = *this;
+    QSharedPointer<QVector<R>> results(new QVector<R>());
+    return p.then([=](const T &values) {
+        std::vector<QPromise<R>> promises;
+        int index = 0;
+        for( R value : values ) {
+            QPromise<R> p = QPromise<R>::resolve(value)
+                    .then([=](const R& v) {
+                        return handler(v, index);
+                    })
+                    .then([=](bool success) {
+                        if (success) {
+                            results->push_back(value);
+                        }
+                        return value;
+                    });
+            promises.push_back(p);
+            index++;
+        }
+        return QPromise<R>::all(promises);
+    })
+    .then([=](){
+        return *results;
+    });
+}
+
+template <typename T>
+template <typename THandler, typename R>
+inline QPromise<R>
+QPromise<T>::reduce(THandler handler, const R &initial) const
+{
+    QPromise<T> p = *this;
+    return p.then([=](const T &values) {
+        int index = 0;
+        QPromise<R> promise = QPromise<R>::resolve(initial);
+        for( R value : values ) {
+            promise = promise.then([=](const R& acc){
+                return QPromise<R>::resolve(value)
+                    .then([=](const R& v) {
+                        return handler(v,acc,index);
+                    });
+            });
+            index++;
+        }
+        return promise;
+    });
+}
+
 template <typename T>
 template <template <typename, typename...> class Sequence, typename ...Args>
 inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
