@@ -16,7 +16,7 @@ auto p = promises.filter([](int value, int index) {
             return value > 10; // Return boolean a value
         })
         .filter([](int value, int index) {
-            return QPromise<bool>::resolve(value < 15); // Return a booliean as a promise
+            return QPromise<bool>::resolve(value < 15); // Return a boolean as a promise
         })
         .then([](const QVector<int>& values) {
             // ...

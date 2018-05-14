@@ -13,10 +13,10 @@ The resulting `QVector<R>` is identical to the input `QVector<T>`.
 QPromise<QVector<int>> promises = {...};
 
 auto p = promises.each([](int value, int index) {
-            {...}  // Do some synchronus action
+            {...}  // Do some synchronous action
         })
         .each([](int value, int index) {
-            return QPromise<int>(...); // Do some asynchronus action
+            return QPromise<int>(...); // Do some asynchronous action
         })
         .then([](const QVector<int>& values) {
             // ...  original vector back
