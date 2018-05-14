@@ -16,7 +16,8 @@ class tst_qpromise_filter : public QObject
 private Q_SLOTS:
     void normalList();
     void promiseList();
-    void mapChained();
+    void filterChained();
+    void filterOutOfOrder();
 };
 
 QTEST_MAIN(tst_qpromise_filter)
@@ -86,6 +87,25 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
         QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({43, 44}));
     }
+
+    static void execOutOfOrder()
+    {
+        Sequence<QPromise<int>, Args...> promises {
+            QPromise<int>::resolve(42),
+            QPromise<int>::resolve(43),
+            QPromise<int>::resolve(44),
+            QPromise<int>::resolve(45)
+        };
+
+        int length = promises.length();
+        auto p = QPromise<int>::all(promises)
+                .filter([length](int value, int index) {
+                    return QPromise<bool>::resolve(value >= 43).delay(100 * (length-index));
+                });
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
+        QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({43, 44, 45}));
+    }
 };
 
 } // anonymous namespace
@@ -100,7 +120,12 @@ void tst_qpromise_filter::promiseList()
     SequenceTester<QList<QPromise<int>>>::execPromise();
 }
 
-void tst_qpromise_filter::mapChained()
+void tst_qpromise_filter::filterChained()
 {
     SequenceTester<QList<QPromise<int>>>::execChained();
+}
+
+void tst_qpromise_filter::filterOutOfOrder()
+{
+    SequenceTester<QList<QPromise<int>>>::execOutOfOrder();
 }

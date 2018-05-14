@@ -18,6 +18,7 @@ private Q_SLOTS:
     void promiseList();
     void changeType();
     void mapChained();
+    void mapOutOfOrder();
 };
 
 QTEST_MAIN(tst_qpromise_map)
@@ -105,6 +106,24 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
         QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({45, 46, 47}));
     }
+
+    static void execOutOfOrder()
+    {
+        Sequence<QPromise<int>, Args...> promises {
+            QPromise<int>::resolve(42),
+            QPromise<int>::resolve(43),
+            QPromise<int>::resolve(44)
+        };
+
+        int length = promises.length();
+        auto p = QPromise<int>::all(promises)
+                .map([length](int value, int index) {
+                    return QPromise<int>::resolve(value + 1).delay(100 * (length-index));
+                });
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
+        QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({43, 44, 45}));
+    }
 };
 
 } // anonymous namespace
@@ -127,4 +146,9 @@ void tst_qpromise_map::changeType()
 void tst_qpromise_map::mapChained()
 {
     SequenceTester<QList<QPromise<int>>>::execChained();
+}
+
+void tst_qpromise_map::mapOutOfOrder()
+{
+    SequenceTester<QList<QPromise<int>>>::execOutOfOrder();
 }
