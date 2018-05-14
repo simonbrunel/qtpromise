@@ -87,6 +87,10 @@ public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
+    //FIXME; R should be type contained by T
+    template <typename THandler, typename R = int>
+    inline QPromise<QVector<R>> each(THandler handler) const;
+
     //FIXME; R should be return type of THandler
     template <typename THandler, typename R = int>
     inline QPromise<QVector<R>> map(THandler handler) const;

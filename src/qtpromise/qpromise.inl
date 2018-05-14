@@ -193,6 +193,27 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
     });
 }
 
+template <typename T>
+template <typename THandler, typename R>
+inline QPromise<QVector<R>>
+QPromise<T>::each(THandler handler) const
+{
+    QPromise<T> p = *this;
+    return p.then([=](const QVector<R>& values) {
+        std::vector<QPromise<R>> promises;
+        int index = 0;
+        for( auto value : values ) {
+            promises.push_back(
+                QPromise<R>::resolve(value)
+                .tap([=](const R& value){
+                    return handler(value, index);
+                })
+            );
+            index++;
+        }
+        return QPromise<R>::all(promises);
+    });
+}
 
 template <typename T>
 template <typename THandler, typename R>

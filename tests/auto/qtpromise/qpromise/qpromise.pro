@@ -4,6 +4,7 @@ SUBDIRS += \
     map \
     filter \
     reduce \
+    each \
     construct \
     delay \
     fail \

@@ -4,4 +4,5 @@ CONFIG += c++11
 
 DISTFILES += \
     $$PWD/docs/qtpromise/qpromise/map.md \
-    $$PWD/docs/qtpromise/qpromise/reduce.md
+    $$PWD/docs/qtpromise/qpromise/reduce.md \
+    $$PWD/docs/qtpromise/qpromise/each.md
