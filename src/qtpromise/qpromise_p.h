@@ -624,6 +624,52 @@ private:
     }
 };
 
+
+template<int ...> struct sequence {};
+template<int N, int ...S> struct generator : generator<N-1, N-1, S...> {};
+template<int ...S> struct generator<0, S...>{ typedef sequence<S...> type; };
+
+template<typename T>
+inline QtPromise::QPromise<T> maybeResolve(const T&val)
+{
+    return QtPromise::QPromise<T>::resolve(val);
+}
+
+template<typename T>
+inline QtPromise::QPromise<T> maybeResolve(const QtPromise::QPromise<T> &val)
+{
+    return val;
+}
+
+template<typename T, typename Tfunc, typename ...Args, int ...S>
+inline QtPromise::QPromise<T>
+spreadDispatcher(Tfunc func, const std::tuple<Args...>& params, sequence<S...>)
+{
+    auto res = func(std::get<S>(params) ...);
+    return maybeResolve(res);
+}
+
+template<std::size_t I = 0, typename To, typename... Tp>
+static inline typename std::enable_if<I == sizeof...(Tp), QtPromise::QPromise<To>>::type
+tuplePromiseResolver(const std::tuple<Tp...>& tin, To& tout)
+{
+    Q_UNUSED(tin);
+    return QtPromise::QPromise<To>::resolve(tout);
+}
+
+template<std::size_t I = 0, typename To, typename... Tp>
+static inline typename std::enable_if<I < sizeof...(Tp), QtPromise::QPromise<To>>::type
+tuplePromiseResolver(const std::tuple<Tp...>& tin, To& tout)
+{
+    auto p = std::get<I>(tin);
+    auto o = std::get<I>(tout);
+    return p.then([=](const decltype (o) &value) mutable {
+        std::get<I>(tout) = value;
+        return tuplePromiseResolver<I + 1, To, Tp...>(tin, tout);
+    });
+}
+
+
 } // namespace QtPromise
 
 #endif // ifndef QTPROMISE_QPROMISE_H

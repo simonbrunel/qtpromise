@@ -90,7 +90,6 @@ public:
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
     inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
-
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);
 
@@ -113,6 +112,26 @@ public: // STATIC
 
 private:
     friend class QPromiseBase<void>;
+};
+
+template <typename ...Args>
+class QPromise<std::tuple<Args...>> : public QPromiseBase<std::tuple<Args...>>
+{
+public:
+    template <typename F>
+    QPromise(F&& resolver): QPromiseBase<std::tuple<Args...>>(std::forward<F>(resolver)) { }
+
+    template<typename ...pArgs>
+    static inline QPromise<std::tuple<Args...>> all(const std::tuple<pArgs...> &params);
+
+    template<typename T, typename Tfunc>
+    inline QPromise<T> spread(Tfunc func) const;
+
+    inline static QPromise<std::tuple<Args...>> resolve(const std::tuple<Args...>& value);
+    inline static QPromise<std::tuple<Args...>> resolve(std::tuple<Args...>&& value);
+
+private:
+    friend class QPromiseBase<std::tuple<Args...>>;
 };
 
 } // namespace QtPromise

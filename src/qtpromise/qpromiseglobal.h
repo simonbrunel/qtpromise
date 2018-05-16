@@ -30,6 +30,23 @@ struct HasCallOperator
     static const bool value = (sizeof(check<T>(0)) == 1);
 };
 
+// Clean up arg types for use in a tuple
+// http://en.cppreference.com/w/cpp/utility/tuple/make_tuple
+template <class T>
+struct unwrap_refwrapper
+{
+    using type = T;
+};
+
+template <class T>
+struct unwrap_refwrapper<std::reference_wrapper<T>>
+{
+    using type = T&;
+};
+
+template <class T>
+using tuple_decay = typename unwrap_refwrapper<typename std::decay<T>::type>::type;
+
 /*!
  * \struct ArgsOf
  * http://stackoverflow.com/a/7943765
@@ -38,7 +55,7 @@ struct HasCallOperator
 template <typename... Args>
 struct ArgsTraits
 {
-    using types = std::tuple<Args...>;
+    using types = std::tuple<tuple_decay<Args>...>;
     using first = typename std::tuple_element<0, types>::type;
     static const size_t count = std::tuple_size<types>::value;
 };

@@ -280,4 +280,41 @@ inline QPromise<void> QPromise<void>::resolve()
     });
 }
 
+template<typename ...Args>
+template<typename ...pArgs>
+inline QPromise<std::tuple<Args...>> QPromise<std::tuple<Args...>>::all(const std::tuple<pArgs...> &params)
+{
+    std::tuple<Args...> out;
+    return QtPromisePrivate::tuplePromiseResolver(params, out);
+}
+
+template<typename ...Args>
+template<typename T, typename Tfunc>
+inline QPromise<T> QPromise<std::tuple<Args...>>::spread(Tfunc func) const
+{
+    QPromise<std::tuple<Args...>> p = *this;
+
+    return p.then([=](const std::tuple<Args...>& values) {
+        return QtPromisePrivate::spreadDispatcher<T>(func, values, typename QtPromisePrivate::generator<sizeof...(Args)>::type());
+    });
+}
+
+
+template<typename ...Args>
+inline QPromise<std::tuple<Args...>> QPromise<std::tuple<Args...>>::resolve(const std::tuple<Args...>& value)
+{
+    return QPromise<std::tuple<Args...>>([&](const QPromiseResolve<std::tuple<Args...>>& resolve) {
+       resolve(value);
+    });
+}
+
+
+template<typename ...Args>
+inline QPromise<std::tuple<Args...>> QPromise<std::tuple<Args...>>::resolve(std::tuple<Args...>&& value)
+{
+    return QPromise<std::tuple<Args...>>([&](const QPromiseResolve<std::tuple<Args...>>& resolve) {
+       resolve(std::forward<std::tuple<Args...>>(value));
+    });
+}
+
 } // namespace QtPromise

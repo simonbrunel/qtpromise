@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     all \
+    spread \
     construct \
     delay \
     fail \
