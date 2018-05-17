@@ -87,24 +87,33 @@ public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
-    //FIXME; R should be type contained by T
-    template <typename THandler, typename R = int>
-    inline QPromise<QVector<R>> each(THandler handler) const;
+    template <typename MapFunctor, typename Mapper = QtPromisePrivate::PromiseMapper<T, MapFunctor>>
+    inline QPromise<typename Mapper::ResultType> map(MapFunctor fn) const;
 
-    //FIXME; R should be return type of THandler
-    template <typename THandler, typename R = int>
-    inline QPromise<QVector<R>> map(THandler handler) const;
+    template <typename EachFunctor>
+    inline QPromise<T> each(EachFunctor fn) const;
 
-    //FIXME; R should be type contained by T
-    template <typename THandler, typename R = int>
-    inline QPromise<QVector<R>> filter(THandler handler) const;
+    template <typename FilterFunctor>
+    inline QPromise<T> filter(FilterFunctor fn) const;
 
-    template <typename THandler, typename R>
-    inline QPromise<R> reduce(THandler handler, const R &initial) const;
+    template <typename ReduceFunctor, typename R>
+    inline QPromise<R> reduce(ReduceFunctor fn, const R &initial) const;
 
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
     inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
+
+    template <typename MapFunctor, typename Mapper = QtPromisePrivate::PromiseMapper<T, MapFunctor>>
+    inline static QPromise<typename Mapper::ResultType> map(const T& values, MapFunctor fn);
+
+    template <typename EachFunctor>
+    inline static QPromise<T> each(const T& values, EachFunctor fn);
+
+    template <typename FilterFunctor>
+    inline static QPromise<T> filter(const T& values, FilterFunctor fn);
+
+    template <typename ReduceFunctor, typename R>
+    inline static QPromise<R> reduce(const T& values, ReduceFunctor fn, const R &initial);
 
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);

@@ -504,6 +504,17 @@ private:
     PromiseError m_error;
 };
 
+template <typename T, typename F>
+struct PromiseMapper
+{ };
+
+template <typename T, typename F, template <typename, typename...> class Sequence, typename ...Args>
+struct PromiseMapper<Sequence<T, Args...>, F>
+{
+    using ReturnType = typename std::result_of<F(T, int)>::type;
+    using ResultType = QVector<typename PromiseDeduce<ReturnType>::Type::Type>;
+};
+
 template <typename T>
 class PromiseData : public PromiseDataBase<T, void(const T&)>
 {

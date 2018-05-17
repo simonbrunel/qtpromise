@@ -194,104 +194,45 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 }
 
 template <typename T>
-template <typename THandler, typename R>
-inline QPromise<QVector<R>>
-QPromise<T>::each(THandler handler) const
+template <typename MapFunctor, typename Mapper>
+inline QPromise<typename Mapper::ResultType>
+QPromise<T>::map(MapFunctor fn) const
 {
-    QPromise<T> p = *this;
-    return p.then([=](const QVector<R>& values) {
-        std::vector<QPromise<R>> promises;
-        int index = 0;
-        for( auto value : values ) {
-            promises.push_back(
-                QPromise<R>::resolve(value)
-                .tap([=](const R& value){
-                    return handler(value, index);
-                })
-            );
-            index++;
-        }
-        return QPromise<R>::all(promises);
+    return this->then([=](const T& values) {
+        return QPromise<T>::map(values, fn);
     });
 }
 
 template <typename T>
-template <typename THandler, typename R>
-inline QPromise<QVector<R>>
-QPromise<T>::map(THandler handler) const
+template <typename EachFunctor>
+inline QPromise<T>
+QPromise<T>::each(EachFunctor fn) const
 {
-    QPromise<T> p = *this;
-    return p.then([=](const QVector<R>& values) {
-        std::vector<QPromise<R>> promises;
-        int index = 0;
-        for( auto value : values ) {
-            promises.push_back(
-                QPromise<R>::resolve(value)
-                .then([=](const R& value){
-                    return handler(value, index);
-                })
-                .then([](const R& value){
-                    return value;
-                })
-            );
-            index++;
-        }
-        return QPromise<R>::all(promises);
+    return this->then([=](const T& values) {
+        return QPromise<T>::each(values, fn);
     });
 }
 
 template <typename T>
-template <typename THandler, typename R>
-inline QPromise<QVector<R>>
-QPromise<T>::filter(THandler handler) const
+template <typename FilterFunctor>
+inline QPromise<T>
+QPromise<T>::filter(FilterFunctor fn) const
 {
-    QPromise<T> p = *this;
-    QSharedPointer<QVector<R>> results(new QVector<R>());
-    return p.then([=](const T &values) {
-        std::vector<QPromise<R>> promises;
-        int index = 0;
-        for( R value : values ) {
-            QPromise<R> p = QPromise<R>::resolve(value)
-                    .then([=](const R& v) {
-                        return handler(v, index);
-                    })
-                    .then([=](bool success) {
-                        if (success) {
-                            results->push_back(value);
-                        }
-                        return value;
-                    });
-            promises.push_back(p);
-            index++;
-        }
-        return QPromise<R>::all(promises);
-    })
-    .then([=](){
-        return *results;
+    return this->then([=](const T& values) {
+        return QPromise<T>::filter(values, fn);
     });
 }
 
 template <typename T>
-template <typename THandler, typename R>
+template <typename ReduceFunctor, typename R>
 inline QPromise<R>
-QPromise<T>::reduce(THandler handler, const R &initial) const
+QPromise<T>::reduce(ReduceFunctor fn, const R &initial) const
 {
-    QPromise<T> p = *this;
-    return p.then([=](const T &values) {
-        int index = 0;
-        QPromise<R> promise = QPromise<R>::resolve(initial);
-        for( R value : values ) {
-            promise = promise.then([=](const R& acc){
-                return QPromise<R>::resolve(value)
-                    .then([=](const R& v) {
-                        return handler(v,acc,index);
-                    });
-            });
-            index++;
-        }
-        return promise;
+    return this->then([=](const T& values) {
+        return QPromise<T>::reduce(values, fn, initial);
     });
 }
+
 
 template <typename T>
 template <template <typename, typename...> class Sequence, typename ...Args>
@@ -326,6 +267,114 @@ inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...
             i++;
         }
     });
+}
+
+template <typename T>
+template <typename MapFunctor, typename Mapper>
+inline QPromise<typename Mapper::ResultType>
+QPromise<T>::map(const T& values, MapFunctor fn)
+{
+    using namespace QtPromisePrivate;
+    using RetType = typename Mapper::ReturnType;
+    using ResType = typename Mapper::ResultType::value_type;
+
+    int i = 0;
+
+    std::vector<QPromise<ResType>> mapped;
+    for (const auto& v : values) {
+        mapped.push_back(QPromise<ResType>([&](
+            const QPromiseResolve<ResType>& resolve,
+            const QPromiseReject<ResType>& reject) {
+                PromiseFulfill<RetType>::call(fn(v, i), resolve, reject);
+            }));
+
+        i++;
+    }
+
+    return QPromise<ResType>::all(mapped);
+}
+
+template <typename T>
+template <typename EachFunctor>
+inline QPromise<T>
+QPromise<T>::each(const T& values, EachFunctor fn)
+{
+    using namespace QtPromisePrivate;
+    using ResType = typename T::value_type;
+    using ReturnType = typename std::result_of<EachFunctor(ResType, int)>::type;
+    using ResultType = typename PromiseDeduce<ReturnType>::Type::Type;
+
+    int i = 0;
+
+    std::vector<QPromise<void>> promises;
+    for (const ResType& v : values) {
+        promises.push_back(QPromise<void>([&](
+            const QPromiseResolve<void>& resolve) {
+                fn(v,i);
+                resolve();
+            }));
+
+        i++;
+    }
+
+    return QPromise<void>::all(promises)
+            .then([values](){
+                return values;
+            });
+}
+
+template <typename T>
+template <typename FilterFunctor>
+inline QPromise<T>
+QPromise<T>::filter(const T& values, FilterFunctor fn)
+{
+    using namespace QtPromisePrivate;
+    using ResType = typename T::value_type;
+    using ReturnType = typename std::result_of<FilterFunctor(ResType, int)>::type;
+    using ResultType = typename PromiseDeduce<ReturnType>::Type::Type;
+
+    int i = 0;
+
+    std::vector<QPromise<ResultType>> promises;
+    for (const auto& v : values) {
+        promises.push_back(QPromise<ResultType>([&](
+            const QPromiseResolve<ResultType>& resolve,
+            const QPromiseReject<ResultType>& reject) {
+                PromiseFulfill<ReturnType>::call(fn(v, i), resolve, reject);
+            }));
+
+        i++;
+    }
+
+    return QPromise<ResultType>::all(promises)
+            .then([values](const QVector<ResultType> &filtered){
+                T results;
+                int index = 0;
+                for(bool filter : filtered) {
+                    if (filter) {
+                        results.push_back(values[index]);
+                    }
+                    index++;
+                }
+                return results;
+            });
+}
+
+template <typename T>
+template <typename ReduceFunctor, typename R>
+inline QPromise<R>
+QPromise<T>::reduce(const T& values, ReduceFunctor fn, const R &initial)
+{
+    using ResType = typename T::value_type;
+    int index = 0;
+    QPromise<R> promise = QPromise<R>::resolve(initial);
+    for( ResType value : values ) {
+        promise = promise.then([=](const R& acc){
+            return fn(value,acc,index);
+        });
+        index++;
+    }
+    return promise;
 }
 
 template <typename T>
@@ -379,5 +428,4 @@ inline QPromise<void> QPromise<void>::resolve()
         resolve();
     });
 }
-
 } // namespace QtPromise

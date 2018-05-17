@@ -78,7 +78,7 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
 
         auto p = QPromise<int>::all(promises)
                 .filter([](int value, int) {
-                    return QPromise<int>::resolve(value >= 43);
+                    return QPromise<bool>::resolve(value >= 43);
                 })
                 .filter([](int value, int) {
                     return value <= 44;

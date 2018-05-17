@@ -70,7 +70,7 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
 
     static void execChangeType()
     {
-        /*
+
         Sequence<QPromise<int>, Args...> promises {
             QPromise<int>::resolve(42),
             QPromise<int>::resolve(43)
@@ -83,7 +83,7 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<QString>>>::value));
         QCOMPARE(waitForValue(p, QVector<QString>()), QVector<QString>({QLatin1String("42"), QLatin1String("43")}));
-        */
+
     }
 
     static void execChained()
@@ -99,7 +99,6 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
                     return QPromise<int>::resolve(value + 1);
                 })
                 .map([](int value, int) {
-
                     return value + 2;
                 });
 

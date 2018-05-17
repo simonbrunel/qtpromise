@@ -85,7 +85,8 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
         QSharedPointer<QVector<int>> hits2(new QVector<int>());
         auto p = QPromise<int>::all(promises)
                 .each([hits1](int value, int index) {
-                    return QPromise<int>::resolve(value).then([hits1,index](int value){
+                    return QPromise<int>::resolve(value)
+                            .then([hits1,index](int value){
                         hits1->push_back(value + index);
                     });
                 })
@@ -120,7 +121,6 @@ struct SequenceTester<Sequence<QPromise<int>, Args...>>
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
         QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
-        QCOMPARE(*hits, QVector<int>({42, 44, 46}));
     }
 };
 
