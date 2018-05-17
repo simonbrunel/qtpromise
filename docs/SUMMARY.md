@@ -6,6 +6,7 @@
   * [QPromise](qtpromise/qpromise/constructor.md)
   * [.delay](qtpromise/qpromise/delay.md)
   * [.fail](qtpromise/qpromise/fail.md)
+  * [.filter](qtpromise/qpromise/filter.md)
   * [.finally](qtpromise/qpromise/finally.md)
   * [.isFulfilled](qtpromise/qpromise/isfulfilled.md)
   * [.isPending](qtpromise/qpromise/ispending.md)
@@ -21,4 +22,5 @@
   * [::resolve (static)](qtpromise/qpromise/resolve.md)
   * [qPromise](qtpromise/helpers/qpromise.md)
   * [qPromiseAll](qtpromise/helpers/qpromiseall.md)
+  * [QtPromise::filter](qtpromise/helpers/filter.md)
   * [QtPromise::map](qtpromise/helpers/map.md)

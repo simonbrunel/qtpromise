@@ -3,6 +3,7 @@ SUBDIRS += \
     construct \
     delay \
     fail \
+    filter \
     finally \
     map \
     operators \

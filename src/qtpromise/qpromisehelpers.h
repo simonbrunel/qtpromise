@@ -63,6 +63,26 @@ map(const Sequence& values, Functor fn)
     return QPromise<ResType>::all(promises);
 }
 
+template <typename Sequence, typename Functor>
+static inline QPromise<Sequence> filter(const Sequence& values, Functor fn)
+{
+    return QtPromise::map(values, fn)
+        .then([=](const QVector<bool>& filters) {
+            Sequence filtered;
+
+            auto filter = filters.begin();
+            for (auto& value : values) {
+                if (*filter) {
+                    filtered.push_back(std::move(value));
+                }
+
+                filter++;
+            }
+
+            return filtered;
+        });
+}
+
 } // namespace QtPromise
 
 #endif // QTPROMISE_QPROMISEHELPERS_H

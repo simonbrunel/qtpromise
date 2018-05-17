@@ -89,6 +89,9 @@ public:
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
     template <typename Functor>
+    inline QPromise<T> filter(Functor fn);
+
+    template <typename Functor>
     inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
     map(Functor fn);
 
