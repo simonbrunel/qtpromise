@@ -3,7 +3,7 @@
 # QtPromise
 [Promises/A+](https://promisesaplus.com/) implementation for [Qt/C++](https://www.qt.io/).
 
-Requires [Qt 5.4](https://www.qt.io/download/) (or later) with [C++11 support enabled](https://wiki.qt.io/How_to_use_C++11_in_your_Qt_Projects).
+Requires [Qt 5.6](https://www.qt.io/download/) (or later) with [C++11 support enabled](https://wiki.qt.io/How_to_use_C++11_in_your_Qt_Projects).
 
 ## QtPromise for C++
 * [Getting Started](qtpromise/getting-started.md)
