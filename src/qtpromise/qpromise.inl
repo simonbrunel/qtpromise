@@ -306,10 +306,10 @@ QPromise<T>::each(const T& values, EachFunctor fn)
 
     int i = 0;
 
-    std::vector<QPromise<void>> promises;
+    std::vector<QPromise<ResultType>> promises;
     for (const ResType& v : values) {
-        promises.push_back(QPromise<void>([&](
-            const QPromiseResolve<void>& resolve) {
+        promises.push_back(QPromise<ResultType>([&](
+            const QPromiseResolve<ResultType>& resolve) {
                 fn(v,i);
                 resolve();
             }));
@@ -317,7 +317,7 @@ QPromise<T>::each(const T& values, EachFunctor fn)
         i++;
     }
 
-    return QPromise<void>::all(promises)
+    return QPromise<ResultType>::all(promises)
             .then([values](){
                 return values;
             });
