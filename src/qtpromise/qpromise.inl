@@ -321,7 +321,7 @@ QPromise<T>::each(const T& values, EachFunctor fn)
     int i = 0;
 
     std::vector<QPromise<ResultType>> promises;
-    for (const ResType& v : values) {
+    for (auto v : values) {
         promises.push_back(QPromise<ResultType>([&](
             const QPromiseResolve<ResultType>& resolve,
             const QPromiseReject<ResultType>& reject) {
@@ -349,7 +349,7 @@ QPromise<T>::filter(const T& values, FilterFunctor fn)
     int i = 0;
 
     std::vector<QPromise<ResultType>> promises;
-    for (const auto& v : values) {
+    for (auto v : values) {
         promises.push_back(QPromise<ResultType>([&](
             const QPromiseResolve<ResultType>& resolve,
             const QPromiseReject<ResultType>& reject) {
