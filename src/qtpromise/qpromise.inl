@@ -320,20 +320,20 @@ QPromise<T>::each(const T& values, EachFunctor fn)
 
     int i = 0;
 
-    std::vector<QPromise<ResultType>> promises;
-    for (auto v : values) {
+    std::vector<QPromise<ResType>> promises;
+    for (const auto& v : values) {
         promises.push_back(QPromise<ResultType>([&](
             const QPromiseResolve<ResultType>& resolve,
             const QPromiseReject<ResultType>& reject) {
                 handleVoidPromise<ReturnType>(fn, v, i, resolve, reject);
+            })
+            .then([=](){
+                return v;
             }));
         i++;
     }
 
-    return QPromise<ResultType>::all(promises)
-            .then([values](){
-                return values;
-            });
+    return QPromise<ResType>::all(promises);
 }
 
 template <typename T>
