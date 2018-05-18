@@ -294,6 +294,20 @@ QPromise<T>::map(const T& values, MapFunctor fn)
     return QPromise<ResType>::all(mapped);
 }
 
+
+template <typename R, typename T, typename F, typename V>
+inline void handleVoidPromise(F fn, const V& v, int i, const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject)
+{
+   QtPromisePrivate::PromiseFulfill<R>::call(fn(v, i), resolve, reject);
+}
+
+template <typename R,  typename F, typename V>
+inline void handleVoidPromise(F fn, const V& v, int i, const QPromiseResolve<void>& resolve, const QPromiseReject<void>&)
+{
+   fn(v, i);
+   resolve();
+}
+
 template <typename T>
 template <typename EachFunctor>
 inline QPromise<T>
@@ -309,11 +323,10 @@ QPromise<T>::each(const T& values, EachFunctor fn)
     std::vector<QPromise<ResultType>> promises;
     for (const ResType& v : values) {
         promises.push_back(QPromise<ResultType>([&](
-            const QPromiseResolve<ResultType>& resolve) {
-                fn(v,i);
-                resolve();
+            const QPromiseResolve<ResultType>& resolve,
+            const QPromiseReject<ResultType>& reject) {
+                handleVoidPromise<ReturnType>(fn, v, i, resolve, reject);
             }));
-
         i++;
     }
 
