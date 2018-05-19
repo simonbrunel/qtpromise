@@ -625,49 +625,79 @@ private:
 };
 
 
-template<int ...> struct sequence {};
-template<int N, int ...S> struct generator : generator<N-1, N-1, S...> {};
-template<int ...S> struct generator<0, S...>{ typedef sequence<S...> type; };
+template<size_t ...> struct NumberSequence {};
+template<size_t N, size_t ...S> struct Generator : Generator<N-1, N-1, S...> {};
+template<size_t ...S> struct Generator<0, S...>{ typedef NumberSequence<S...> type; };
 
-template<typename T>
-inline QtPromise::QPromise<T> maybeResolve(const T&val)
+template <typename F, typename ...A>
+struct PromiseSpreader
 {
-    return QtPromise::QPromise<T>::resolve(val);
+    using ReturnType = typename std::result_of<F(A...)>::type;
+    using ResultType = typename PromiseDeduce<ReturnType>::Type::Type;
+};
+
+template<typename T, typename Tfunc, typename ...Args, size_t ...S>
+inline T spreadDispatcher(Tfunc func, const std::tuple<Args...>& params, NumberSequence<S...>)
+{
+    return func(std::get<S>(params)...);
 }
 
-template<typename T>
-inline QtPromise::QPromise<T> maybeResolve(const QtPromise::QPromise<T> &val)
-{
-    return val;
+template<class T, typename ...Args, size_t ...S>
+T tupleToStruct(const std::tuple<Args...>& values, NumberSequence<S...>) {
+    return {std::get<S>(values)...};
 }
 
-template<typename T, typename Tfunc, typename ...Args, int ...S>
-inline QtPromise::QPromise<T>
-spreadDispatcher(Tfunc func, const std::tuple<Args...>& params, sequence<S...>)
-{
-    auto res = func(std::get<S>(params) ...);
-    return maybeResolve(res);
-}
+namespace TuplePrivate {
 
-template<std::size_t I = 0, typename To, typename... Tp>
-static inline typename std::enable_if<I == sizeof...(Tp), QtPromise::QPromise<To>>::type
-tuplePromiseResolver(const std::tuple<Tp...>& tin, To& tout)
+template<size_t I, typename P, typename O, typename Res, typename Rej>
+inline void maybeResolve(const QtPromise::QPromise<P>& param, const O& out,
+                         Res resolve, Rej reject, const QSharedPointer<int> &remaining)
 {
-    Q_UNUSED(tin);
-    return QtPromise::QPromise<To>::resolve(tout);
-}
-
-template<std::size_t I = 0, typename To, typename... Tp>
-static inline typename std::enable_if<I < sizeof...(Tp), QtPromise::QPromise<To>>::type
-tuplePromiseResolver(const std::tuple<Tp...>& tin, To& tout)
-{
-    auto p = std::get<I>(tin);
-    auto o = std::get<I>(tout);
-    return p.then([=](const decltype (o) &value) mutable {
-        std::get<I>(tout) = value;
-        return tuplePromiseResolver<I + 1, To, Tp...>(tin, tout);
+    auto result = std::get<I>(*out);
+    param.then([=](const decltype (result) &res) mutable {
+        std::get<I>(*out) = res;
+        if (--(*remaining) == 0) {
+            resolve(*out);
+        }
+    }, [=]() mutable {
+        if (*remaining != -1) {
+            *remaining = -1;
+            reject(std::current_exception());
+        }
     });
 }
+
+template<size_t I, typename P, typename O, typename Res, typename Rej>
+inline void maybeResolve(const P& param, const O& out,
+                         Res resolve, Rej, const QSharedPointer<int> &remaining)
+{
+    auto result = std::get<I>(*out);
+
+    std::get<I>(*out) = param;
+    if (--(*remaining) == 0) {
+        resolve(*out);
+    }
+
+}
+
+template<size_t I, typename P, typename O, typename Res, typename Rej>
+inline void resolver(const P& params, const O& out,
+                     Res resolve, Rej reject, const QSharedPointer<int> &remaining)
+{
+    auto param = std::get<I>(params);
+    maybeResolve<I>(param, out, resolve, reject, remaining);
+}
+
+template<typename P, typename O, typename Res, typename Rej, size_t ...S>
+inline void expander(const P& in, const O& out,
+                    Res resolve, Rej reject,
+                   const QSharedPointer<int> &remaining, NumberSequence<S...>)
+{
+    using expander = size_t[];
+    expander { 0UL, (resolver<S>(in, out, resolve, reject, remaining), 0UL)... };
+}
+
+} // namespace TuplePrivate
 
 
 } // namespace QtPromise

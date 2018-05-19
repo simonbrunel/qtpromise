@@ -281,36 +281,85 @@ inline QPromise<void> QPromise<void>::resolve()
 }
 
 template<typename ...Args>
-template<typename ...pArgs>
-inline QPromise<std::tuple<Args...>> QPromise<std::tuple<Args...>>::all(const std::tuple<pArgs...> &params)
+template<typename Tfunc, typename R>
+inline QPromise<typename R::ResultType>
+QPromise<std::tuple<Args...>>::spread(Tfunc func) const
 {
-    std::tuple<Args...> out;
-    return QtPromisePrivate::tuplePromiseResolver(params, out);
-}
-
-template<typename ...Args>
-template<typename T, typename Tfunc>
-inline QPromise<T> QPromise<std::tuple<Args...>>::spread(Tfunc func) const
-{
-    QPromise<std::tuple<Args...>> p = *this;
-
-    return p.then([=](const std::tuple<Args...>& values) {
-        return QtPromisePrivate::spreadDispatcher<T>(func, values, typename QtPromisePrivate::generator<sizeof...(Args)>::type());
+    return this->then([=](const std::tuple<Args...>& values) {
+        return QPromise<std::tuple<Args...>>::spread(values, func);
     });
 }
 
+template<typename ...Args>
+template<class T>
+inline QPromise<T>
+QtPromise::QPromise<std::tuple<Args...>>::unpack() const
+{
+    return this->then([=](const std::tuple<Args...>& values) {
+        return QPromise<std::tuple<Args...>>::unpack<T>(values);
+    });
+}
 
 template<typename ...Args>
-inline QPromise<std::tuple<Args...>> QPromise<std::tuple<Args...>>::resolve(const std::tuple<Args...>& value)
+template<typename ...pArgs>
+inline QPromise<std::tuple<Args...>>
+QPromise<std::tuple<Args...>>::join(const std::tuple<pArgs...> &params)
+{
+    using namespace QtPromisePrivate;
+
+    return QPromise<std::tuple<Args...>>([=](
+        const QPromiseResolve<std::tuple<Args...>>& resolve,
+        const QPromiseReject<std::tuple<Args...>>& reject) {
+
+            QSharedPointer<int> remaining(new int(sizeof...(pArgs)));
+            QSharedPointer<std::tuple<Args...>> results(new std::tuple<Args...>());
+            auto sequence = typename Generator<sizeof...(pArgs)>::type();
+
+            TuplePrivate::expander(params, results, resolve, reject, remaining, sequence);
+    });
+}
+
+template<typename ...Args>
+template<typename Tfunc, typename R>
+inline QPromise<typename R::ResultType>
+QPromise<std::tuple<Args...>>::spread(const std::tuple<Args...>& values, Tfunc func)
+{
+    using namespace QtPromisePrivate;
+    using RetType = typename R::ReturnType;
+    using ResType = typename R::ResultType;
+
+    return QPromise<ResType>([=](
+        const QPromiseResolve<ResType>& resolve,
+        const QPromiseReject<ResType>& reject) {
+
+            auto sequence = typename Generator<sizeof...(Args)>::type();
+
+            PromiseFulfill<RetType>::call(spreadDispatcher<RetType>(func, values, sequence), resolve, reject);
+    });
+}
+
+template<typename ...Args>
+template<class T>
+inline QPromise<T>
+QtPromise::QPromise<std::tuple<Args...>>::unpack(const std::tuple<Args...> &values)
+{
+    using namespace QtPromisePrivate;
+    auto sequence = typename Generator<sizeof...(Args)>::type();
+    return QPromise<T>::resolve(tupleToStruct<T>(values, sequence));
+}
+
+template<typename ...Args>
+inline QPromise<std::tuple<Args...>>
+QPromise<std::tuple<Args...>>::resolve(const std::tuple<Args...>& value)
 {
     return QPromise<std::tuple<Args...>>([&](const QPromiseResolve<std::tuple<Args...>>& resolve) {
        resolve(value);
     });
 }
 
-
 template<typename ...Args>
-inline QPromise<std::tuple<Args...>> QPromise<std::tuple<Args...>>::resolve(std::tuple<Args...>&& value)
+inline QPromise<std::tuple<Args...>>
+QPromise<std::tuple<Args...>>::resolve(std::tuple<Args...>&& value)
 {
     return QPromise<std::tuple<Args...>>([&](const QPromiseResolve<std::tuple<Args...>>& resolve) {
        resolve(std::forward<std::tuple<Args...>>(value));

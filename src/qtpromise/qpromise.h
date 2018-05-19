@@ -121,11 +121,21 @@ public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<std::tuple<Args...>>(std::forward<F>(resolver)) { }
 
-    template<typename ...pArgs>
-    static inline QPromise<std::tuple<Args...>> all(const std::tuple<pArgs...> &params);
+    template<typename Tfunc, typename R = QtPromisePrivate::PromiseSpreader<Tfunc, Args...>>
+    inline QPromise<typename R::ResultType> spread(Tfunc func) const;
 
-    template<typename T, typename Tfunc>
-    inline QPromise<T> spread(Tfunc func) const;
+    template<class T>
+    inline QPromise<T> unpack() const;
+
+public: // STATIC
+    template<typename ...pArgs>
+    static inline QPromise<std::tuple<Args...>> join(const std::tuple<pArgs...> &params);
+
+    template<typename Tfunc, typename R = QtPromisePrivate::PromiseSpreader<Tfunc, Args...>>
+    static inline QPromise<typename R::ResultType> spread(const std::tuple<Args...>& values, Tfunc func);
+
+    template<class T>
+    static inline QPromise<T> unpack(const std::tuple<Args...>& values);
 
     inline static QPromise<std::tuple<Args...>> resolve(const std::tuple<Args...>& value);
     inline static QPromise<std::tuple<Args...>> resolve(std::tuple<Args...>&& value);
