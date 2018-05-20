@@ -15,6 +15,7 @@ class tst_qpromise_spread : public QObject
 
 private Q_SLOTS:
     void props();
+    void propsNoPromises();
     void propsMixed();
     void propsDelayed();
     void propsReject();
@@ -77,6 +78,22 @@ void tst_qpromise_spread::props()
                 QPromise<int>::resolve(42),
                 QPromise<QString>::resolve(QLatin1String("42")),
                 QPromise<QByteArray>::resolve("42")
+    );
+
+    auto p = QPromise<Result>::props(in);
+
+    Result expected = {42, QLatin1String("42"), "42"};
+
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Result>>::value));
+    QCOMPARE(waitForValue(p, Result()), expected);
+}
+
+void tst_qpromise_spread::propsNoPromises()
+{
+    auto in = std::make_tuple(
+                42,
+                QString("42"),
+                QByteArray("42")
     );
 
     auto p = QPromise<Result>::props(in);
