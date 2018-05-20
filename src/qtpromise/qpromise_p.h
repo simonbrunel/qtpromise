@@ -650,7 +650,7 @@ T tupleToStruct(const std::tuple<Args...>& values, NumberSequence<S...>) {
 namespace TuplePrivate {
 
 template<size_t I, typename P, typename O, typename Res, typename Rej>
-inline void maybeResolve(const QtPromise::QPromise<P>& param, const O& out,
+inline void maybePromise(const QtPromise::QPromise<P>& param, const O& out,
                          Res resolve, Rej reject, const QSharedPointer<int> &remaining)
 {
     auto result = std::get<I>(*out);
@@ -668,11 +668,9 @@ inline void maybeResolve(const QtPromise::QPromise<P>& param, const O& out,
 }
 
 template<size_t I, typename P, typename O, typename Res, typename Rej>
-inline void maybeResolve(const P& param, const O& out,
+inline void maybePromise(const P& param, const O& out,
                          Res resolve, Rej, const QSharedPointer<int> &remaining)
 {
-    auto result = std::get<I>(*out);
-
     std::get<I>(*out) = param;
     if (--(*remaining) == 0) {
         resolve(*out);
@@ -685,7 +683,7 @@ inline void resolver(const P& params, const O& out,
                      Res resolve, Rej reject, const QSharedPointer<int> &remaining)
 {
     auto param = std::get<I>(params);
-    maybeResolve<I>(param, out, resolve, reject, remaining);
+    maybePromise<I>(param, out, resolve, reject, remaining);
 }
 
 template<typename P, typename O, typename Res, typename Rej, size_t ...S>
