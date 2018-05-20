@@ -92,10 +92,10 @@ public: // STATIC
     inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
 
     template<typename ...pArgs>
-    static inline QPromise<T> props(const std::tuple<pArgs...>& params);
+    inline static QPromise<T> props(const std::tuple<pArgs...>& params);
 
     template<typename ...pArgs, typename Tfunc>
-    static inline QPromise<T> spread(const std::tuple<pArgs...>& params, Tfunc func);
+    inline static  QPromise<T> spread(const std::tuple<pArgs...>& params, Tfunc func);
 
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);

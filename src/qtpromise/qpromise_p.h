@@ -624,7 +624,6 @@ private:
     }
 };
 
-
 template<size_t ...> struct NumberSequence {};
 template<size_t N, size_t ...S> struct Generator : Generator<N-1, N-1, S...> {};
 template<size_t ...S> struct Generator<0, S...>{ using type = NumberSequence<S...>; };
@@ -636,6 +635,7 @@ struct PromiseSpreader
     using ResultType = typename PromiseDeduce<ReturnType>::Type::Type;
 };
 
+// https://stackoverflow.com/questions/7858817
 template<typename T, typename Tfunc, typename ...Args, size_t ...S>
 inline T spreadDispatcher(Tfunc func, const std::tuple<Args...>& params, NumberSequence<S...>)
 {
