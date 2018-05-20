@@ -627,7 +627,7 @@ private:
 
 template<size_t ...> struct NumberSequence {};
 template<size_t N, size_t ...S> struct Generator : Generator<N-1, N-1, S...> {};
-template<size_t ...S> struct Generator<0, S...>{ typedef NumberSequence<S...> type; };
+template<size_t ...S> struct Generator<0, S...>{ using type = NumberSequence<S...>; };
 
 template <typename F, typename ...A>
 struct PromiseSpreader
@@ -648,6 +648,9 @@ T tupleToStruct(const std::tuple<Args...>& values, NumberSequence<S...>) {
 }
 
 namespace TuplePrivate {
+
+template <class T>
+using ConvertPromiseTypes = typename PromiseDeduce<T>::Type::Type;
 
 template<size_t I, typename P, typename O, typename Res, typename Rej>
 inline void maybePromise(const QtPromise::QPromise<P>& param, const O& out,

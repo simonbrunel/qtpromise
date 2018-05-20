@@ -90,6 +90,13 @@ public:
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
     inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
+
+    template<typename ...pArgs>
+    static inline QPromise<T> props(const std::tuple<pArgs...>& params);
+
+    template<typename ...pArgs, typename Tfunc>
+    static inline QPromise<T> spread(const std::tuple<pArgs...>& params, Tfunc func);
+
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);
 
@@ -112,36 +119,6 @@ public: // STATIC
 
 private:
     friend class QPromiseBase<void>;
-};
-
-template <typename ...Args>
-class QPromise<std::tuple<Args...>> : public QPromiseBase<std::tuple<Args...>>
-{
-public:
-    template <typename F>
-    QPromise(F&& resolver): QPromiseBase<std::tuple<Args...>>(std::forward<F>(resolver)) { }
-
-    template<typename Tfunc, typename R = QtPromisePrivate::PromiseSpreader<Tfunc, Args...>>
-    inline QPromise<typename R::ResultType> spread(Tfunc func) const;
-
-    template<class T>
-    inline QPromise<T> unpack() const;
-
-public: // STATIC
-    template<typename ...pArgs>
-    static inline QPromise<std::tuple<Args...>> join(const std::tuple<pArgs...> &params);
-
-    template<typename Tfunc, typename R = QtPromisePrivate::PromiseSpreader<Tfunc, Args...>>
-    static inline QPromise<typename R::ResultType> spread(const std::tuple<Args...>& values, Tfunc func);
-
-    template<class T>
-    static inline QPromise<T> unpack(const std::tuple<Args...>& values);
-
-    inline static QPromise<std::tuple<Args...>> resolve(const std::tuple<Args...>& value);
-    inline static QPromise<std::tuple<Args...>> resolve(std::tuple<Args...>&& value);
-
-private:
-    friend class QPromiseBase<std::tuple<Args...>>;
 };
 
 } // namespace QtPromise
