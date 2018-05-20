@@ -16,6 +16,8 @@
   * [.timeout](qtpromise/qpromise/timeout.md)
   * [.wait](qtpromise/qpromise/wait.md)
   * [::all (static)](qtpromise/qpromise/all.md)
+  * [::props (static)](qtpromise/qpromise/props.md)
+  * [::spread (static)](qtpromise/qpromise/spread.md)
   * [::reject (static)](qtpromise/qpromise/reject.md)
   * [::resolve (static)](qtpromise/qpromise/resolve.md)
   * [qPromise](qtpromise/helpers/qpromise.md)

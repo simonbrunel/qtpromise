@@ -20,6 +20,8 @@
 * [`[static] QPromise<T>::all`](qpromise/all.md)
 * [`[static] QPromise<T>::reject`](qpromise/reject.md)
 * [`[static] QPromise<T>::resolve`](qpromise/resolve.md)
+* [`[static] QPromise<T>::props`](qpromise/props.md)
+* [`[static] QPromise<T>::spread`](qpromise/spread.md)
 
 ## Helpers
 
