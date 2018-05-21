@@ -20,6 +20,7 @@ private Q_SLOTS:
     void propsDelayed();
     void propsReject();
     void propsDelayedReject();
+    void propsTuple();
     void spread();
     void spreadMixed();
     void spreadDelayed();
@@ -152,6 +153,22 @@ void tst_qpromise_spread::propsDelayedReject()
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Result>>::value));
     QCOMPARE(waitForError(p, QString()), QString("This is an error"));
+}
+
+void tst_qpromise_spread::propsTuple()
+{
+    auto in = std::make_tuple(
+                QPromise<int>::resolve(42),
+                QPromise<QString>::resolve(QLatin1String("42")),
+                QPromise<QByteArray>::resolve("42")
+    );
+
+    auto p = QPromise<std::tuple<int,QString,QByteArray>>::props(in);
+
+    std::tuple<int,QString,QByteArray> expected({42, QLatin1String("42"), "42"});
+
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<std::tuple<int,QString,QByteArray>>>::value));
+    QCOMPARE(waitForValue(p, std::tuple<int,QString,QByteArray>()), expected);
 }
 
 void tst_qpromise_spread::spread()
