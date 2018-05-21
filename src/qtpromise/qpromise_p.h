@@ -654,10 +654,10 @@ using ConvertPromiseTypes = typename PromiseDeduce<T>::Type::Type;
 
 template<size_t I, typename P, typename O, typename Res, typename Rej>
 inline void maybePromise(const QtPromise::QPromise<P>& param, const O& out,
-                         Res resolve, Rej reject, const QSharedPointer<int> &remaining)
+                         Res resolve, Rej reject, const QSharedPointer<int>& remaining)
 {
-    auto result = std::get<I>(*out);
-    param.then([=](const decltype (result) &res) mutable {
+    using R = typename std::tuple_element<I,typename O::Type>::type;
+    param.then([=](const R& res) mutable {
         std::get<I>(*out) = res;
         if (--(*remaining) == 0) {
             resolve(*out);
@@ -672,30 +672,33 @@ inline void maybePromise(const QtPromise::QPromise<P>& param, const O& out,
 
 template<size_t I, typename P, typename O, typename Res, typename Rej>
 inline void maybePromise(const P& param, const O& out,
-                         Res resolve, Rej, const QSharedPointer<int> &remaining)
+                         Res resolve, Rej, const QSharedPointer<int>& remaining)
 {
     std::get<I>(*out) = param;
     if (--(*remaining) == 0) {
         resolve(*out);
     }
-
 }
 
 template<size_t I, typename P, typename O, typename Res, typename Rej>
 inline void resolver(const P& params, const O& out,
-                     Res resolve, Rej reject, const QSharedPointer<int> &remaining)
+                     Res resolve, Rej reject, const QSharedPointer<int>& remaining)
 {
     auto param = std::get<I>(params);
     maybePromise<I>(param, out, resolve, reject, remaining);
 }
 
+struct ExpanderOrder {
+    template <typename... T>
+    ExpanderOrder(T...) {}
+};
+
 template<typename P, typename O, typename Res, typename Rej, size_t ...S>
 inline void expander(const P& in, const O& out,
                     Res resolve, Rej reject,
-                   const QSharedPointer<int> &remaining, NumberSequence<S...>)
+                   const QSharedPointer<int>& remaining, NumberSequence<S...>)
 {
-    using expander = size_t[];
-    expander { 0UL, (resolver<S>(in, out, resolve, reject, remaining), 0UL)... };
+     ExpanderOrder({(resolver<S>(in, out, resolve, reject, remaining), 0UL)...});
 }
 
 } // namespace TuplePrivate

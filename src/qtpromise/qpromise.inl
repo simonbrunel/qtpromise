@@ -268,7 +268,6 @@ QPromise<T>::spread(const std::tuple<pArgs...>& params, Tfunc func)
             auto sequence = typename Generator<sizeof...(pArgs)>::type();
 
             TuplePrivate::expander(params, results, resolve, reject, remaining, sequence);
-
     }).then([=](const O& values) {
         using R = PromiseSpreader<Tfunc, QtPromisePrivate::TuplePrivate::ConvertPromiseTypes<pArgs>...>;
         using RetType = typename R::ReturnType;
@@ -277,9 +276,7 @@ QPromise<T>::spread(const std::tuple<pArgs...>& params, Tfunc func)
         return QPromise<ResType>([=](
             const QPromiseResolve<ResType>& resolve,
             const QPromiseReject<ResType>& reject) {
-
                 auto sequence = typename Generator<sizeof...(pArgs)>::type();
-
                 PromiseFulfill<RetType>::call(spreadDispatcher<RetType>(func, values, sequence), resolve, reject);
         });
     });
