@@ -87,6 +87,7 @@ void tst_qpromise_timeout::timeout()
     QCOMPARE(waitForValue(p, -1), -1);
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(failed, true);
+
     // Qt::CoarseTimer (default) Coarse timers try to
     // keep accuracy within 5% of the desired interval.
     // Require accuracy within 6% for passing the test.
