@@ -27,5 +27,6 @@
 
 * [`qPromise`](helpers/qpromise.md)
 * [`qPromiseAll`](helpers/qpromiseall.md)
+* [`QtPromise::attempt`](helpers/attempt.md)
 * [`QtPromise::filter`](helpers/filter.md)
 * [`QtPromise::map`](helpers/map.md)

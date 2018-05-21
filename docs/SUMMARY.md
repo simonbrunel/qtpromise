@@ -22,5 +22,6 @@
   * [::resolve (static)](qtpromise/qpromise/resolve.md)
   * [qPromise](qtpromise/helpers/qpromise.md)
   * [qPromiseAll](qtpromise/helpers/qpromiseall.md)
+  * [QtPromise::attempt](qtpromise/helpers/attempt.md)
   * [QtPromise::filter](qtpromise/helpers/filter.md)
   * [QtPromise::map](qtpromise/helpers/map.md)
