@@ -42,7 +42,7 @@ auto p = QPromise<MyObject>::props(promises)
         .then([](const MyObject& obj) {...});
 ```
 
-In the more general usecase any object that has a compatible initilizer list can be used.
+In C++14 any object that has a compatible initilizer list can be used.
 
 ``` cpp
 auto promises = std::make_tuple(
