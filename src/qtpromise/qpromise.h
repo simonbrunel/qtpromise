@@ -5,6 +5,7 @@
 #include "qpromise_p.h"
 #include "qpromiseerror.h"
 #include "qpromiseglobal.h"
+#include "qpromiseresolver.h"
 
 // Qt
 #include <QExplicitlySharedDataPointer>

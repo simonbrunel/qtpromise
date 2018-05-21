@@ -562,68 +562,6 @@ protected:
     }
 };
 
-template <typename T>
-class PromiseResolver
-{
-public:
-    PromiseResolver(QtPromise::QPromise<T> promise)
-        : m_d(new Data())
-    {
-        m_d->promise = new QtPromise::QPromise<T>(std::move(promise));
-    }
-
-    template <typename E>
-    void reject(E&& error)
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->reject(std::forward<E>(error));
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-    template <typename V>
-    void resolve(V&& value)
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->resolve(std::forward<V>(value));
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-    void resolve()
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->resolve();
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-private:
-    struct Data : public QSharedData
-    {
-        QtPromise::QPromise<T>* promise = nullptr;
-    };
-
-    QExplicitlySharedDataPointer<Data> m_d;
-
-    void release()
-    {
-        Q_ASSERT(m_d->promise);
-        Q_ASSERT(!m_d->promise->isPending());
-        delete m_d->promise;
-        m_d->promise = nullptr;
-    }
-};
-
 } // namespace QtPromise
 
 #endif // ifndef QTPROMISE_QPROMISE_H

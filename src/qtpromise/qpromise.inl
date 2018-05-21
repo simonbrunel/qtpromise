@@ -1,50 +1,11 @@
+#include "qpromise.h"
+
 // Qt
 #include <QCoreApplication>
 #include <QSharedPointer>
 #include <QTimer>
 
 namespace QtPromise {
-
-template <class T>
-class QPromiseResolve
-{
-public:
-    QPromiseResolve(QtPromisePrivate::PromiseResolver<T> resolver)
-        : m_resolver(std::move(resolver))
-    { }
-
-    template <typename V>
-    void operator()(V&& value) const
-    {
-        m_resolver.resolve(std::forward<V>(value));
-    }
-
-    void operator()() const
-    {
-        m_resolver.resolve();
-    }
-
-private:
-    mutable QtPromisePrivate::PromiseResolver<T> m_resolver;
-};
-
-template <class T>
-class QPromiseReject
-{
-public:
-    QPromiseReject(QtPromisePrivate::PromiseResolver<T> resolver)
-        : m_resolver(std::move(resolver))
-    { }
-
-    template <typename E>
-    void operator()(E&& error) const
-    {
-        m_resolver.reject(std::forward<E>(error));
-    }
-
-private:
-    mutable QtPromisePrivate::PromiseResolver<T> m_resolver;
-};
 
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
