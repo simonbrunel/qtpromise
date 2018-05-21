@@ -34,29 +34,19 @@ QTEST_MAIN(tst_qpromise_spread)
 template <typename T>
 QPromise<T> delayResolve( const T& value, int ms)
 {
-    return QPromise<T>([&](
-                const QPromiseResolve<T>& resolve,
-                const QPromiseReject<T>&) {
-                    QtPromisePrivate::qtpromise_defer([=]() {
-                        QPromise<void>::resolve().delay(ms).then([=](){
-                            resolve(value);
-                        });
-                    });
-                });
+    Q_UNUSED(ms);
+    return QPromise<void>::resolve().delay(ms).then([=](){
+        return QPromise<T>::resolve(value);
+    });
 }
 
 template <typename T>
 QPromise<T> delayReject( const T& value, int ms)
 {
-    return QPromise<T>([&](
-                const QPromiseResolve<T>&,
-                const QPromiseReject<T>& reject) {
-                    QtPromisePrivate::qtpromise_defer([=]() {
-                        QPromise<void>::resolve().delay(ms).then([=](){
-                            reject(value);
-                        });
-                    });
-                });
+    Q_UNUSED(ms);
+    return QPromise<void>::resolve().delay(ms).then([=](){
+        return QPromise<T>::reject(value);
+    });
 }
 
 struct Result {
