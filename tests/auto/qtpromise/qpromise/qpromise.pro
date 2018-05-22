@@ -1,14 +1,15 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     all \
-    spread \
     construct \
     delay \
     fail \
     finally \
     operators \
+    props \
     reject \
     resolve \
+    spread \
     tap \
     tapfail \
     then \
