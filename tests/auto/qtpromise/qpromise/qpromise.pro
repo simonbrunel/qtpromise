@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 SUBDIRS += \
     construct \
     delay \
+    each \
     fail \
     filter \
     finally \

@@ -65,6 +65,12 @@ attempt(Functor&& fn, Args&&... args)
 }
 
 template <typename Sequence, typename Functor>
+static inline QPromise<Sequence> each(const Sequence& values, Functor&& fn)
+{
+    return QPromise<Sequence>::resolve(values).each(std::forward<Functor>(fn));
+}
+
+template <typename Sequence, typename Functor>
 static inline typename QtPromisePrivate::PromiseMapper<Sequence, Functor>::PromiseType
 map(const Sequence& values, Functor fn)
 {

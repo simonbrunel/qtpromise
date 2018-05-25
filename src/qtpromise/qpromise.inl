@@ -157,6 +157,29 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 
 template <typename T>
 template <typename Functor>
+inline QPromise<T> QPromise<T>::each(Functor fn)
+{
+    return this->tap([=](const T& values) {
+        int i = 0;
+
+        std::vector<QPromise<void>> promises;
+        for (const auto& v : values) {
+            promises.push_back(
+                QtPromise::attempt(fn, v, i)
+                    .then([]() {
+                        // Cast to void in case fn returns a non promise value.
+                        // TODO remove when implicit cast is implemented.
+                    }));
+
+            i++;
+        }
+
+        return QPromise<void>::all(promises);
+    });
+}
+
+template <typename T>
+template <typename Functor>
 inline QPromise<T> QPromise<T>::filter(Functor fn)
 {
     return this->then([=](const T& values) {
