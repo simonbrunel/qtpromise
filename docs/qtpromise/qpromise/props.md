@@ -10,7 +10,7 @@ If any of the given `promises` fail, `output` immediately rejects with the error
 
 The main usecase is to use a `struct` that matches all of the types resolved by the input `std::tuple`.  It is important to be sure that the order of the fields in the `struct` match the order of the resolved types of the input `std::tuple`.
 
-``` cpp
+```cpp
 struct MyObject {
     int property1;
     QString property2;
@@ -27,7 +27,7 @@ auto p = QPromise<MyObject>::props(promises)
 
 In cases where the input doesn't require all data fields to be a `QPromise<...>` the direct value can be used.
 
-``` cpp
+```cpp
 struct MyObject {
     int property1;
     QString property2;
@@ -44,7 +44,7 @@ auto p = QPromise<MyObject>::props(promises)
 
 In C++14 any object that has a compatible initilizer list can be used.
 
-``` cpp
+```cpp
 auto promises = std::make_tuple(
         QPromise<int>(...),
         QPromise<QString>(...)

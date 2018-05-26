@@ -229,6 +229,25 @@ inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...
 }
 
 template<typename T>
+template<typename ...pArgs, typename R>
+inline static QPromise<R>
+QPromise<T>::all(const std::tuple<pArgs...>& params)
+{
+    using namespace QtPromisePrivate;
+
+    return QPromise<R>([=](
+        const QPromiseResolve<R>& resolve,
+        const QPromiseReject<R>& reject) {
+
+            QSharedPointer<int> remaining(new int(sizeof...(pArgs)));
+            QSharedPointer<R> results(new R());
+            auto sequence = typename Generator<sizeof...(pArgs)>::type();
+
+            TuplePrivate::expander(params, results, resolve, reject, remaining, sequence);
+    });
+}
+
+template<typename T>
 template<typename ...pArgs>
 inline QPromise<T>
 QPromise<T>::props(const std::tuple<pArgs...> &params)
@@ -236,40 +255,21 @@ QPromise<T>::props(const std::tuple<pArgs...> &params)
     using namespace QtPromisePrivate;
     using O = typename std::tuple<QtPromisePrivate::TuplePrivate::ConvertPromiseTypes<pArgs>...>;
 
-    return QPromise<O>([=](
-        const QPromiseResolve<O>& resolve,
-        const QPromiseReject<O>& reject) {
-
-            QSharedPointer<int> remaining(new int(sizeof...(pArgs)));
-            QSharedPointer<O> results(new O());
-            auto sequence = typename Generator<sizeof...(pArgs)>::type();
-
-            TuplePrivate::expander(params, results, resolve, reject, remaining, sequence);
-    }).then([=](const O& values) {
+    return all(params).then([=](const O& values) {
         auto sequence = typename Generator<sizeof...(pArgs)>::type();
         return tupleToStruct<T>(values, sequence);
     });
 }
 
 template<typename T>
-template<typename ...pArgs, typename Tfunc>
-inline QPromise<T>
+template<typename ...pArgs, typename Tfunc, typename R>
+inline QPromise<typename R::ResultType>
 QPromise<T>::spread(const std::tuple<pArgs...>& params, Tfunc func)
 {
     using namespace QtPromisePrivate;
     using O = typename std::tuple<QtPromisePrivate::TuplePrivate::ConvertPromiseTypes<pArgs>...>;
 
-    return QPromise<O>([=](
-        const QPromiseResolve<O>& resolve,
-        const QPromiseReject<O>& reject) {
-
-            QSharedPointer<int> remaining(new int(sizeof...(pArgs)));
-            QSharedPointer<O> results(new O());
-            auto sequence = typename Generator<sizeof...(pArgs)>::type();
-
-            TuplePrivate::expander(params, results, resolve, reject, remaining, sequence);
-    }).then([=](const O& values) {
-        using R = PromiseSpreader<Tfunc, QtPromisePrivate::TuplePrivate::ConvertPromiseTypes<pArgs>...>;
+    return all(params).then([=](const O& values) {
         using RetType = typename R::ReturnType;
         using ResType = typename R::ResultType;
 
