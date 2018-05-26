@@ -397,6 +397,18 @@ struct PromiseCatcher<T, std::nullptr_t, void>
     }
 };
 
+template <typename T, typename F>
+struct PromiseMapper
+{ };
+
+template <typename T, typename F, template <typename, typename...> class Sequence, typename ...Args>
+struct PromiseMapper<Sequence<T, Args...>, F>
+{
+    using ReturnType = typename std::result_of<F(T, int)>::type;
+    using ResultType = QVector<typename PromiseDeduce<ReturnType>::Type::Type>;
+    using PromiseType = QtPromise::QPromise<ResultType>;
+};
+
 template <typename T> class PromiseData;
 
 template <typename T, typename F>
@@ -562,68 +574,6 @@ protected:
     }
 };
 
-template <typename T>
-class PromiseResolver
-{
-public:
-    PromiseResolver(QtPromise::QPromise<T> promise)
-        : m_d(new Data())
-    {
-        m_d->promise = new QtPromise::QPromise<T>(std::move(promise));
-    }
-
-    template <typename E>
-    void reject(E&& error)
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->reject(std::forward<E>(error));
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-    template <typename V>
-    void resolve(V&& value)
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->resolve(std::forward<V>(value));
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-    void resolve()
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->resolve();
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-private:
-    struct Data : public QSharedData
-    {
-        QtPromise::QPromise<T>* promise = nullptr;
-    };
-
-    QExplicitlySharedDataPointer<Data> m_d;
-
-    void release()
-    {
-        Q_ASSERT(m_d->promise);
-        Q_ASSERT(!m_d->promise->isPending());
-        delete m_d->promise;
-        m_d->promise = nullptr;
-    }
-};
-
 template<size_t ...> struct NumberSequence {};
 template<size_t N, size_t ...S> struct Generator : Generator<N-1, N-1, S...> {};
 template<size_t ...S> struct Generator<0, S...>{ using type = NumberSequence<S...>; };
@@ -702,7 +652,6 @@ inline void expander(const P& in, const O& out,
 }
 
 } // namespace TuplePrivate
-
 
 } // namespace QtPromise
 

@@ -5,6 +5,7 @@
 #include "qpromise_p.h"
 #include "qpromiseerror.h"
 #include "qpromiseglobal.h"
+#include "qpromiseresolver.h"
 
 // Qt
 #include <QExplicitlySharedDataPointer>
@@ -86,6 +87,10 @@ class QPromise : public QPromiseBase<T>
 public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
+
+    template <typename Functor>
+    inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
+    map(Functor fn);
 
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>

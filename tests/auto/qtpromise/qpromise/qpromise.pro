@@ -1,14 +1,12 @@
 TEMPLATE = subdirs
 SUBDIRS += \
-    all \
     construct \
     delay \
     fail \
     finally \
+    map \
     operators \
     props \
-    reject \
-    resolve \
     spread \
     tap \
     tapfail \

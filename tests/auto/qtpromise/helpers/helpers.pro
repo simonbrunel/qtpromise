@@ -1,4 +1,6 @@
-TARGET = tst_helpers
-SOURCES += $$PWD/tst_helpers.cpp
-
-include(../qtpromise.pri)
+TEMPLATE = subdirs
+SUBDIRS += \
+    all \
+    map \
+    reject \
+    resolve

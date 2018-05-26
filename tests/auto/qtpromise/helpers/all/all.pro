@@ -1,4 +1,4 @@
-TARGET = tst_qpromise_all
+TARGET = tst_helpers_all
 SOURCES += $$PWD/tst_all.cpp
 
 include(../../qtpromise.pri)
