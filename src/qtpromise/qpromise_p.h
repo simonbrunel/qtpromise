@@ -397,6 +397,18 @@ struct PromiseCatcher<T, std::nullptr_t, void>
     }
 };
 
+template <typename T, typename F>
+struct PromiseMapper
+{ };
+
+template <typename T, typename F, template <typename, typename...> class Sequence, typename ...Args>
+struct PromiseMapper<Sequence<T, Args...>, F>
+{
+    using ReturnType = typename std::result_of<F(T, int)>::type;
+    using ResultType = QVector<typename PromiseDeduce<ReturnType>::Type::Type>;
+    using PromiseType = QtPromise::QPromise<ResultType>;
+};
+
 template <typename T> class PromiseData;
 
 template <typename T, typename F>

@@ -38,6 +38,31 @@ static inline QPromise<void> qPromiseAll(const Sequence<QPromise<void>, Args...>
     return QPromise<void>::all(promises);
 }
 
+template <typename Sequence, typename Functor>
+static inline typename QtPromisePrivate::PromiseMapper<Sequence, Functor>::PromiseType
+map(const Sequence& values, Functor fn)
+{
+    using namespace QtPromisePrivate;
+    using MapperType = PromiseMapper<Sequence, Functor>;
+    using ResType = typename MapperType::ResultType::value_type;
+    using RetType = typename MapperType::ReturnType;
+
+    int i = 0;
+
+    std::vector<QPromise<ResType>> promises;
+    for (const auto& v : values) {
+        promises.push_back(QPromise<ResType>([&](
+            const QPromiseResolve<ResType>& resolve,
+            const QPromiseReject<ResType>& reject) {
+                PromiseFulfill<RetType>::call(fn(v, i), resolve, reject);
+            }));
+
+        i++;
+    }
+
+    return QPromise<ResType>::all(promises);
+}
+
 } // namespace QtPromise
 
 #endif // QTPROMISE_QPROMISEHELPERS_H

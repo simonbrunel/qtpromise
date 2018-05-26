@@ -1,4 +1,5 @@
 #include "qpromise.h"
+#include "qpromisehelpers.h"
 
 // Qt
 #include <QCoreApplication>
@@ -151,6 +152,16 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 {
     return QPromise<T>([&](const QPromiseResolve<T>&, const QPromiseReject<T>& reject) {
         reject(std::forward<E>(error));
+    });
+}
+
+template <typename T>
+template <typename Functor>
+inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
+QPromise<T>::map(Functor fn)
+{
+    return this->then([=](const T& values) {
+        return QtPromise::map(values, fn);
     });
 }
 

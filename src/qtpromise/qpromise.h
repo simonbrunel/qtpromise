@@ -88,6 +88,10 @@ public:
     template <typename F>
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
+    template <typename Functor>
+    inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
+    map(Functor fn);
+
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
     inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);

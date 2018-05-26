@@ -4,6 +4,7 @@ SUBDIRS += \
     delay \
     fail \
     finally \
+    map \
     operators \
     tap \
     tapfail \

@@ -9,6 +9,7 @@
 * [`QPromise<T>::isFulfilled`](qpromise/isfulfilled.md)
 * [`QPromise<T>::isPending`](qpromise/ispending.md)
 * [`QPromise<T>::isRejected`](qpromise/isrejected.md)
+* [`QPromise<T>::map`](qpromise/map.md)
 * [`QPromise<T>::tap`](qpromise/tap.md)
 * [`QPromise<T>::tapFail`](qpromise/tapfail.md)
 * [`QPromise<T>::then`](qpromise/then.md)
@@ -25,3 +26,4 @@
 
 * [`qPromise`](helpers/qpromise.md)
 * [`qPromiseAll`](helpers/qpromiseall.md)
+* [`QtPromise::map`](helpers/map.md)
