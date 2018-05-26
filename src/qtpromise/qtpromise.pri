@@ -5,4 +5,5 @@ HEADERS += \
     $$PWD/qpromiseerror.h \
     $$PWD/qpromisefuture.h \
     $$PWD/qpromiseglobal.h \
-    $$PWD/qpromisehelpers.h
+    $$PWD/qpromisehelpers.h \
+    $$PWD/qpromiseresolver.h

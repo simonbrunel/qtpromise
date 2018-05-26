@@ -12,7 +12,7 @@
 
 using namespace QtPromise;
 
-class tst_qpromise_reject : public QObject
+class tst_helpers_reject : public QObject
 {
     Q_OBJECT
 
@@ -22,10 +22,10 @@ private Q_SLOTS:
     void rejectWithStdSharedPtr();
 };
 
-QTEST_MAIN(tst_qpromise_reject)
+QTEST_MAIN(tst_helpers_reject)
 #include "tst_reject.moc"
 
-void tst_qpromise_reject::rejectWithValue()
+void tst_helpers_reject::rejectWithValue()
 {
     auto p = QPromise<int>::reject(42);
 
@@ -34,7 +34,7 @@ void tst_qpromise_reject::rejectWithValue()
 }
 
 // https://github.com/simonbrunel/qtpromise/issues/6
-void tst_qpromise_reject::rejectWithQSharedPtr()
+void tst_helpers_reject::rejectWithQSharedPtr()
 {
     QWeakPointer<int> wptr;
 
@@ -54,7 +54,7 @@ void tst_qpromise_reject::rejectWithQSharedPtr()
 }
 
 // https://github.com/simonbrunel/qtpromise/issues/6
-void tst_qpromise_reject::rejectWithStdSharedPtr()
+void tst_helpers_reject::rejectWithStdSharedPtr()
 {
     std::weak_ptr<int> wptr;
 

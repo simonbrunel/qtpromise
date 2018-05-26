@@ -9,7 +9,7 @@
 
 using namespace QtPromise;
 
-class tst_qpromise_map : public QObject
+class tst_helpers_map : public QObject
 {
     Q_OBJECT
 
@@ -25,7 +25,7 @@ private Q_SLOTS:
     void sequenceTypes();
 };
 
-QTEST_MAIN(tst_qpromise_map)
+QTEST_MAIN(tst_helpers_map)
 #include "tst_map.moc"
 
 namespace {
@@ -35,26 +35,20 @@ struct SequenceTester
 {
     static void exec()
     {
-        auto p = QtPromise::qPromise(Sequence{42, 43, 44}).map([](int v, ...) {
+        auto p = QtPromise::map(Sequence{42, 43, 44}, [](int v, ...) {
             return QString::number(v + 1);
-        }).map([](const QString& v, int i) {
-            return QtPromise::qPromise(QString("%1:%2").arg(i).arg(v));
-        }).map([](const QString& v, ...) {
-            return QtPromise::qPromise((v + "!").toUtf8());
-        }).map([](const QByteArray& v, ...) {
-            return QString::fromUtf8(v);
         });
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<QString>>>::value));
-        QCOMPARE(waitForValue(p, QVector<QString>()), QVector<QString>({"0:43!", "1:44!", "2:45!"}));
+        QCOMPARE(waitForValue(p, QVector<QString>()), QVector<QString>({"43", "44", "45"}));
     }
 };
 
 } // anonymous namespace
 
-void tst_qpromise_map::emptySequence()
+void tst_helpers_map::emptySequence()
 {
-    auto p = QtPromise::qPromise(QVector<int>{}).map([](int v, ...) {
+    auto p = QtPromise::map(QVector<int>{}, [](int v, ...) {
         return v + 1;
     });
 
@@ -62,9 +56,9 @@ void tst_qpromise_map::emptySequence()
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({}));
 }
 
-void tst_qpromise_map::modifyValues()
+void tst_helpers_map::modifyValues()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
         return v + 1;
     });
 
@@ -72,9 +66,9 @@ void tst_qpromise_map::modifyValues()
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({43, 44, 45}));
 }
 
-void tst_qpromise_map::convertValues()
+void tst_helpers_map::convertValues()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QString::number(v + 1);
     });
 
@@ -82,9 +76,9 @@ void tst_qpromise_map::convertValues()
     QCOMPARE(waitForValue(p, QVector<QString>()), QVector<QString>({"43", "44", "45"}));
 }
 
-void tst_qpromise_map::delayedFulfilled()
+void tst_helpers_map::delayedFulfilled()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QPromise<int>([&](const QPromiseResolve<int>& resolve) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     resolve(v + 1);
@@ -96,9 +90,9 @@ void tst_qpromise_map::delayedFulfilled()
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({43, 44, 45}));
 }
 
-void tst_qpromise_map::delayedRejected()
+void tst_helpers_map::delayedRejected()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QPromise<int>([&](
             const QPromiseResolve<int>& resolve,
             const QPromiseReject<int>& reject) {
@@ -115,9 +109,9 @@ void tst_qpromise_map::delayedRejected()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
 }
 
-void tst_qpromise_map::functorThrows()
+void tst_helpers_map::functorThrows()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
         if (v == 43) {
             throw QString("foo");
         }
@@ -128,27 +122,27 @@ void tst_qpromise_map::functorThrows()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
 }
 
-void tst_qpromise_map::functorArguments()
+void tst_helpers_map::functorArguments()
 {
-    auto p1 = QtPromise::qPromise(QVector<int>{42, 42, 42}).map([](int v, int i) {
+    auto p = QtPromise::map(QVector<int>{42, 42, 42}, [](int v, int i) {
         return v * i;
     });
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p1), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p1, QVector<int>()), QVector<int>({0, 42, 84}));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
+    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({0, 42, 84}));
 }
 
-void tst_qpromise_map::preserveOrder()
+void tst_helpers_map::preserveOrder()
 {
-    auto p = QtPromise::qPromise(QVector<int>{250, 500, 100}).map([](int v, ...) {
-        return QtPromise::qPromise(v + 1).delay(v);
+    auto p = QtPromise::map(QVector<int>{500, 100, 250}, [](int v, ...) {
+        return QPromise<int>::resolve(v + 1).delay(v);
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({251, 501, 101}));
+    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({501, 101, 251}));
 }
 
-void tst_qpromise_map::sequenceTypes()
+void tst_helpers_map::sequenceTypes()
 {
     SequenceTester<QList<int>>::exec();
     SequenceTester<QVector<int>>::exec();

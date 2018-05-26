@@ -5,6 +5,7 @@
 #include "qpromise_p.h"
 #include "qpromiseerror.h"
 #include "qpromiseglobal.h"
+#include "qpromiseresolver.h"
 
 // Qt
 #include <QExplicitlySharedDataPointer>
@@ -99,12 +100,13 @@ public:
     template <typename ReduceFunctor, typename R>
     inline QPromise<R> reduce(ReduceFunctor fn, const R &initial) const;
 
+    template <typename Functor>
+    inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
+    map(Functor fn);
+
 public: // STATIC
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
     inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
-
-    template <typename MapFunctor, typename Mapper = QtPromisePrivate::PromiseMapper<T, MapFunctor>>
-    inline static QPromise<typename Mapper::ResultType> map(const T& values, MapFunctor fn);
 
     template <typename EachFunctor>
     inline static QPromise<T> each(const T& values, EachFunctor fn);

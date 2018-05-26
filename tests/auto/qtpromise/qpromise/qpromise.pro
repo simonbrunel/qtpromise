@@ -1,7 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS += \
-    all \
-    map \
     filter \
     reduce \
     each \
@@ -9,9 +7,8 @@ SUBDIRS += \
     delay \
     fail \
     finally \
+    map \
     operators \
-    reject \
-    resolve \
     tap \
     tapfail \
     then \

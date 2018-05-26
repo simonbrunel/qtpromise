@@ -1,50 +1,12 @@
+#include "qpromise.h"
+#include "qpromisehelpers.h"
+
 // Qt
 #include <QCoreApplication>
 #include <QSharedPointer>
 #include <QTimer>
 
 namespace QtPromise {
-
-template <class T>
-class QPromiseResolve
-{
-public:
-    QPromiseResolve(QtPromisePrivate::PromiseResolver<T> resolver)
-        : m_resolver(std::move(resolver))
-    { }
-
-    template <typename V>
-    void operator()(V&& value) const
-    {
-        m_resolver.resolve(std::forward<V>(value));
-    }
-
-    void operator()() const
-    {
-        m_resolver.resolve();
-    }
-
-private:
-    mutable QtPromisePrivate::PromiseResolver<T> m_resolver;
-};
-
-template <class T>
-class QPromiseReject
-{
-public:
-    QPromiseReject(QtPromisePrivate::PromiseResolver<T> resolver)
-        : m_resolver(std::move(resolver))
-    { }
-
-    template <typename E>
-    void operator()(E&& error) const
-    {
-        m_resolver.reject(std::forward<E>(error));
-    }
-
-private:
-    mutable QtPromisePrivate::PromiseResolver<T> m_resolver;
-};
 
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
@@ -194,12 +156,12 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 }
 
 template <typename T>
-template <typename MapFunctor, typename Mapper>
-inline QPromise<typename Mapper::ResultType>
-QPromise<T>::map(MapFunctor fn) const
+template <typename Functor>
+inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
+QPromise<T>::map(Functor fn)
 {
     return this->then([=](const T& values) {
-        return QPromise<T>::map(values, fn);
+        return QtPromise::map(values, fn);
     });
 }
 
@@ -268,32 +230,6 @@ inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...
         }
     });
 }
-
-template <typename T>
-template <typename MapFunctor, typename Mapper>
-inline QPromise<typename Mapper::ResultType>
-QPromise<T>::map(const T& values, MapFunctor fn)
-{
-    using namespace QtPromisePrivate;
-    using RetType = typename Mapper::ReturnType;
-    using ResType = typename Mapper::ResultType::value_type;
-
-    int i = 0;
-
-    std::vector<QPromise<ResType>> mapped;
-    for (const auto& v : values) {
-        mapped.push_back(QPromise<ResType>([&](
-            const QPromiseResolve<ResType>& resolve,
-            const QPromiseReject<ResType>& reject) {
-                PromiseFulfill<RetType>::call(fn(v, i), resolve, reject);
-            }));
-
-        i++;
-    }
-
-    return QPromise<ResType>::all(mapped);
-}
-
 
 template <typename R, typename T, typename F, typename V>
 inline void handleVoidPromise(F fn, const V& v, int i, const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject)

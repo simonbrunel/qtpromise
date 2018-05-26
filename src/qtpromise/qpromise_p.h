@@ -397,6 +397,18 @@ struct PromiseCatcher<T, std::nullptr_t, void>
     }
 };
 
+template <typename T, typename F>
+struct PromiseMapper
+{ };
+
+template <typename T, typename F, template <typename, typename...> class Sequence, typename ...Args>
+struct PromiseMapper<Sequence<T, Args...>, F>
+{
+    using ReturnType = typename std::result_of<F(T, int)>::type;
+    using ResultType = QVector<typename PromiseDeduce<ReturnType>::Type::Type>;
+    using PromiseType = QtPromise::QPromise<ResultType>;
+};
+
 template <typename T> class PromiseData;
 
 template <typename T, typename F>
@@ -504,17 +516,6 @@ private:
     PromiseError m_error;
 };
 
-template <typename T, typename F>
-struct PromiseMapper
-{ };
-
-template <typename T, typename F, template <typename, typename...> class Sequence, typename ...Args>
-struct PromiseMapper<Sequence<T, Args...>, F>
-{
-    using ReturnType = typename std::result_of<F(T, int)>::type;
-    using ResultType = QVector<typename PromiseDeduce<ReturnType>::Type::Type>;
-};
-
 template <typename T>
 class PromiseData : public PromiseDataBase<T, void(const T&)>
 {
@@ -570,68 +571,6 @@ protected:
         for (const auto& handler: handlers) {
             qtpromise_defer(handler.second, handler.first);
         }
-    }
-};
-
-template <typename T>
-class PromiseResolver
-{
-public:
-    PromiseResolver(QtPromise::QPromise<T> promise)
-        : m_d(new Data())
-    {
-        m_d->promise = new QtPromise::QPromise<T>(std::move(promise));
-    }
-
-    template <typename E>
-    void reject(E&& error)
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->reject(std::forward<E>(error));
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-    template <typename V>
-    void resolve(V&& value)
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->resolve(std::forward<V>(value));
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-    void resolve()
-    {
-        auto promise = m_d->promise;
-        if (promise) {
-            Q_ASSERT(promise->isPending());
-            promise->m_d->resolve();
-            promise->m_d->dispatch();
-            release();
-        }
-    }
-
-private:
-    struct Data : public QSharedData
-    {
-        QtPromise::QPromise<T>* promise = nullptr;
-    };
-
-    QExplicitlySharedDataPointer<Data> m_d;
-
-    void release()
-    {
-        Q_ASSERT(m_d->promise);
-        Q_ASSERT(!m_d->promise->isPending());
-        delete m_d->promise;
-        m_d->promise = nullptr;
     }
 };
 
