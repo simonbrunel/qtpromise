@@ -38,6 +38,32 @@ static inline QPromise<void> qPromiseAll(const Sequence<QPromise<void>, Args...>
     return QPromise<void>::all(promises);
 }
 
+template <typename Functor, typename... Args>
+static inline typename QtPromisePrivate::PromiseFunctor<Functor, Args...>::PromiseType
+attempt(Functor&& fn, Args&&... args)
+{
+    using namespace QtPromisePrivate;
+    using FunctorType = PromiseFunctor<Functor, Args...>;
+    using PromiseType = typename FunctorType::PromiseType;
+    using ValueType = typename PromiseType::Type;
+
+    // NOTE: std::forward<T<U>>: MSVC 2013 fails when forwarding
+    // template type (error: "expects 4 arguments - 0 provided").
+    // However it succeeds with type alias.
+    // TODO: should we expose QPromise::ResolveType & RejectType?
+    using ResolveType = QPromiseResolve<ValueType>;
+    using RejectType = QPromiseReject<ValueType>;
+
+    return PromiseType(
+        [&](ResolveType&& resolve, RejectType&& reject) {
+            PromiseDispatch<typename FunctorType::ResultType>::call(
+                std::forward<ResolveType>(resolve),
+                std::forward<RejectType>(reject),
+                std::forward<Functor>(fn),
+                std::forward<Args>(args)...);
+        });
+}
+
 template <typename Sequence, typename Functor>
 static inline typename QtPromisePrivate::PromiseMapper<Sequence, Functor>::PromiseType
 map(const Sequence& values, Functor fn)
@@ -61,6 +87,26 @@ map(const Sequence& values, Functor fn)
     }
 
     return QPromise<ResType>::all(promises);
+}
+
+template <typename Sequence, typename Functor>
+static inline QPromise<Sequence> filter(const Sequence& values, Functor fn)
+{
+    return QtPromise::map(values, fn)
+        .then([=](const QVector<bool>& filters) {
+            Sequence filtered;
+
+            auto filter = filters.begin();
+            for (auto& value : values) {
+                if (*filter) {
+                    filtered.push_back(std::move(value));
+                }
+
+                filter++;
+            }
+
+            return filtered;
+        });
 }
 
 } // namespace QtPromise

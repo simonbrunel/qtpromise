@@ -157,6 +157,15 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 
 template <typename T>
 template <typename Functor>
+inline QPromise<T> QPromise<T>::filter(Functor fn)
+{
+    return this->then([=](const T& values) {
+        return QtPromise::filter(values, fn);
+    });
+}
+
+template <typename T>
+template <typename Functor>
 inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
 QPromise<T>::map(Functor fn)
 {

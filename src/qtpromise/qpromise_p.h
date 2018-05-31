@@ -119,6 +119,13 @@ struct PromiseDeduce<QtPromise::QPromise<T>>
     : public PromiseDeduce<T>
 { };
 
+template <typename Functor, typename... Args>
+struct PromiseFunctor
+{
+    using ResultType = typename std::result_of<Functor(Args...)>::type;
+    using PromiseType = typename PromiseDeduce<ResultType>::Type;
+};
+
 template <typename T>
 struct PromiseFulfill
 {
@@ -176,51 +183,17 @@ struct PromiseFulfill<QtPromise::QPromise<void>>
     }
 };
 
-template <typename T, typename TRes>
+template <typename Result>
 struct PromiseDispatch
 {
-    using Promise = typename PromiseDeduce<TRes>::Type;
-    using ResType = Unqualified<TRes>;
-
-    template <typename THandler, typename TResolve, typename TReject>
-    static void call(const T& value, THandler handler, const TResolve& resolve, const TReject& reject)
+    template <typename Resolve, typename Reject, typename Functor, typename... Args>
+    static void call(const Resolve& resolve, const Reject& reject, Functor fn, Args&&... args)
     {
         try {
-            PromiseFulfill<ResType>::call(handler(value), resolve, reject);
-        } catch (...) {
-            reject(std::current_exception());
-        }
-    }
-};
-
-template <typename T>
-struct PromiseDispatch<T, void>
-{
-    using Promise = QtPromise::QPromise<void>;
-
-    template <typename THandler, typename TResolve, typename TReject>
-    static void call(const T& value, THandler handler, const TResolve& resolve, const TReject& reject)
-    {
-        try {
-            handler(value);
-            resolve();
-        } catch (...) {
-            reject(std::current_exception());
-        }
-    }
-};
-
-template <typename TRes>
-struct PromiseDispatch<void, TRes>
-{
-    using Promise = typename PromiseDeduce<TRes>::Type;
-    using ResType = Unqualified<TRes>;
-
-    template <typename THandler, typename TResolve, typename TReject>
-    static void call(THandler handler, const TResolve& resolve, const TReject& reject)
-    {
-        try {
-            PromiseFulfill<ResType>::call(handler(), resolve, reject);
+            PromiseFulfill<Unqualified<Result>>::call(
+                fn(std::forward<Args>(args)...),
+                resolve,
+                reject);
         } catch (...) {
             reject(std::current_exception());
         }
@@ -228,15 +201,13 @@ struct PromiseDispatch<void, TRes>
 };
 
 template <>
-struct PromiseDispatch<void, void>
+struct PromiseDispatch<void>
 {
-    using Promise = QtPromise::QPromise<void>;
-
-    template <typename THandler, typename TResolve, typename TReject>
-    static void call(THandler handler, const TResolve& resolve, const TReject& reject)
+    template <typename Resolve, typename Reject, typename Functor, typename... Args>
+    static void call(const Resolve& resolve, const Reject& reject, Functor fn, Args&&... args)
     {
         try {
-            handler();
+            fn(std::forward<Args>(args)...);
             resolve();
         } catch (...) {
             reject(std::current_exception());
@@ -248,7 +219,7 @@ template <typename T, typename THandler, typename TArg = typename ArgsOf<THandle
 struct PromiseHandler
 {
     using ResType = typename std::result_of<THandler(T)>::type;
-    using Promise = typename PromiseDispatch<T, ResType>::Promise;
+    using Promise = typename PromiseDeduce<ResType>::Type;
 
     template <typename TResolve, typename TReject>
     static std::function<void(const T&)> create(
@@ -257,7 +228,7 @@ struct PromiseHandler
         const TReject& reject)
     {
         return [=](const T& value) {
-            PromiseDispatch<T, ResType>::call(value, std::move(handler), resolve, reject);
+            PromiseDispatch<ResType>::call(resolve, reject, handler, value);
         };
     }
 };
@@ -266,7 +237,7 @@ template <typename T, typename THandler>
 struct PromiseHandler<T, THandler, void>
 {
     using ResType = typename std::result_of<THandler()>::type;
-    using Promise = typename PromiseDispatch<T, ResType>::Promise;
+    using Promise = typename PromiseDeduce<ResType>::Type;
 
     template <typename TResolve, typename TReject>
     static std::function<void(const T&)> create(
@@ -275,7 +246,7 @@ struct PromiseHandler<T, THandler, void>
         const TReject& reject)
     {
         return [=](const T&) {
-            PromiseDispatch<void, ResType>::call(handler, resolve, reject);
+            PromiseDispatch<ResType>::call(resolve, reject, handler);
         };
     }
 };
@@ -284,7 +255,7 @@ template <typename THandler>
 struct PromiseHandler<void, THandler, void>
 {
     using ResType = typename std::result_of<THandler()>::type;
-    using Promise = typename PromiseDispatch<void, ResType>::Promise;
+    using Promise = typename PromiseDeduce<ResType>::Type;
 
     template <typename TResolve, typename TReject>
     static std::function<void()> create(
@@ -293,7 +264,7 @@ struct PromiseHandler<void, THandler, void>
         const TReject& reject)
     {
         return [=]() {
-            PromiseDispatch<void, ResType>::call(handler, resolve, reject);
+            PromiseDispatch<ResType>::call(resolve, reject, handler);
         };
     }
 };
@@ -351,7 +322,7 @@ struct PromiseCatcher
             try {
                 error.rethrow();
             } catch (const TArg& error) {
-                PromiseDispatch<TArg, ResType>::call(error, handler, resolve, reject);
+                PromiseDispatch<ResType>::call(resolve, reject, handler, error);
             } catch (...) {
                 reject(std::current_exception());
             }
@@ -374,7 +345,7 @@ struct PromiseCatcher<T, THandler, void>
             try {
                 error.rethrow();
             } catch (...) {
-                PromiseDispatch<void, ResType>::call(handler, resolve, reject);
+                PromiseDispatch<ResType>::call(resolve, reject, handler);
             }
         };
     }
