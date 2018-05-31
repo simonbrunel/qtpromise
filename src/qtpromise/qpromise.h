@@ -101,6 +101,9 @@ public:
     inline QPromise<R> reduce(ReduceFunctor fn, const R &initial) const;
 
     template <typename Functor>
+    inline QPromise<T> filter(Functor fn);
+
+    template <typename Functor>
     inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
     map(Functor fn);
 
@@ -110,9 +113,6 @@ public: // STATIC
 
     template <typename EachFunctor>
     inline static QPromise<T> each(const T& values, EachFunctor fn);
-
-    template <typename FilterFunctor>
-    inline static QPromise<T> filter(const T& values, FilterFunctor fn);
 
     template <typename ReduceFunctor, typename R>
     inline static QPromise<R> reduce(const T& values, ReduceFunctor fn, const R &initial);

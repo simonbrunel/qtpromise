@@ -1,11 +1,11 @@
 TEMPLATE = subdirs
 SUBDIRS += \
-    filter \
     reduce \
     each \
     construct \
     delay \
     fail \
+    filter \
     finally \
     map \
     operators \

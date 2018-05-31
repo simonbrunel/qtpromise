@@ -9,7 +9,7 @@
 
 using namespace QtPromise;
 
-class tst_qpromise_filter : public QObject
+class tst_helpers_filter : public QObject
 {
     Q_OBJECT
 
@@ -24,7 +24,7 @@ private Q_SLOTS:
     void sequenceTypes();
 };
 
-QTEST_MAIN(tst_qpromise_filter)
+QTEST_MAIN(tst_helpers_filter)
 #include "tst_filter.moc"
 
 namespace {
@@ -34,18 +34,13 @@ struct SequenceTester
 {
     static void exec()
     {
-        auto p = QtPromise::qPromise(Sequence{
-            42, 43, 44, 45, 46, 47, 48, 49, 50, 51
-        }).filter([](int v, ...) {
-            return v > 42 && v < 51;
-        }).filter([](int, int i) {
-            return QPromise<bool>::resolve(i % 2 == 0);
-        }).filter([](int v, ...) {
-            return v != 45;
+        auto inputs = Sequence{42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+        auto p = QtPromise::filter(inputs, [](int v, ...) {
+            return v % 3 == 0;
         });
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Sequence>>::value));
-        QCOMPARE(waitForValue(p, Sequence()), Sequence({43, 47, 49}));
+        QCOMPARE(waitForValue(p, Sequence()), Sequence({42, 45, 48, 51}));
     }
 };
 
@@ -53,9 +48,9 @@ struct SequenceTester
 
 #include <QtConcurrent/QtConcurrent>
 
-void tst_qpromise_filter::emptySequence()
+void tst_helpers_filter::emptySequence()
 {
-    auto p = QPromise<QVector<int>>::resolve({}).filter([](int v, ...) {
+    auto p = QtPromise::filter(QVector<int>{}, [](int v, ...) {
         return v % 2 == 0;
     });
 
@@ -63,9 +58,9 @@ void tst_qpromise_filter::emptySequence()
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>{});
 }
 
-void tst_qpromise_filter::filterValues()
+void tst_helpers_filter::filterValues()
 {
-    auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([](int v, ...) {
+    auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [](int v, ...) {
         return v % 2 == 0;
     });
 
@@ -73,9 +68,9 @@ void tst_qpromise_filter::filterValues()
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 44}));
 }
 
-void tst_qpromise_filter::delayedFulfilled()
+void tst_helpers_filter::delayedFulfilled()
 {
-    auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([](int v, ...) {
+    auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QPromise<bool>([&](const QPromiseResolve<bool>& resolve) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     resolve(v % 2 == 0);
@@ -87,14 +82,14 @@ void tst_qpromise_filter::delayedFulfilled()
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 44}));
 }
 
-void tst_qpromise_filter::delayedRejected()
+void tst_helpers_filter::delayedRejected()
 {
-    auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([](int v, ...) {
+    auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QPromise<bool>([&](
             const QPromiseResolve<bool>& resolve,
             const QPromiseReject<bool>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
-                    if (v == 43) {
+                    if (v == 44) {
                         reject(QString("foo"));
                     }
                     resolve(true);
@@ -106,10 +101,10 @@ void tst_qpromise_filter::delayedRejected()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
 }
 
-void tst_qpromise_filter::functorThrows()
+void tst_helpers_filter::functorThrows()
 {
-    auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([](int v, ...) {
-        if (v == 43) {
+    auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [](int v, ...) {
+        if (v == 44) {
             throw QString("foo");
         }
         return true;
@@ -119,10 +114,10 @@ void tst_qpromise_filter::functorThrows()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
 }
 
-void tst_qpromise_filter::functorArguments()
+void tst_helpers_filter::functorArguments()
 {
     QMap<int, int> args;
-    auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([&](int v, int i) {
+     auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [&](int v, int i) {
         args[v] = i;
         return i % 2 == 0;
     });
@@ -133,17 +128,17 @@ void tst_qpromise_filter::functorArguments()
     QCOMPARE(args, expected);
 }
 
-void tst_qpromise_filter::preserveOrder()
+void tst_helpers_filter::preserveOrder()
 {
-    auto p = QPromise<QVector<int>>::resolve({250, 50, 100, 400, 300}).filter([](int v, ...) {
+    auto p = QtPromise::filter(QVector<int>{500, 100, 300, 250, 400}, [](int v, ...) {
         return QPromise<bool>::resolve(v > 200).delay(v);
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({250, 400, 300}));
+    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({500, 300, 250, 400}));
 }
 
-void tst_qpromise_filter::sequenceTypes()
+void tst_helpers_filter::sequenceTypes()
 {
     SequenceTester<QList<int>>::exec();
     SequenceTester<QVector<int>>::exec();

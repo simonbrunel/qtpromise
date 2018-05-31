@@ -5,6 +5,7 @@
 * [`QPromise<T>::QPromise`](qpromise/constructor.md)
 * [`QPromise<T>::delay`](qpromise/delay.md)
 * [`QPromise<T>::fail`](qpromise/fail.md)
+* [`QPromise<T>::filter`](qpromise/filter.md)
 * [`QPromise<T>::finally`](qpromise/finally.md)
 * [`QPromise<T>::isFulfilled`](qpromise/isfulfilled.md)
 * [`QPromise<T>::isPending`](qpromise/ispending.md)
@@ -30,4 +31,6 @@
 
 * [`qPromise`](helpers/qpromise.md)
 * [`qPromiseAll`](helpers/qpromiseall.md)
+* [`QtPromise::attempt`](helpers/attempt.md)
+* [`QtPromise::filter`](helpers/filter.md)
 * [`QtPromise::map`](helpers/map.md)

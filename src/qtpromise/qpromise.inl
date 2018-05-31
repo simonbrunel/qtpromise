@@ -157,6 +157,15 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 
 template <typename T>
 template <typename Functor>
+inline QPromise<T> QPromise<T>::filter(Functor fn)
+{
+    return this->then([=](const T& values) {
+        return QtPromise::filter(values, fn);
+    });
+}
+
+template <typename T>
+template <typename Functor>
 inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
 QPromise<T>::map(Functor fn)
 {
@@ -172,16 +181,6 @@ QPromise<T>::each(EachFunctor fn) const
 {
     return this->then([=](const T& values) {
         return QPromise<T>::each(values, fn);
-    });
-}
-
-template <typename T>
-template <typename FilterFunctor>
-inline QPromise<T>
-QPromise<T>::filter(FilterFunctor fn) const
-{
-    return this->then([=](const T& values) {
-        return QPromise<T>::filter(values, fn);
     });
 }
 
@@ -270,43 +269,6 @@ QPromise<T>::each(const T& values, EachFunctor fn)
     }
 
     return QPromise<ResType>::all(promises);
-}
-
-template <typename T>
-template <typename FilterFunctor>
-inline QPromise<T>
-QPromise<T>::filter(const T& values, FilterFunctor fn)
-{
-    using namespace QtPromisePrivate;
-    using ResType = typename T::value_type;
-    using ReturnType = typename std::result_of<FilterFunctor(ResType, int)>::type;
-    using ResultType = typename PromiseDeduce<ReturnType>::Type::Type;
-
-    int i = 0;
-
-    std::vector<QPromise<ResultType>> promises;
-    for (auto v : values) {
-        promises.push_back(QPromise<ResultType>([&](
-            const QPromiseResolve<ResultType>& resolve,
-            const QPromiseReject<ResultType>& reject) {
-                PromiseFulfill<ReturnType>::call(fn(v, i), resolve, reject);
-            }));
-
-        i++;
-    }
-
-    return QPromise<ResultType>::all(promises)
-            .then([values](const QVector<ResultType> &filtered){
-                T results;
-                int index = 0;
-                for(bool filter : filtered) {
-                    if (filter) {
-                        results.push_back(values[index]);
-                    }
-                    index++;
-                }
-                return results;
-            });
 }
 
 template <typename T>
