@@ -1,4 +1,64 @@
-## Creating `QPromise<T>` from signals
+## Qt Signals
+
+QtPromise supports creating promises that are resolved or rejected by regular Qt signals using the `QtPromise::connect()` helper:
+
+```cpp
+// single resolve signal
+::connect(sender, resolveSignal)
+// resolve and reject signal
+::connect(sender, resolveSignal, rejectSignal)
+// resolve and reject from different objects
+::connect(sender1, resolveSignal, sender2, rejectSignal)
+```
+
+`QtPromise::connect()` creates a `QPromise<T>` that resolves with the signal's argument:
+```cpp
+// void stringSignal(const QString&)
+QPromise<QString> p = QtPromise::connect(
+    obj, &Object::stringSignal
+);
+p.then([](const QString& value) {
+    // resolved with `value` from stringSignal
+});
+```
+`QPromise<void>` is created for signals with no arguments.
+
+A rejection is added to the promise by providing a second signal:
+```cpp
+// void intRejectSignal(int)
+QPromise<void> p = QtPromise::connect(
+    obj, &Object::voidResolveSignal, &Object::intRejectSignal,
+);
+p.fail([](int value) {
+    // rejected with `value` from intRejectSignal
+});
+```
+
+Rejections from signals with no arguments are caught by `QPromiseSignalException`:
+```cpp
+// void voidRejectSignal()
+QPromise<void> p = QtPromise::connect(
+    obj, &Object::voidResolveSignal, &Object::voidRejectSignal
+);
+p.fail([](const QPromiseSignalException&) {
+    // rejected by voidRejectSignal
+});
+```
+
+Promises created by `QtPromise::connect()` are automatically rejected with `QPromiseContextException` if the sender is destroyed before fulfilling the promise:
+```cpp
+// void voidRejectSignal()
+QPromise<void> p = QtPromise::connect(
+    obj, &Object::voidResolveSignal
+);
+p.then([]() {
+    // promise fulfilled
+}).fail([](const QPromiseContextException&) {
+    // rejected by obj destruction
+});
+```
+
+## Manually creating `QPromise<T>` from signals
 
 When creating promises from from signals, care must be taken to guarantee that all signals involved in the promise creation are disconnected after fulfillment.
 

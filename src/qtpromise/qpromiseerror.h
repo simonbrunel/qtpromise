@@ -8,17 +8,31 @@
 // Qt
 #include <QException>
 
-namespace QtPromise {
+namespace QtPromisePrivate {
 
-class QPromiseTimeoutException : public QException
+template <typename T>
+class ExceptionBase : public QException
 {
 public:
     void raise() const Q_DECL_OVERRIDE { throw *this; }
-    QPromiseTimeoutException* clone() const Q_DECL_OVERRIDE
+    QException* clone() const Q_DECL_OVERRIDE
     {
-        return new QPromiseTimeoutException(*this);
+        return new T(*reinterpret_cast<const T*>(this));
     }
 };
+
+} // namespace QtPromisePrivate
+
+namespace QtPromise {
+
+class QPromiseTimeoutException : public QtPromisePrivate::ExceptionBase<QPromiseTimeoutException>
+{ };
+
+class QPromiseContextException : public QtPromisePrivate::ExceptionBase<QPromiseContextException>
+{ };
+
+class QPromiseSignalException : public QtPromisePrivate::ExceptionBase<QPromiseSignalException>
+{ };
 
 // QPromiseError is provided for backward compatibility and will be
 // removed in the next major version: it wasn't intended to be used
