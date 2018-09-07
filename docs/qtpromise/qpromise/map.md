@@ -1,6 +1,10 @@
-## `QPromise<Sequence<T>>::map`
+---
+title: .map
+---
 
-> **Important:** applies only to promise with sequence value.
+# QPromise::map
+
+*Since: 0.4.0*
 
 ```cpp
 QPromise<Sequence<T>>::map(Mapper mapper) -> QPromise<QVector<R>>
@@ -9,6 +13,10 @@ QPromise<Sequence<T>>::map(Mapper mapper) -> QPromise<QVector<R>>
 // - Sequence: STL compatible container (e.g. QVector, etc.)
 // - Mapper: Function(T value, int index) -> R | QPromise<R>
 ```
+
+::: warning IMPORTANT
+This method only applies to promise with sequence value.
+:::
 
 Iterates over all the promise values (i.e. `Sequence<T>`) and [maps the sequence](https://en.wikipedia.org/wiki/Map_%28higher-order_function%29)
 to another using the given `mapper` function. The type returned by `mapper` determines the type
@@ -41,8 +49,10 @@ output.then([](const QVector<DownloadResult>& res) {
 });
 ```
 
-> **Note:** the order of the output sequence values is guarantee to be the same as the original
+::: tip NOTE
+The order of the output sequence values is guarantee to be the same as the original
 sequence, regardless of completion order of the promises returned by `mapper`.
+:::
 
 This function is provided for convenience and is similar to:
 

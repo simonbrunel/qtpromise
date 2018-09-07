@@ -5,11 +5,5 @@
 
 Requires [Qt 5.6](https://www.qt.io/download/) (or later) with [C++11 support enabled](https://wiki.qt.io/How_to_use_C++11_in_your_Qt_Projects).
 
-## QtPromise for C++
-* [Getting Started](qtpromise/getting-started.md)
-* [Thread-Safety](qtpromise/thread-safety.md)
-* [QtConcurrent](qtpromise/qtconcurrent.md)
-* [API Reference](qtpromise/api-reference.md)
-
 ## License
 QtPromise is available under the [MIT license](https://github.com/simonbrunel/qtpromise/blob/master/LICENSE).

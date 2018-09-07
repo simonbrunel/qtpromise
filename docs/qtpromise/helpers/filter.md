@@ -1,4 +1,10 @@
-## `QtPromise::filter`
+---
+title: filter
+---
+
+# QtPromise::filter
+
+*Since: 0.4.0*
 
 ```cpp
 QtPromise::filter(Sequence<T> values, Filterer filterer) -> QPromise<Sequence<T>>
@@ -38,7 +44,9 @@ output.then([](const QVector<QUrl>& res) {
 });
 ```
 
-> **Note:** the order of the output sequence values is guarantee to be the same as the original
+::: tip NOTE
+The order of the output sequence values is guarantee to be the same as the original
 sequence, regardless of completion order of the promises returned by `filterer`.
+:::
 
 See also: [`QPromise<T>::filter`](../qpromise/filter.md)

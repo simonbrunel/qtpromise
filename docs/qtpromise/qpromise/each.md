@@ -1,6 +1,10 @@
-## `QPromise<Sequence<T>>::each`
+---
+title: .each
+---
 
-> **Important:** applies only to promise with sequence value.
+# QPromise::each
+
+*Since: 0.4.0*
 
 ```cpp
 QPromise<Sequence<T>>::each(Functor functor) -> QPromise<Sequence<T>>
@@ -9,6 +13,10 @@ QPromise<Sequence<T>>::each(Functor functor) -> QPromise<Sequence<T>>
 // - Sequence: STL compatible container
 // - Functor: Function(T value, int index) -> any
 ```
+
+::: warning IMPORTANT
+This method only applies to promise with sequence value.
+:::
 
 Calls the given `functor` on each element in the promise value (i.e. `Sequence<T>`), then resolves to the original sequence unmodified. If `functor` throws, `output` is rejected with the new exception.
 

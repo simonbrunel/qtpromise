@@ -1,6 +1,12 @@
-## `QPromise<T>::wait`
+---
+title: .wait
+---
 
-```
+# QPromise::wait
+
+*Since: 0.1.0*
+
+```cpp
 QPromise<T>::wait() -> QPromise<T>
 ```
 

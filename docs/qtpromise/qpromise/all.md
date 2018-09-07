@@ -1,4 +1,10 @@
-## `[static] QPromise<T>::all`
+---
+title: ::all [static]
+---
+
+# QPromise::all [static]
+
+*Since: 0.1.0*
 
 ```
 [static] QPromise<T>::all(Sequence<QPromise<T>> promises) -> QPromise<QVector<T>>

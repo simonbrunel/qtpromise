@@ -1,6 +1,12 @@
-## `QPromise<T>::QPromise`
+---
+title: constructor
+---
 
-```
+# QPromise::QPromise
+
+*Since: 0.1.0*
+
+```cpp
 QPromise<T>::QPromise(Function resolver)
 ```
 
@@ -18,7 +24,9 @@ QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReje
 });
 ```
 
-> **Note:** `QPromise<void>` is specialized to not contain any value, meaning that the `resolve` callback takes no argument.
+::: tip NOTE
+`QPromise<void>` is specialized to not contain any value, meaning that the `resolve` callback takes no argument.
+:::
 
 **C++14**
 

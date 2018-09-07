@@ -1,8 +1,10 @@
+# Getting Started
+
 ## Installation
 
 QtPromise is a [header-only](https://en.wikipedia.org/wiki/Header-only) library, simply download the [latest release](https://github.com/simonbrunel/qtpromise/releases/latest) (or [`git submodule`](https://git-scm.com/docs/git-submodule)) and include `qtpromise.pri` from your project `.pro`.
 
-## qpm
+### qpm
 
 Alternatively and **only** if your project relies on [qpm](https://www.qpm.io/), you can install QtPromise as follow:
 

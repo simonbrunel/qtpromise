@@ -1,6 +1,12 @@
-## `QPromise<T>::timeout`
+---
+title: .timeout
+---
 
-```
+# QPromise::timeout
+
+*Since: 0.2.0*
+
+```cpp
 QPromise<T>::timeout(int msec, any error = QPromiseTimeoutException) -> QPromise<T>
 ```
 

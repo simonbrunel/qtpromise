@@ -1,6 +1,10 @@
-## `QPromise<Sequence<T>>::filter`
+---
+title: .filter
+---
 
-> **Important:** applies only to promise with sequence value.
+# QPromise::filter
+
+*Since: 0.4.0*
 
 ```cpp
 QPromise<Sequence<T>>::filter(Filter filterer) -> QPromise<Sequence<T>>
@@ -9,6 +13,10 @@ QPromise<Sequence<T>>::filter(Filter filterer) -> QPromise<Sequence<T>>
 // - Sequence: STL compatible container (e.g. QVector, etc.)
 // - Filterer: Function(T value, int index) -> bool
 ```
+
+::: warning IMPORTANT
+This method only applies to promise with sequence value.
+:::
 
 Iterates over all the promise values (i.e. `Sequence<T>`) and [filters the sequence](https://en.wikipedia.org/wiki/Filter_%28higher-order_function%29)
 to another using the given `filterer` function. If `filterer` returns `true`, a copy of the item
@@ -39,7 +47,9 @@ output.then([](const QList<QUrl>& res) {
 });
 ```
 
-> **Note:** the order of the output sequence values is guarantee to be the same as the original
+::: tip NOTE
+The order of the output sequence values is guarantee to be the same as the original
 sequence, regardless of completion order of the promises returned by `filterer`.
+:::
 
 See also: [`QtPromise::filter`](../helpers/filter.md)

@@ -1,4 +1,10 @@
-## `QtPromise::attempt`
+---
+title: attempt
+---
+
+# QtPromise::attempt
+
+*Since: 0.4.0*
 
 ```cpp
 QtPromise::attempt(Functor functor, Args...) -> QPromise<R>

@@ -1,4 +1,10 @@
-## `[static] QPromise<T>::resolve`
+---
+title: ::resolve [static]
+---
+
+# QPromise::resolve [static]
+
+*Since: 0.1.0*
 
 ```
 [static] QPromise<T>::resolve(T value) -> QPromise<T>

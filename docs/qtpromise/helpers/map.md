@@ -1,4 +1,10 @@
-## `QtPromise::map`
+---
+title: map
+---
+
+# QtPromise::map
+
+*Since: 0.4.0*
 
 ```cpp
 QtPromise::map(Sequence<T> values, Mapper mapper) -> QPromise<QVector<R>>
@@ -37,7 +43,9 @@ output.then([](const QVector<QByteArray>& res) {
 });
 ```
 
-> **Note:** the order of the output sequence values is guarantee to be the same as the original
+::: tip NOTE
+The order of the output sequence values is guarantee to be the same as the original
 sequence, regardless of completion order of the promises returned by `mapper`.
+:::
 
 See also: [`QPromise<T>::map`](../qpromise/map.md)

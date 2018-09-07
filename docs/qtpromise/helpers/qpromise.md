@@ -1,4 +1,10 @@
-## `qPromise`
+---
+title: qPromise
+---
+
+# qPromise
+
+*Since: 0.1.0*
 
 ```
 qPromise(T value) -> QPromise<R>

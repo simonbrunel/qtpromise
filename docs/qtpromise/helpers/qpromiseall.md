@@ -1,4 +1,10 @@
-## `qPromiseAll`
+---
+title: qPromiseAll
+---
+
+# qPromiseAll
+
+*Since: 0.1.0*
 
 ```
 qPromiseAll(Sequence<QPromise<T>> promises) -> QPromise<QVector<T>>

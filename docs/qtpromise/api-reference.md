@@ -1,6 +1,6 @@
-## QPromise
+# API Reference
 
-### Public Members
+## Functions
 
 * [`QPromise<T>::QPromise`](qpromise/constructor.md)
 * [`QPromise<T>::delay`](qpromise/delay.md)
@@ -18,7 +18,7 @@
 * [`QPromise<T>::timeout`](qpromise/timeout.md)
 * [`QPromise<T>::wait`](qpromise/wait.md)
 
-### Public Static Members
+## Static Functions
 
 * [`[static] QPromise<T>::all`](qpromise/all.md)
 * [`[static] QPromise<T>::reject`](qpromise/reject.md)
@@ -26,9 +26,9 @@
 
 ## Helpers
 
-* [`qPromise`](helpers/qpromise.md)
-* [`qPromiseAll`](helpers/qpromiseall.md)
 * [`QtPromise::attempt`](helpers/attempt.md)
 * [`QtPromise::each`](helpers/each.md)
 * [`QtPromise::filter`](helpers/filter.md)
 * [`QtPromise::map`](helpers/map.md)
+* [`qPromise`](helpers/qpromise.md)
+* [`qPromiseAll`](helpers/qpromiseall.md)

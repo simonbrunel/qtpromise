@@ -1,6 +1,12 @@
-## `QPromise<T>::tapFail`
+---
+title: .tapFail
+---
 
-```
+# QPromise::tapFail
+
+*Since: 0.4.0*
+
+```cpp
 QPromise<T>::tapFail(Function handler) -> QPromise<T>
 ```
 
