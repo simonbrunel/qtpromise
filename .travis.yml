@@ -21,7 +21,7 @@ install:
 
 before_script:
   - qmake --version
-  - lcov --version
+  - lcov --version && gcov --version
   - gcc --version && g++ --version
 
 script:
