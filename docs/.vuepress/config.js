@@ -10,6 +10,10 @@ module.exports = {
         lastUpdated: 'Last Updated',
         editLinks: true,
         docsDir: 'docs',
+        algolia: {
+            apiKey: '0e6e9cccb8c2c360a5543e28c4e31cb8',
+            indexName: 'qtpromise'
+        },
         sidebar: [
             'qtpromise/getting-started',
             'qtpromise/qtconcurrent',
