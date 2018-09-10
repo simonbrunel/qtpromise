@@ -98,7 +98,9 @@ void tst_signals::reject()
     const QString testValue("42");
     QString reason;
     emit signalSource.strSignal(testValue);
-    p.fail([&](const QString& r) { reason = r; }).wait();
+    p.fail([&](const QtPromise::QPromiseSignalException<QString>& r) {
+        reason = r.value;
+    }).wait();
 
     QVERIFY(p.isRejected());
     QVERIFY(reason == testValue);
@@ -116,7 +118,7 @@ void tst_signals::reject_void()
 
     emit signalSource.voidSignal();
     bool result = false;
-    p.fail([&](const QPromiseSignalException&) { result = true; return 0; }).wait();
+    p.fail([&](const QtPromise::QPromiseSignalException<void>&) { result = true; return 0; }).wait();
 
     QVERIFY(p.isRejected());
     QVERIFY(result);

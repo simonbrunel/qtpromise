@@ -63,29 +63,41 @@ connectSignalToResolver(const QtPromise::QPromiseConnections& connections,
 }
 
 // Connect signal() to QPromiseReject
-template <typename Reason = QtPromise::QPromiseSignalException,
-          typename T, typename Sender, typename Signal>
+template <typename T, typename Sender, typename Signal>
 typename std::enable_if<(ArgsOf<Signal>::count == 0)>::type
 connectSignalToResolver(const QtPromise::QPromiseConnections& connections,
                         const QtPromise::QPromiseReject<T>& reject,
                         const Sender* sender, Signal signal)
 {
     connections << QObject::connect(sender, signal, [=]() {
-        reject(Reason());
+        reject(QtPromise::QPromiseSignalException<void>());
         connections.disconnect();
     });
 }
 
-// Connect signal(args...) to QPromiseResolve or QPromiseReject
-template <typename Resolver, typename Sender, typename Signal>
+// Connect signal(args...) to QPromiseResolve
+template <typename T, typename Sender, typename Signal>
 typename std::enable_if<(ArgsOf<Signal>::count >= 1)>::type
 connectSignalToResolver(const QtPromise::QPromiseConnections& connections,
-                        const Resolver& resolver,
+                        const QtPromise::QPromiseResolve<T>& resolve,
                         const Sender* sender, Signal signal)
 {
-    using V = typename ArgsOf<Signal>::first;
+    connections << QObject::connect(sender, signal, [=](const T& value) {
+        resolve(value);
+        connections.disconnect();
+    });
+}
+
+// Connect signal(args...) to QPromiseReject
+template <typename T, typename Sender, typename Signal>
+typename std::enable_if<(ArgsOf<Signal>::count >= 1)>::type
+connectSignalToResolver(const QtPromise::QPromiseConnections& connections,
+                        const QtPromise::QPromiseReject<T>& reject,
+                        const Sender* sender, Signal signal)
+{
+    using V = Unqualified<typename ArgsOf<Signal>::first>;
     connections << QObject::connect(sender, signal, [=](const V& value) {
-        resolver(value);
+        reject(QtPromise::QPromiseSignalException<V>(value));
         connections.disconnect();
     });
 }

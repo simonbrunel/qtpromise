@@ -23,25 +23,15 @@ p.then([](const QString& value) {
 ```
 `QPromise<void>` is created for signals with no arguments.
 
-A rejection is added to the promise by providing a second signal:
+A rejection is added to the promise by providing a second signal.
+Rejections from signals are caught by `QPromiseSignalException<T>`:
 ```cpp
 // void intRejectSignal(int)
 QPromise<void> p = QtPromise::connect(
     obj, &Object::voidResolveSignal, &Object::intRejectSignal,
 );
-p.fail([](int value) {
-    // rejected with `value` from intRejectSignal
-});
-```
-
-Rejections from signals with no arguments are caught by `QPromiseSignalException`:
-```cpp
-// void voidRejectSignal()
-QPromise<void> p = QtPromise::connect(
-    obj, &Object::voidResolveSignal, &Object::voidRejectSignal
-);
-p.fail([](const QPromiseSignalException&) {
-    // rejected by voidRejectSignal
+p.fail([](const QPromiseSignalException<int>& e) {
+    // rejected with `e.value` from intRejectSignal
 });
 ```
 
@@ -53,6 +43,9 @@ QPromise<void> p = QtPromise::connect(
 );
 p.then([]() {
     // promise fulfilled
+}).fail([](const QPromiseSignalException<void>&) {
+    // rejected by voidResolveSignal
+}
 }).fail([](const QPromiseContextException&) {
     // rejected by obj destruction
 });

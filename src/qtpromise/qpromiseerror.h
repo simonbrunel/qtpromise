@@ -31,7 +31,17 @@ class QPromiseTimeoutException : public QtPromisePrivate::ExceptionBase<QPromise
 class QPromiseContextException : public QtPromisePrivate::ExceptionBase<QPromiseContextException>
 { };
 
-class QPromiseSignalException : public QtPromisePrivate::ExceptionBase<QPromiseSignalException>
+template <typename T>
+class QPromiseSignalException : public QtPromisePrivate::ExceptionBase<QPromiseSignalException<T>>
+{
+public:
+    template <typename V>
+    QPromiseSignalException(V&& v) : value(std::forward<V>(v)) { }
+    const T value;
+};
+
+template<>
+class QPromiseSignalException<void> : public QtPromisePrivate::ExceptionBase<QPromiseSignalException<void>>
 { };
 
 // QPromiseError is provided for backward compatibility and will be
