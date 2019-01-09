@@ -1,85 +1,89 @@
-## Qt Signals
+# Qt Signals
 
-QtPromise supports creating promises that are resolved or rejected by regular Qt signals using the `QtPromise::connect()` helper:
+QtPromise supports creating promises that are resolved or rejected by regular [Qt signals](https://doc.qt.io/qt-5/signalsandslots.html).
+
+::: warning IMPORTANT
+A promise connected to a signal will be resolved (fulfilled or rejected) **only one time**, no matter if the signals are emitted multiple times. Internally, the promise is disconnected from all signals as soon as one signal is emitted.
+:::
+
+## Resolve Signal
+
+The [`QtPromise::connect()`](helpers/connect.md) helper allows to create a promise resolved from a single signal:
 
 ```cpp
-// single resolve signal
-::connect(sender, resolveSignal)
-// resolve and reject signal
-::connect(sender, resolveSignal, rejectSignal)
-// resolve and reject from different objects
-::connect(sender1, resolveSignal, sender2, rejectSignal)
-```
+// [signal] Object::finished(const QByteArray&)
+auto output = QtPromise::connect(obj, &Object::finished);
 
-`QtPromise::connect()` creates a `QPromise<T>` that resolves with the signal's argument:
-```cpp
-// void stringSignal(const QString&)
-QPromise<QString> p = QtPromise::connect(
-    obj, &Object::stringSignal
-);
-p.then([](const QString& value) {
-    // resolved with `value` from stringSignal
-});
-```
-`QPromise<void>` is created for signals with no arguments.
-
-A rejection is added to the promise by providing a second signal.
-Rejections from signals are caught by `QPromiseSignalException<T>`:
-```cpp
-// void intRejectSignal(int)
-QPromise<void> p = QtPromise::connect(
-    obj, &Object::voidResolveSignal, &Object::intRejectSignal,
-);
-p.fail([](const QPromiseSignalException<int>& e) {
-    // rejected with `e.value` from intRejectSignal
+// output type: QPromise<QByteArray>
+output.then([](const QByteArray& data) {
+    // {...}
 });
 ```
 
-Promises created by `QtPromise::connect()` are automatically rejected with `QPromiseContextException` if the sender is destroyed before fulfilling the promise:
+If the signal doesn't provide any argument, a `QPromise<void>` is returned:
+
 ```cpp
-// void voidRejectSignal()
-QPromise<void> p = QtPromise::connect(
-    obj, &Object::voidResolveSignal
-);
-p.then([]() {
-    // promise fulfilled
-}).fail([](const QPromiseSignalException<void>&) {
-    // rejected by voidResolveSignal
-}
-}).fail([](const QPromiseContextException&) {
-    // rejected by obj destruction
+// [signal] Object::done()
+auto output = QtPromise::connect(obj, &Object::done);
+
+// output type: QPromise<void>
+output.then([]() {
+    // {...}
 });
 ```
 
-## Manually creating `QPromise<T>` from signals
+::: tip NOTE
+QtPromise currently only supports single argument signals, which means that only the first argument is used to fulfill or reject the connected promise, other arguments being ignored.
+:::
 
-When creating promises from from signals, care must be taken to guarantee that all signals involved in the promise creation are disconnected after fulfillment.
+## Reject Signal
 
-The easiest option is to simply delete the signal source after the promise is handled:
+The [`QtPromise::connect()`](helpers/connect.md) helper also allows to reject the promise from another signal:
+
 ```cpp
-// in promise returning method
-return QPromise<void>([&](const auto& resolve, const auto& reject) {
-    QObject::connect(obj, &Object::signal, [=]() {
-        // {... resolve/reject ...}
-        object->deleteLater();
-    });
+// [signal] Object::finished(const QByteArray& data)
+// [signal] Object::error(ObjectError error)
+auto output = QtPromise::connect(obj, &Object::finished, &Object::error);
+
+// output type: QPromise<QByteArray>
+output.then([](const QByteArray& data) {
+    // {...}
+}).fail(const ObjectError& error) {
+    // {...}
 });
 ```
 
-Sometimes the deletion of the signal source may not be possible. In this case, all signal connections must be tracked and disconnected manually. QtPromise provides the `QPromiseConnections` helper to handle this conveniently:
+If the rejection signal doesn't provide any argument, the promise will be rejected
+with [`QPromiseUndefinedException`](../exceptions/undefined), for example:
+
 ```cpp
-// in promise returning method
-QPromiseConnections connections;
-return QPromise<void>([&](const auto& resolve, const auto& reject) {
-    connections << QObject::connect(obj1, &Object::signal1, [=]() {
-        // {... resolve/reject ...}
-    });
-    connections << QObject::connect(obj2, &Object::signal2, [=]() {
-        // {... resolve/reject ...}
-    });
-})
-// timeout in case no signals are emitted at all
-.timeout(2000)
-// clean up signal connections when finished
-.finally([=]() { connections.disconnect(); });
+// [signal] Object::finished()
+// [signal] Object::error()
+auto output = QtPromise::connect(obj, &Object::finished, &Object::error);
+
+// output type: QPromise<QByteArray>
+output.then([]() {
+    // {...}
+}).fail(const QPromiseUndefinedException& error) {
+    // {...}
+});
 ```
+
+A third variant allows to connect the resolve and reject signals from different objects:
+
+```cpp
+// [signal] ObjectA::finished(const QByteArray& data)
+// [signal] ObjectB::error(ObjectBError error)
+auto output = QtPromise::connect(objA, &ObjectA::finished, objB, &ObjectB::error);
+
+// output type: QPromise<QByteArray>
+output.then([](const QByteArray& data) {
+    // {...}
+}).fail(const ObjectBError& error) {
+    // {...}
+});
+```
+
+Additionally to the rejection signal, promises created using [`QtPromise::connect()`](helpers/connect.md) are automatically rejected with [`QPromiseContextException`](exceptions/context.md) if the sender is destroyed before fulfilling the promise.
+
+See [`QtPromise::connect()`](helpers/connect.md) for more details.

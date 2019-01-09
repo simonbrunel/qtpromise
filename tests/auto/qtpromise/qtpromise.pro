@@ -3,8 +3,8 @@ SUBDIRS += \
     benchmark \
     exceptions \
     future \
-    signals \
     helpers \
     qpromise \
+    qpromiseconnections \
     requirements \
     thread

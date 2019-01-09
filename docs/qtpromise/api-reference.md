@@ -27,6 +27,7 @@
 ## Helpers
 
 * [`QtPromise::attempt`](helpers/attempt.md)
+* [`QtPromise::connect`](helpers/connect.md)
 * [`QtPromise::each`](helpers/each.md)
 * [`QtPromise::filter`](helpers/filter.md)
 * [`QtPromise::map`](helpers/map.md)
