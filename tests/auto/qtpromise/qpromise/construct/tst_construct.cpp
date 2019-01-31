@@ -33,6 +33,8 @@ private Q_SLOTS:
     void rejectSync_void();
     void rejectAsync();
     void rejectAsync_void();
+    void rejectUndefined();
+    void rejectUndefined_void();
     void connectAndResolve();
     void connectAndReject();
 };
@@ -232,6 +234,30 @@ void tst_qpromise_construct::rejectThrowTwoArgs_void()
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(waitForValue(p, -1, 42), -1);
     QCOMPARE(waitForError(p, QString()), QString("foo"));
+}
+
+void tst_qpromise_construct::rejectUndefined()
+{
+    QPromise<int> p([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+        QtPromisePrivate::qtpromise_defer([=]() {
+            reject();
+        });
+    });
+
+    QCOMPARE(p.isPending(), true);
+    QCOMPARE(waitForRejected<QPromiseUndefinedException>(p), true);
+}
+
+void tst_qpromise_construct::rejectUndefined_void()
+{
+    QPromise<void> p([](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
+        QtPromisePrivate::qtpromise_defer([=]() {
+            reject();
+        });
+    });
+
+    QCOMPARE(p.isPending(), true);
+    QCOMPARE(waitForRejected<QPromiseUndefinedException>(p), true);
 }
 
 // https://github.com/simonbrunel/qtpromise/issues/6

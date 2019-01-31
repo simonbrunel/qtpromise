@@ -1,6 +1,8 @@
 #ifndef QTPROMISE_QPROMISERESOLVER_H
 #define QTPROMISE_QPROMISERESOLVER_H
 
+#include "qpromiseerror.h"
+
 // Qt
 #include <QExplicitlySharedDataPointer>
 
@@ -29,6 +31,17 @@ public:
         if (promise) {
             Q_ASSERT(promise->isPending());
             promise->m_d->reject(std::forward<E>(error));
+            promise->m_d->dispatch();
+            release();
+        }
+    }
+
+    void reject()
+    {
+        auto promise = m_d->promise;
+        if (promise) {
+            Q_ASSERT(promise->isPending());
+            promise->m_d->reject(QtPromise::QPromiseUndefinedException());
             promise->m_d->dispatch();
             release();
         }
@@ -113,6 +126,11 @@ public:
     void operator()(E&& error) const
     {
         m_resolver.reject(std::forward<E>(error));
+    }
+
+    void operator()() const
+    {
+        m_resolver.reject();
     }
 
 private:

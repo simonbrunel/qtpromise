@@ -35,3 +35,35 @@ QPromise<int> promise([](const auto& resolve, const auto& reject) {
     // {...}
 });
 ```
+
+**Undefined rejection reason**
+
+*Since: 0.5.0*
+
+While not recommended because it makes tracking errors more difficult, it's also
+possible to reject a promise without explicit reason, in which case, a built-in
+`QPromiseUndefinedException` is thrown:
+
+```cpp
+QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
+    async_method([=](bool success, int result) {
+        if (success) {
+            resolve(result);
+        } else {
+            reject();
+        }
+    });
+});
+```
+
+```cpp
+// The exception can be caught explicitly
+promise.fail([](const QPromiseUndefinedException&) {
+    // { ... }
+})
+
+// ... or implicitly (since undefined)
+promise.fail([]() {
+    // { ... }
+})
+```
