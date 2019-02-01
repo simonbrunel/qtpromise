@@ -32,3 +32,9 @@
 * [`QtPromise::map`](helpers/map.md)
 * [`qPromise`](helpers/qpromise.md)
 * [`qPromiseAll`](helpers/qpromiseall.md)
+
+## Exceptions
+
+* [`QPromiseCanceledException`](exceptions/canceled.md)
+* [`QPromiseTimeoutException`](exceptions/timeout.md)
+* [`QPromiseUndefinedException`](exceptions/undefined.md)

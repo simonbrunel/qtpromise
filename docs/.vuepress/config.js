@@ -52,6 +52,14 @@ module.exports = {
                     'qtpromise/helpers/qpromise',
                     'qtpromise/helpers/qpromiseall'
                 ]
+            },
+            {
+                title: 'Exceptions',
+                children: [
+                    'qtpromise/exceptions/canceled',
+                    'qtpromise/exceptions/timeout',
+                    'qtpromise/exceptions/undefined'
+                ]
             }
         ]
     }
