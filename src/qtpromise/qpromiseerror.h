@@ -1,7 +1,6 @@
 #ifndef QTPROMISE_QPROMISEERROR_H
 #define QTPROMISE_QPROMISEERROR_H
 
-// QtPromise
 #include "qpromise_p.h"
 #include "qpromiseglobal.h"
 

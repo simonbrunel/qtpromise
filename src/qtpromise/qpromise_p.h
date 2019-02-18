@@ -1,7 +1,6 @@
 #ifndef QTPROMISE_QPROMISE_P_H
 #define QTPROMISE_QPROMISE_P_H
 
-// QtPromise
 #include "qpromiseglobal.h"
 
 // Qt
@@ -547,4 +546,4 @@ protected:
 
 } // namespace QtPromise
 
-#endif // ifndef QTPROMISE_QPROMISE_H
+#endif // QTPROMISE_QPROMISE_H

@@ -122,4 +122,4 @@ struct ArgsOf<const volatile T&&> : public ArgsOf<T>
 
 } // namespace QtPromisePrivate
 
-#endif // ifndef QTPROMISE_QPROMISEGLOBAL_H
+#endif // QTPROMISE_QPROMISEGLOBAL_H

@@ -1,7 +1,6 @@
 #ifndef QTPROMISE_QPROMISE_H
 #define QTPROMISE_QPROMISE_H
 
-// QtPromise
 #include "qpromise_p.h"
 #include "qpromiseerror.h"
 #include "qpromiseglobal.h"
@@ -130,4 +129,4 @@ private:
 
 #include "qpromise.inl"
 
-#endif // ifndef QTPROMISE_QPROMISE_H
+#endif // QTPROMISE_QPROMISE_H

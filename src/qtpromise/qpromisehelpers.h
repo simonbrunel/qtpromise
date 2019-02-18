@@ -1,7 +1,6 @@
 #ifndef QTPROMISE_QPROMISEHELPERS_H
 #define QTPROMISE_QPROMISEHELPERS_H
 
-// QtPromise
 #include "qpromise_p.h"
 
 namespace QtPromise {
