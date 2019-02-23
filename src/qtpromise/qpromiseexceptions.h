@@ -1,5 +1,5 @@
-#ifndef QTPROMISE_QPROMISEERROR_H
-#define QTPROMISE_QPROMISEERROR_H
+#ifndef QTPROMISE_QPROMISEEXCEPTIONS_H
+#define QTPROMISE_QPROMISEEXCEPTIONS_H
 
 #include "qpromise_p.h"
 #include "qpromiseglobal.h"
@@ -8,6 +8,16 @@
 #include <QException>
 
 namespace QtPromise {
+
+class QPromiseCanceledException : public QException
+{
+public:
+    void raise() const Q_DECL_OVERRIDE { throw *this; }
+    QPromiseCanceledException* clone() const Q_DECL_OVERRIDE
+    {
+        return new QPromiseCanceledException(*this);
+    }
+};
 
 class QPromiseTimeoutException : public QException
 {
@@ -37,4 +47,4 @@ using QPromiseError = QtPromisePrivate::PromiseError;
 
 } // namespace QtPromise
 
-#endif // QTPROMISE_QPROMISEERROR_H
+#endif // QTPROMISE_QPROMISEEXCEPTIONS_H

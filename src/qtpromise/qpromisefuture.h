@@ -1,23 +1,11 @@
 #ifndef QTPROMISE_QPROMISEFUTURE_P_H
 #define QTPROMISE_QPROMISEFUTURE_P_H
 
+#include "qpromiseexceptions.h"
+
 // Qt
 #include <QFutureWatcher>
 #include <QFuture>
-
-namespace QtPromise {
-
-class QPromiseCanceledException : public QException
-{
-public:
-    void raise() const Q_DECL_OVERRIDE { throw *this; }
-    QPromiseCanceledException* clone() const Q_DECL_OVERRIDE
-    {
-        return new QPromiseCanceledException(*this);
-    }
-};
-
-} // namespace QtPromise
 
 namespace QtPromisePrivate {
 

@@ -2,7 +2,7 @@
 #define QTPROMISE_QPROMISE_H
 
 #include "qpromise_p.h"
-#include "qpromiseerror.h"
+#include "qpromiseexceptions.h"
 #include "qpromiseglobal.h"
 #include "qpromiseresolver.h"
 

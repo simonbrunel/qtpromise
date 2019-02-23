@@ -1,7 +1,7 @@
 #ifndef QTPROMISE_QPROMISERESOLVER_H
 #define QTPROMISE_QPROMISERESOLVER_H
 
-#include "qpromiseerror.h"
+#include "qpromiseexceptions.h"
 
 // Qt
 #include <QExplicitlySharedDataPointer>
