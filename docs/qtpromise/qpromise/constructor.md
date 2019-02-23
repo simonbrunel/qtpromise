@@ -40,9 +40,7 @@ QPromise<int> promise([](const auto& resolve, const auto& reject) {
 
 *Since: 0.5.0*
 
-While not recommended because it makes tracking errors more difficult, it's also
-possible to reject a promise without explicit reason, in which case, a built-in
-[`QPromiseUndefinedException`](../exceptions/undefined.md) is thrown:
+While not recommended because it makes tracking errors more difficult, it's also possible to reject a promise without explicit reason, in which case, a built-in [`QPromiseUndefinedException`](../exceptions/undefined.md) is thrown:
 
 ```cpp
 QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {

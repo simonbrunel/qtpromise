@@ -18,14 +18,9 @@ QPromise<Sequence<T>>::filter(Filter filterer) -> QPromise<Sequence<T>>
 This method only applies to promise with sequence value.
 :::
 
-Iterates over all the promise values (i.e. `Sequence<T>`) and [filters the sequence](https://en.wikipedia.org/wiki/Filter_%28higher-order_function%29)
-to another using the given `filterer` function. If `filterer` returns `true`, a copy of the item
-is put in the `output` sequence, otherwise, the item will not appear in  `output`. If `filterer`
-throws, `output` is rejected with the new exception.
+Iterates over all the promise values (i.e. `Sequence<T>`) and [filters the sequence](https://en.wikipedia.org/wiki/Filter_%28higher-order_function%29) to another using the given `filterer` function. If `filterer` returns `true`, a copy of the item is put in the `output` sequence, otherwise, the item will not appear in  `output`. If `filterer` throws, `output` is rejected with the new exception.
 
-If `filterer` returns a promise (or `QFuture`), the `output` promise is delayed until all the
-promises are resolved. If any of the promises fail, `output` immediately rejects with the error
-of the promise that rejected, whether or not the other promises are resolved.
+If `filterer` returns a promise (or `QFuture`), the `output` promise is delayed until all the promises are resolved. If any of the promises fail, `output` immediately rejects with the error of the promise that rejected, whether or not the other promises are resolved.
 
 ```cpp
 QPromise<QList<QUrl>> input = {...}
@@ -48,8 +43,7 @@ output.then([](const QList<QUrl>& res) {
 ```
 
 ::: tip NOTE
-The order of the output sequence values is guarantee to be the same as the original
-sequence, regardless of completion order of the promises returned by `filterer`.
+The order of the output sequence values is guarantee to be the same as the original sequence, regardless of completion order of the promises returned by `filterer`.
 :::
 
 See also: [`QtPromise::filter`](../helpers/filter.md)

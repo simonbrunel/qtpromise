@@ -18,13 +18,9 @@ QPromise<Sequence<T>>::map(Mapper mapper) -> QPromise<QVector<R>>
 This method only applies to promise with sequence value.
 :::
 
-Iterates over all the promise values (i.e. `Sequence<T>`) and [maps the sequence](https://en.wikipedia.org/wiki/Map_%28higher-order_function%29)
-to another using the given `mapper` function. The type returned by `mapper` determines the type
-of the `output` promise. If `mapper` throws, `output` is rejected with the new exception.
+Iterates over all the promise values (i.e. `Sequence<T>`) and [maps the sequence](https://en.wikipedia.org/wiki/Map_%28higher-order_function%29) to another using the given `mapper` function. The type returned by `mapper` determines the type of the `output` promise. If `mapper` throws, `output` is rejected with the new exception.
 
-If `mapper` returns a promise (or `QFuture`), the `output` promise is delayed until all the
-promises are resolved. If any of the promises fails, `output` immediately rejects with the
-error of the promise that rejected, whether or not the other promises are resolved.
+If `mapper` returns a promise (or `QFuture`), the `output` promise is delayed until all the promises are resolved. If any of the promises fails, `output` immediately rejects with the error of the promise that rejected, whether or not the other promises are resolved.
 
 ```cpp
 QPromise<QList<QUrl>> input = {...}
@@ -50,8 +46,7 @@ output.then([](const QVector<DownloadResult>& res) {
 ```
 
 ::: tip NOTE
-The order of the output sequence values is guarantee to be the same as the original
-sequence, regardless of completion order of the promises returned by `mapper`.
+The order of the output sequence values is guarantee to be the same as the original sequence, regardless of completion order of the promises returned by `mapper`.
 :::
 
 This function is provided for convenience and is similar to:

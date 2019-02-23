@@ -6,8 +6,7 @@ title: QPromiseUndefinedException
 
 *Since: 0.5.0*
 
-This exception is thrown when rejecting a promise with no explicit reason, for
-example:
+This exception is thrown when rejecting a promise with no explicit reason, for example:
 
 ```cpp
 QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
