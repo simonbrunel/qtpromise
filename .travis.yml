@@ -10,7 +10,9 @@ before_install:
 
 install:
   - sudo apt-get install -qq gcc-4.9 g++-4.9
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 90
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 90
+  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-4.9 90
   - sudo apt-get install -qq qt56base
   - source /opt/qt56/bin/qt56-env.sh
   - wget http://archive.ubuntu.com/ubuntu/pool/universe/l/lcov/lcov_1.13.orig.tar.gz
