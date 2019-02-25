@@ -52,7 +52,7 @@ QTEST_MAIN(tst_future)
 void tst_future::fulfilled()
 {
     int result = -1;
-    auto p = qPromise(QtConcurrent::run([]() {
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
         return 42;
     }));
 
@@ -70,7 +70,7 @@ void tst_future::fulfilled()
 void tst_future::fulfilled_void()
 {
     int result = -1;
-    auto p = qPromise(QtConcurrent::run([]() { }));
+    auto p = QtPromise::resolve(QtConcurrent::run([]() { }));
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p.isPending(), true);
@@ -86,7 +86,7 @@ void tst_future::fulfilled_void()
 void tst_future::rejected()
 {
     QString error;
-    auto p = qPromise(QtConcurrent::run([]() {
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
         throw MyException("foo");
         return 42;
     }));
@@ -106,7 +106,7 @@ void tst_future::rejected()
 void tst_future::rejected_void()
 {
     QString error;
-    auto p = qPromise(QtConcurrent::run([]() {
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
         throw MyException("foo");
     }));
 
@@ -125,7 +125,7 @@ void tst_future::rejected_void()
 void tst_future::unhandled()
 {
     QString error;
-    auto p = qPromise(QtConcurrent::run([]() {
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
         throw QString("foo");
         return 42;
     }));
@@ -149,7 +149,7 @@ void tst_future::unhandled()
 void tst_future::unhandled_void()
 {
     QString error;
-    auto p = qPromise(QtConcurrent::run([]() {
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
         throw QString("foo");
     }));
 
@@ -169,7 +169,7 @@ void tst_future::unhandled_void()
 void tst_future::canceled()
 {
     QString error;
-    auto p = qPromise(QFuture<int>());  // Constructs an empty, canceled future.
+    auto p = QtPromise::resolve(QFuture<int>());  // Constructs an empty, canceled future.
 
     QCOMPARE(p.isPending(), true);
 
@@ -185,7 +185,7 @@ void tst_future::canceled()
 void tst_future::canceled_void()
 {
     QString error;
-    auto p = qPromise(QFuture<void>());  // Constructs an empty, canceled future.
+    auto p = QtPromise::resolve(QFuture<void>());  // Constructs an empty, canceled future.
 
     QCOMPARE(p.isPending(), true);
 
@@ -200,7 +200,7 @@ void tst_future::canceled_void()
 void tst_future::canceledFromThread()
 {
     QString error;
-    auto p = qPromise(QtConcurrent::run([]() {
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
         throw QPromiseCanceledException();
     }));
 
@@ -217,7 +217,7 @@ void tst_future::canceledFromThread()
 void tst_future::then()
 {
     QString result;
-    auto input = qPromise(42);
+    auto input = QtPromise::resolve(42);
     auto output = input.then([](int res) {
         return QtConcurrent::run([=]() {
             return QString("foo%1").arg(res);
@@ -238,7 +238,7 @@ void tst_future::then()
 void tst_future::then_void()
 {
     QString result;
-    auto input = qPromise();
+    auto input = QtPromise::resolve();
     auto output = input.then([&]() {
         return QtConcurrent::run([&]() {
             result = "foo";
@@ -300,7 +300,7 @@ void tst_future::fail_void()
 
 void tst_future::finally()
 {
-    auto input = qPromise(42);
+    auto input = QtPromise::resolve(42);
     auto output = input.finally([]() {
         return QtConcurrent::run([]() {
             return QString("foo");
@@ -323,7 +323,7 @@ void tst_future::finally()
 
 void tst_future::finallyRejected()
 {
-    auto input = qPromise(42);
+    auto input = QtPromise::resolve(42);
     auto output = input.finally([]() {
         return QtConcurrent::run([]() {
             throw MyException("foo");

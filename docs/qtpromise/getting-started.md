@@ -56,7 +56,7 @@ The following method `uncompress` data in a separate thread and returns a [promi
 ```cpp
 QPromise<Entries> uncompress(const QByteArray& data)
 {
-    return qPromise(QtConcurrent::run([](const QByteArray& data) {
+    return QtPromise::resolve(QtConcurrent::run([](const QByteArray& data) {
         Entries entries;
 
         // {...} uncompress data and parse content.

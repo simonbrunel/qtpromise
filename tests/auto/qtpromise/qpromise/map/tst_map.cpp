@@ -34,12 +34,12 @@ struct SequenceTester
 {
     static void exec()
     {
-        auto p = QtPromise::qPromise(Sequence{42, 43, 44}).map([](int v, ...) {
+        auto p = QtPromise::resolve(Sequence{42, 43, 44}).map([](int v, ...) {
             return QString::number(v + 1);
         }).map([](const QString& v, int i) {
-            return QtPromise::qPromise(QString("%1:%2").arg(i).arg(v));
+            return QtPromise::resolve(QString("%1:%2").arg(i).arg(v));
         }).map([](const QString& v, ...) {
-            return QtPromise::qPromise((v + "!").toUtf8());
+            return QtPromise::resolve((v + "!").toUtf8());
         }).map([](const QByteArray& v, ...) {
             return QString::fromUtf8(v);
         });
@@ -53,7 +53,7 @@ struct SequenceTester
 
 void tst_qpromise_map::emptySequence()
 {
-    auto p = QtPromise::qPromise(QVector<int>{}).map([](int v, ...) {
+    auto p = QtPromise::resolve(QVector<int>{}).map([](int v, ...) {
         return v + 1;
     });
 
@@ -63,7 +63,7 @@ void tst_qpromise_map::emptySequence()
 
 void tst_qpromise_map::modifyValues()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
         return v + 1;
     });
 
@@ -73,7 +73,7 @@ void tst_qpromise_map::modifyValues()
 
 void tst_qpromise_map::convertValues()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
         return QString::number(v + 1);
     });
 
@@ -83,7 +83,7 @@ void tst_qpromise_map::convertValues()
 
 void tst_qpromise_map::delayedFulfilled()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
         return QPromise<int>([&](const QPromiseResolve<int>& resolve) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     resolve(v + 1);
@@ -97,7 +97,7 @@ void tst_qpromise_map::delayedFulfilled()
 
 void tst_qpromise_map::delayedRejected()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
         return QPromise<int>([&](
             const QPromiseResolve<int>& resolve,
             const QPromiseReject<int>& reject) {
@@ -116,7 +116,7 @@ void tst_qpromise_map::delayedRejected()
 
 void tst_qpromise_map::functorThrows()
 {
-    auto p = QtPromise::qPromise(QVector<int>{42, 43, 44}).map([](int v, ...) {
+    auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
         if (v == 43) {
             throw QString("foo");
         }
@@ -129,7 +129,7 @@ void tst_qpromise_map::functorThrows()
 
 void tst_qpromise_map::functorArguments()
 {
-    auto p1 = QtPromise::qPromise(QVector<int>{42, 42, 42}).map([](int v, int i) {
+    auto p1 = QtPromise::resolve(QVector<int>{42, 42, 42}).map([](int v, int i) {
         return v * i;
     });
 
@@ -139,8 +139,8 @@ void tst_qpromise_map::functorArguments()
 
 void tst_qpromise_map::preserveOrder()
 {
-    auto p = QtPromise::qPromise(QVector<int>{250, 500, 100}).map([](int v, ...) {
-        return QtPromise::qPromise(v + 1).delay(v);
+    auto p = QtPromise::resolve(QVector<int>{250, 500, 100}).map([](int v, ...) {
+        return QtPromise::resolve(v + 1).delay(v);
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));

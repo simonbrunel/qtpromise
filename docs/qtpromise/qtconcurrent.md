@@ -4,7 +4,7 @@ QtPromise integrates with [QtConcurrent](https://doc.qt.io/qt-5/qtconcurrent-ind
 
 ## <a name="qtconcurrent-convert"></a> Convert
 
-Converting `QFuture<T>` to `QPromise<T>` is done using the [`qPromise`](helpers/qpromise.md) helper:
+Converting `QFuture<T>` to `QPromise<T>` is done using the [`QtPromise::resolve`](helpers/resolve.md) helper:
 
 ```cpp
 QFuture<int> future = QtConcurrent::run([]() {
@@ -12,13 +12,13 @@ QFuture<int> future = QtConcurrent::run([]() {
     return 42;
 });
 
-QPromise<int> promise = qPromise(future);
+QPromise<int> promise = QtPromise::resolve(future);
 ```
 
 or simply:
 
 ```cpp
-auto promise = qPromise(QtConcurrent::run([]() {
+auto promise = QtPromise::resolve(QtConcurrent::run([]() {
     // {...}
 }));
 ```

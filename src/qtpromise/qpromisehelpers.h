@@ -7,21 +7,34 @@
 namespace QtPromise {
 
 template <typename T>
-static inline typename QtPromisePrivate::PromiseDeduce<T>::Type qPromise(T&& value)
+static inline typename QtPromisePrivate::PromiseDeduce<T>::Type
+resolve(T&& value)
 {
     using namespace QtPromisePrivate;
-    using Promise = typename PromiseDeduce<T>::Type;
-    return Promise([&](
-        const QPromiseResolve<typename Promise::Type>& resolve,
-        const QPromiseReject<typename Promise::Type>& reject) {
-        PromiseFulfill<T>::call(std::forward<T>(value), resolve, reject);
+    using PromiseType = typename PromiseDeduce<T>::Type;
+    using ValueType = typename PromiseType::Type;
+    using ResolveType = QPromiseResolve<ValueType>;
+    using RejectType = QPromiseReject<ValueType>;
+
+    return PromiseType([&](ResolveType&& resolve, RejectType&& reject) {
+        PromiseFulfill<Unqualified<T>>::call(
+            std::forward<T>(value),
+            std::forward<ResolveType>(resolve),
+            std::forward<RejectType>(reject));
     });
 }
 
-static inline QPromise<void> qPromise()
+template <typename T>
+static inline QPromise<T>
+resolve(QPromise<T> value)
 {
-    return QPromise<void>([](
-        const QPromiseResolve<void>& resolve) {
+    return std::move(value);
+}
+
+static inline QPromise<void>
+resolve()
+{
+    return QPromise<void>([](const QPromiseResolve<void>& resolve) {
         resolve();
     });
 }
@@ -151,6 +164,17 @@ static inline QPromise<Sequence> filter(const Sequence& values, Functor fn)
 
             return filtered;
         });
+}
+
+// DEPRECATIONS (remove at version 1)
+
+template <typename... Args>
+Q_DECL_DEPRECATED_X("Use QtPromise::resolve instead")
+static inline auto
+qPromise(Args&&... args)
+    -> decltype(QtPromise::resolve(std::forward<Args>(args)...))
+{
+    return QtPromise::resolve(std::forward<Args>(args)...);
 }
 
 } // namespace QtPromise

@@ -64,7 +64,7 @@ void tst_helpers_attempt::futureResult()
 void tst_helpers_attempt::promiseResult()
 {
     auto p = QtPromise::attempt([]() {
-        return QtPromise::qPromise(42).delay(200);
+        return QtPromise::resolve(42).delay(200);
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));

@@ -102,7 +102,7 @@ void tst_thread::then()
 
     int value = -1;
     QThread* target = nullptr;
-    qPromise(QtConcurrent::run([&](const QPromise<int>& p) {
+    QtPromise::resolve(QtConcurrent::run([&](const QPromise<int>& p) {
         p.then([&](int res) {
             target = QThread::currentThread();
             value = res;
@@ -125,7 +125,7 @@ void tst_thread::then_void()
 
     int value = -1;
     QThread* target = nullptr;
-    qPromise(QtConcurrent::run([&](const QPromise<void>& p) {
+    QtPromise::resolve(QtConcurrent::run([&](const QPromise<void>& p) {
         p.then([&]() {
             target = QThread::currentThread();
             value = 43;
@@ -148,7 +148,7 @@ void tst_thread::fail()
 
     QString error;
     QThread* target = nullptr;
-    qPromise(QtConcurrent::run([&](const QPromise<int>& p) {
+    QtPromise::resolve(QtConcurrent::run([&](const QPromise<int>& p) {
         p.fail([&](const QString& err) {
             target = QThread::currentThread();
             error = err;
@@ -172,7 +172,7 @@ void tst_thread::finally()
 
     int value = -1;
     QThread* target = nullptr;
-    qPromise(QtConcurrent::run([&](const QPromise<int>& p) {
+    QtPromise::resolve(QtConcurrent::run([&](const QPromise<int>& p) {
         p.finally([&]() {
             target = QThread::currentThread();
             value = 43;

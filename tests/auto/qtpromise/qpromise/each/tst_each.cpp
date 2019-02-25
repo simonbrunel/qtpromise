@@ -34,14 +34,14 @@ struct SequenceTester
     static void exec()
     {
         QVector<int> values;
-        auto p = QtPromise::qPromise(Sequence{42, 43, 44}).each([&](int v, int i) {
+        auto p = QtPromise::resolve(Sequence{42, 43, 44}).each([&](int v, int i) {
             values << i << v;
         }).each([&](int v, ...) {
             values << v;
             return QString("foo");
         }).each([&](int v, ...) {
             values << v + 1;
-            return QPromise<QString>::resolve(QString("foo")).then([&](){
+            return QtPromise::resolve(QString("foo")).then([&](){
                 values << -1;
             });
         }).each([&](int v, ...) {

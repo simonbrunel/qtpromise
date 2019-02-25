@@ -31,7 +31,7 @@
 * [`QtPromise::each`](helpers/each.md)
 * [`QtPromise::filter`](helpers/filter.md)
 * [`QtPromise::map`](helpers/map.md)
-* [`qPromise`](helpers/qpromise.md)
+* [`QtPromise::resolve`](helpers/resolve.md)
 * [`qPromiseAll`](helpers/qpromiseall.md)
 
 ## Exceptions
@@ -39,3 +39,7 @@
 * [`QPromiseCanceledException`](exceptions/canceled.md)
 * [`QPromiseTimeoutException`](exceptions/timeout.md)
 * [`QPromiseUndefinedException`](exceptions/undefined.md)
+
+## Deprecations
+
+* `QtPromise::qPromise`: use [`QtPromise::resolve`](helpers/resolve.md) instead (since 0.5.0)

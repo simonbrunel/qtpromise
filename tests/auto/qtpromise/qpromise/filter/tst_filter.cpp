@@ -33,7 +33,7 @@ struct SequenceTester
 {
     static void exec()
     {
-        auto p = QtPromise::qPromise(Sequence{
+        auto p = QtPromise::resolve(Sequence{
             42, 43, 44, 45, 46, 47, 48, 49, 50, 51
         }).filter([](int v, ...) {
             return v > 42 && v < 51;

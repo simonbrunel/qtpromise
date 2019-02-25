@@ -29,7 +29,7 @@ namespace {
 template <class E>
 void verify()
 {
-    auto p = qPromise(QtConcurrent::run([]() { throw E(); }));
+    auto p = QtPromise::resolve(QtConcurrent::run([]() { throw E(); }));
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForRejected<E>(p), true);
     QCOMPARE(p.isRejected(), true);

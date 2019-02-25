@@ -51,7 +51,7 @@ module.exports = {
                     'qtpromise/helpers/each',
                     'qtpromise/helpers/filter',
                     'qtpromise/helpers/map',
-                    'qtpromise/helpers/qpromise',
+                    'qtpromise/helpers/resolve',
                     'qtpromise/helpers/qpromiseall'
                 ]
             },

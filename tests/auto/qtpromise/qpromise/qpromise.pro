@@ -8,6 +8,7 @@ SUBDIRS += \
     finally \
     map \
     operators \
+    resolve \
     tap \
     tapfail \
     then \

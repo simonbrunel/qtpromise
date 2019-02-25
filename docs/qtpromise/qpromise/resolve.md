@@ -25,4 +25,4 @@ QPromise<int> compute(const QString& type)
 }
 ```
 
-See also: [`qPromise`](../helpers/qpromise.md)
+See also: [`QtPromise::resolve`](../helpers/resolve.md)

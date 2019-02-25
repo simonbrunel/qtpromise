@@ -279,9 +279,7 @@ inline QPromise<void> QPromise<void>::all(const Sequence<QPromise<void>, Args...
 
 inline QPromise<void> QPromise<void>::resolve()
 {
-    return QPromise<void>([](const QPromiseResolve<void>& resolve) {
-        resolve();
-    });
+    return QtPromise::resolve();
 }
 
 } // namespace QtPromise

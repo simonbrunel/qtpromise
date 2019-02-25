@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     benchmark \
+    deprecations \
     exceptions \
     future \
     helpers \
