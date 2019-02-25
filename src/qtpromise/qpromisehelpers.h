@@ -169,7 +169,8 @@ connect(const Sender* sender, FSignal fsignal, RSignal rsignal)
 }
 
 template <typename Sequence, typename Functor>
-static inline QPromise<Sequence> each(const Sequence& values, Functor&& fn)
+static inline QPromise<Sequence>
+each(const Sequence& values, Functor&& fn)
 {
     return QPromise<Sequence>::resolve(values).each(std::forward<Functor>(fn));
 }
@@ -200,7 +201,8 @@ map(const Sequence& values, Functor fn)
 }
 
 template <typename Sequence, typename Functor>
-static inline QPromise<Sequence> filter(const Sequence& values, Functor fn)
+static inline QPromise<Sequence>
+filter(const Sequence& values, Functor fn)
 {
     return QtPromise::map(values, fn)
         .then([=](const QVector<bool>& filters) {
@@ -217,6 +219,59 @@ static inline QPromise<Sequence> filter(const Sequence& values, Functor fn)
 
             return filtered;
         });
+}
+
+template <typename T, template <typename...> class Sequence = QVector, typename Reducer, typename Input, typename ...Args>
+static inline typename QtPromisePrivate::PromiseDeduce<Input>::Type
+reduce(const Sequence<T, Args...>& values, Reducer fn, Input initial)
+{
+    using namespace QtPromisePrivate;
+    using PromiseType = typename PromiseDeduce<T>::Type;
+    using ValueType = typename PromiseType::Type;
+
+    int idx = 0;
+
+    auto promise = QtPromise::resolve(std::move(initial));
+    for (const auto& value : values) {
+        auto input = QtPromise::resolve(value);
+        promise = promise.then([=]() {
+            return input.then([=](const ValueType& cur) {
+                return fn(PromiseInspect::get(promise)->value().data(), cur, idx);
+            });
+        });
+
+        idx++;
+    }
+
+    return promise;
+}
+
+template <typename T, template <typename...> class Sequence = QVector, typename Reducer, typename ...Args>
+static inline typename QtPromisePrivate::PromiseDeduce<T>::Type
+reduce(const Sequence<T, Args...>& values, Reducer fn)
+{
+    using namespace QtPromisePrivate;
+    using PromiseType = typename PromiseDeduce<T>::Type;
+    using ValueType = typename PromiseType::Type;
+
+    Q_ASSERT(values.size());
+
+    int idx = 1;
+
+    auto it = values.begin();
+    auto promise = QtPromise::resolve(*it);
+    for (++it; it != values.end(); ++it) {
+        auto input = QtPromise::resolve(*it);
+        promise = promise.then([=]() {
+            return input.then([=](const ValueType& cur) {
+                return fn(PromiseInspect::get(promise)->value().data(), cur, idx);
+            });
+        });
+
+        idx++;
+    }
+
+    return promise;
 }
 
 // DEPRECATIONS (remove at version 1)

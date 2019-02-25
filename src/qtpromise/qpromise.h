@@ -76,6 +76,7 @@ public: // STATIC
 protected:
     friend struct QtPromisePrivate::PromiseFulfill<QPromise<T>>;
     friend class QtPromisePrivate::PromiseResolver<T>;
+    friend struct QtPromisePrivate::PromiseInspect;
 
     QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T>> m_d;
 };
@@ -88,14 +89,24 @@ public:
     QPromise(F&& resolver): QPromiseBase<T>(std::forward<F>(resolver)) { }
 
     template <typename Functor>
-    inline QPromise<T> each(Functor fn);
+    inline QPromise<T>
+    each(Functor fn);
 
     template <typename Functor>
-    inline QPromise<T> filter(Functor fn);
+    inline QPromise<T>
+    filter(Functor fn);
 
     template <typename Functor>
     inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
     map(Functor fn);
+
+    template <typename Functor, typename Input>
+    inline typename QtPromisePrivate::PromiseDeduce<Input>::Type
+    reduce(Functor fn, Input initial);
+
+    template <typename Functor, typename U = T>
+    inline typename QtPromisePrivate::PromiseDeduce<typename U::value_type>::Type
+    reduce(Functor fn);
 
 public: // STATIC
 

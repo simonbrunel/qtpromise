@@ -558,6 +558,15 @@ protected:
     }
 };
 
-} // namespace QtPromise
+struct PromiseInspect
+{
+    template <typename T>
+    static inline PromiseData<T>* get(const QtPromise::QPromise<T>& p)
+    {
+        return p.m_d.data();
+    }
+};
+
+} // namespace QtPromisePrivate
 
 #endif // QTPROMISE_QPROMISE_H

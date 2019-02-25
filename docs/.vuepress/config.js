@@ -33,6 +33,7 @@ module.exports = {
                     'qtpromise/qpromise/ispending',
                     'qtpromise/qpromise/isrejected',
                     'qtpromise/qpromise/map',
+                    'qtpromise/qpromise/reduce',
                     'qtpromise/qpromise/tap',
                     'qtpromise/qpromise/tapfail',
                     'qtpromise/qpromise/then',
@@ -51,6 +52,7 @@ module.exports = {
                     'qtpromise/helpers/each',
                     'qtpromise/helpers/filter',
                     'qtpromise/helpers/map',
+                    'qtpromise/helpers/reduce',
                     'qtpromise/helpers/resolve'
                 ]
             },

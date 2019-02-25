@@ -46,7 +46,7 @@ The `output` promise is resolved when the `QFuture` is [finished](https://doc.qt
 
 ## Error
 
-Exceptions thrown from a QtConcurrent thread reject the associated promise with the exception as the reason. Note that if you throw an exception that is not a subclass of `QException`, the promise with be rejected with [`QUnhandledException`](https://doc.qt.io/qt-5/qunhandledexception.html#details) (this restriction only applies to exceptions thrown from a QtConcurrent thread, [read more](https://doc.qt.io/qt-5/qexception.html#details)).
+Exceptions thrown from a QtConcurrent thread reject the associated promise with the exception as the reason. Note that if you throw an exception that is not a subclass of `QException`, the promise will be rejected with [`QUnhandledException`](https://doc.qt.io/qt-5/qunhandledexception.html#details) (this restriction only applies to exceptions thrown from a QtConcurrent thread, [read more](https://doc.qt.io/qt-5/qexception.html#details)).
 
 ```cpp
 QPromise<int> promise = ...

@@ -6,5 +6,6 @@ SUBDIRS += \
     each \
     filter \
     map \
+    reduce \
     reject \
     resolve

@@ -198,6 +198,26 @@ QPromise<T>::map(Functor fn)
 }
 
 template <typename T>
+template <typename Functor, typename Input>
+inline typename QtPromisePrivate::PromiseDeduce<Input>::Type
+QPromise<T>::reduce(Functor fn, Input initial)
+{
+    return this->then([=](const T& values) {
+        return QtPromise::reduce(values, fn, initial);
+    });
+}
+
+template <typename T>
+template <typename Functor, typename U>
+inline typename QtPromisePrivate::PromiseDeduce<typename U::value_type>::Type
+QPromise<T>::reduce(Functor fn)
+{
+    return this->then([=](const T& values) {
+        return QtPromise::reduce(values, fn);
+    });
+}
+
+template <typename T>
 template <template <typename, typename...> class Sequence, typename ...Args>
 inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
