@@ -1,4 +1,4 @@
-# QtConcurrent
+# Qt Concurrent
 
 QtPromise integrates with [QtConcurrent](https://doc.qt.io/qt-5/qtconcurrent-index.html) to make easy chaining QFuture with QPromise.
 

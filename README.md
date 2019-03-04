@@ -11,7 +11,8 @@ Requires [Qt 5.6](https://www.qt.io/download/) (or later) with [C++11 support en
 ## Documentation
 
 * [Getting Started](https://qtpromise.netlify.com/qtpromise/getting-started.html)
-* [QtConcurrent](https://qtpromise.netlify.com/qtpromise/qtconcurrent.html)
+* [Qt Concurrent](https://qtpromise.netlify.com/qtpromise/qtconcurrent.html)
+* [Qt Signals](https://qtpromise.netlify.com/qtpromise/qtsignals.html)
 * [Thread-Safety](https://qtpromise.netlify.com/qtpromise/thread-safety.html)
 * [API Reference](https://qtpromise.netlify.com/qtpromise/api-reference.html)
 

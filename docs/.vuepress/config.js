@@ -17,6 +17,7 @@ module.exports = {
         sidebar: [
             'qtpromise/getting-started',
             'qtpromise/qtconcurrent',
+            'qtpromise/qtsignals',
             'qtpromise/thread-safety',
             'qtpromise/api-reference',
             {
@@ -46,6 +47,7 @@ module.exports = {
                 title: 'Helpers',
                 children: [
                     'qtpromise/helpers/attempt',
+                    'qtpromise/helpers/connect',
                     'qtpromise/helpers/each',
                     'qtpromise/helpers/filter',
                     'qtpromise/helpers/map',
@@ -57,6 +59,7 @@ module.exports = {
                 title: 'Exceptions',
                 children: [
                     'qtpromise/exceptions/canceled',
+                    'qtpromise/exceptions/context',
                     'qtpromise/exceptions/timeout',
                     'qtpromise/exceptions/undefined'
                 ]

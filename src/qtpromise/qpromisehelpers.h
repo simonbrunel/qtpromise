@@ -2,6 +2,7 @@
 #define QTPROMISE_QPROMISEHELPERS_H
 
 #include "qpromise_p.h"
+#include "qpromisehelpers_p.h"
 
 namespace QtPromise {
 
@@ -61,6 +62,44 @@ attempt(Functor&& fn, Args&&... args)
                 std::forward<Functor>(fn),
                 std::forward<Args>(args)...);
         });
+}
+
+template <typename Sender, typename Signal>
+static inline typename QtPromisePrivate::PromiseFromSignal<Signal>
+connect(const Sender* sender, Signal signal)
+{
+    using namespace QtPromisePrivate;
+    using T = typename PromiseFromSignal<Signal>::Type;
+
+    return QPromise<T>(
+        [&](const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject) {
+            QPromiseConnections connections;
+            connectSignalToResolver(connections, resolve, sender, signal);
+            connectDestroyedToReject(connections, reject, sender);
+        });
+}
+
+template <typename FSender, typename FSignal, typename RSender, typename RSignal>
+static inline typename QtPromisePrivate::PromiseFromSignal<FSignal>
+connect(const FSender* fsender, FSignal fsignal, const RSender* rsender, RSignal rsignal)
+{
+    using namespace QtPromisePrivate;
+    using T = typename PromiseFromSignal<FSignal>::Type;
+
+    return QPromise<T>(
+        [&](const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject) {
+            QPromiseConnections connections;
+            connectSignalToResolver(connections, resolve, fsender, fsignal);
+            connectSignalToResolver(connections, reject, rsender, rsignal);
+            connectDestroyedToReject(connections, reject, fsender);
+        });
+}
+
+template <typename Sender, typename FSignal, typename RSignal>
+static inline typename QtPromisePrivate::PromiseFromSignal<FSignal>
+connect(const Sender* sender, FSignal fsignal, RSignal rsignal)
+{
+    return connect(sender, fsignal, sender, rsignal);
 }
 
 template <typename Sequence, typename Functor>

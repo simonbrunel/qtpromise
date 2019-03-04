@@ -15,6 +15,7 @@ class tst_exceptions : public QObject
 
 private Q_SLOTS:
     void canceled();
+    void context();
     void timeout();
     void undefined();
 
@@ -39,6 +40,11 @@ void verify()
 void tst_exceptions::canceled()
 {
     verify<QPromiseCanceledException>();
+}
+
+void tst_exceptions::context()
+{
+    verify<QPromiseContextException>();
 }
 
 void tst_exceptions::timeout()

@@ -5,5 +5,6 @@ SUBDIRS += \
     future \
     helpers \
     qpromise \
+    qpromiseconnections \
     requirements \
     thread

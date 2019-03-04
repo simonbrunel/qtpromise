@@ -19,6 +19,16 @@ public:
     }
 };
 
+class QPromiseContextException : public QException
+{
+public:
+    void raise() const Q_DECL_OVERRIDE { throw *this; }
+    QPromiseContextException* clone() const Q_DECL_OVERRIDE
+    {
+        return new QPromiseContextException(*this);
+    }
+};
+
 class QPromiseTimeoutException : public QException
 {
 public:
