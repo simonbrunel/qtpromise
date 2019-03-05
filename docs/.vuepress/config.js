@@ -38,7 +38,6 @@ module.exports = {
                     'qtpromise/qpromise/then',
                     'qtpromise/qpromise/timeout',
                     'qtpromise/qpromise/wait',
-                    'qtpromise/qpromise/all.md',
                     'qtpromise/qpromise/reject.md',
                     'qtpromise/qpromise/resolve.md'
                 ]
@@ -46,13 +45,13 @@ module.exports = {
             {
                 title: 'Helpers',
                 children: [
+                    'qtpromise/helpers/all',
                     'qtpromise/helpers/attempt',
                     'qtpromise/helpers/connect',
                     'qtpromise/helpers/each',
                     'qtpromise/helpers/filter',
                     'qtpromise/helpers/map',
-                    'qtpromise/helpers/resolve',
-                    'qtpromise/helpers/qpromiseall'
+                    'qtpromise/helpers/resolve'
                 ]
             },
             {

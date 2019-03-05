@@ -279,7 +279,7 @@ void tst_requirements::thenMultipleCalls()
             });
         });
 
-        qPromiseAll(QVector<QPromise<void>>{
+        QtPromise::all(QVector<QPromise<void>>{
             p.then([&](int r) { values << r + 1; }),
             p.then([&](int r) { values << r + 2; }),
             p.then([&](int r) { values << r + 3; })
@@ -298,7 +298,7 @@ void tst_requirements::thenMultipleCalls()
             });
         });
 
-        qPromiseAll(QVector<QPromise<int>>{
+        QtPromise::all(QVector<QPromise<int>>{
             p.then(nullptr, [&](int r) { values << r + 1; return r + 1; }),
             p.then(nullptr, [&](int r) { values << r + 2; return r + 2; }),
             p.then(nullptr, [&](int r) { values << r + 3; return r + 3; })

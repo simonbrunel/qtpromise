@@ -20,19 +20,18 @@
 
 ## Static Functions
 
-* [`[static] QPromise<T>::all`](qpromise/all.md)
 * [`[static] QPromise<T>::reject`](qpromise/reject.md)
 * [`[static] QPromise<T>::resolve`](qpromise/resolve.md)
 
 ## Helpers
 
+* [`QtPromise::all`](helpers/all.md)
 * [`QtPromise::attempt`](helpers/attempt.md)
 * [`QtPromise::connect`](helpers/connect.md)
 * [`QtPromise::each`](helpers/each.md)
 * [`QtPromise::filter`](helpers/filter.md)
 * [`QtPromise::map`](helpers/map.md)
 * [`QtPromise::resolve`](helpers/resolve.md)
-* [`qPromiseAll`](helpers/qpromiseall.md)
 
 ## Exceptions
 
@@ -42,4 +41,6 @@
 
 ## Deprecations
 
+* `[static] QPromise<T>::all`: use [`QtPromise::all`](helpers/all.md) instead (since 0.5.0)
 * `QtPromise::qPromise`: use [`QtPromise::resolve`](helpers/resolve.md) instead (since 0.5.0)
+* `QtPromise::qPromiseAll`: use [`QtPromise::all`](helpers/all.md) instead (since 0.5.0)

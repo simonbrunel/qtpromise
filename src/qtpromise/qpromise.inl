@@ -174,7 +174,7 @@ inline QPromise<T> QPromise<T>::each(Functor fn)
             i++;
         }
 
-        return QPromise<void>::all(promises);
+        return QtPromise::all(promises);
     });
 }
 
@@ -201,35 +201,7 @@ template <typename T>
 template <template <typename, typename...> class Sequence, typename ...Args>
 inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
-    const int count = static_cast<int>(promises.size());
-    if (count == 0) {
-        return QPromise<QVector<T>>::resolve({});
-    }
-
-    return QPromise<QVector<T>>([=](
-        const QPromiseResolve<QVector<T>>& resolve,
-        const QPromiseReject<QVector<T>>& reject) {
-
-        QSharedPointer<int> remaining(new int(count));
-        QSharedPointer<QVector<T>> results(new QVector<T>(count));
-
-        int i = 0;
-        for (const auto& promise: promises) {
-            promise.then([=](const T& res) mutable {
-                (*results)[i] = res;
-                if (--(*remaining) == 0) {
-                    resolve(*results);
-                }
-            }, [=]() mutable {
-                if (*remaining != -1) {
-                    *remaining = -1;
-                    reject(std::current_exception());
-                }
-            });
-
-            i++;
-        }
-    });
+    return QtPromise::all(promises);
 }
 
 template <typename T>
@@ -251,30 +223,7 @@ inline QPromise<T> QPromise<T>::resolve(T&& value)
 template <template <typename, typename...> class Sequence, typename ...Args>
 inline QPromise<void> QPromise<void>::all(const Sequence<QPromise<void>, Args...>& promises)
 {
-    const int count = static_cast<int>(promises.size());
-    if (count == 0) {
-        return QPromise<void>::resolve();
-    }
-
-    return QPromise<void>([=](
-        const QPromiseResolve<void>& resolve,
-        const QPromiseReject<void>& reject) {
-
-        QSharedPointer<int> remaining(new int(count));
-
-        for (const auto& promise: promises) {
-            promise.then([=]() {
-                if (--(*remaining) == 0) {
-                    resolve();
-                }
-            }, [=]() {
-                if (*remaining != -1) {
-                    *remaining = -1;
-                    reject(std::current_exception());
-                }
-            });
-        }
-    });
+    return QtPromise::all(promises);
 }
 
 inline QPromise<void> QPromise<void>::resolve()

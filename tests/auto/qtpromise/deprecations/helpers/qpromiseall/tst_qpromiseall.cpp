@@ -1,4 +1,4 @@
-#include "../../shared/utils.h"
+#include "../../../shared/utils.h"
 
 // QtPromise
 #include <QtPromise>
@@ -8,7 +8,7 @@
 
 using namespace QtPromise;
 
-class tst_helpers_all : public QObject
+class tst_deprecations_helpers_qpromiseall : public QObject
 {
     Q_OBJECT
 
@@ -24,8 +24,8 @@ private Q_SLOTS:
     void sequenceTypes_void();
 };
 
-QTEST_MAIN(tst_helpers_all)
-#include "tst_all.moc"
+QTEST_MAIN(tst_deprecations_helpers_qpromiseall)
+#include "tst_qpromiseall.moc"
 
 namespace {
 
@@ -46,7 +46,7 @@ struct SequenceTester
         promises.insert(++promises.begin(), QtPromise::resolve(46));
         promises.pop_back();
 
-        auto p = QtPromise::all(promises);
+        auto p = qPromiseAll(promises);
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
         QCOMPARE(p.isPending(), true);
@@ -69,7 +69,7 @@ struct SequenceTester<Sequence<QPromise<void>, Args...>>
         promises.insert(++promises.begin(), QtPromise::resolve());
         promises.pop_back();
 
-        auto p = QtPromise::all(promises);
+        auto p = qPromiseAll(promises);
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
         QCOMPARE(p.isPending(), true);
@@ -79,25 +79,25 @@ struct SequenceTester<Sequence<QPromise<void>, Args...>>
 
 } // anonymous namespace
 
-void tst_helpers_all::emptySequence()
+void tst_deprecations_helpers_qpromiseall::emptySequence()
 {
-    auto p = QtPromise::all(QVector<QPromise<int>>());
+    auto p = qPromiseAll(QVector<QPromise<int>>());
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
     QCOMPARE(p.isFulfilled(), true);
     QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({}));
 }
 
-void tst_helpers_all::emptySequence_void()
+void tst_deprecations_helpers_qpromiseall::emptySequence_void()
 {
-    auto p = QtPromise::all(QVector<QPromise<void>>());
+    auto p = qPromiseAll(QVector<QPromise<void>>());
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p.isFulfilled(), true);
     QCOMPARE(waitForValue(p, -1, 42), 42);
 }
 
-void tst_helpers_all::allPromisesSucceed()
+void tst_deprecations_helpers_qpromiseall::allPromisesSucceed()
 {
     auto p0 = QtPromise::resolve(42);
     auto p1 = QtPromise::resolve(44);
@@ -107,7 +107,7 @@ void tst_helpers_all::allPromisesSucceed()
         });
     });
 
-    auto p = QtPromise::all(QVector<QPromise<int>>{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<int>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
     QCOMPARE(p0.isFulfilled(), true);
@@ -118,7 +118,7 @@ void tst_helpers_all::allPromisesSucceed()
     QCOMPARE(p2.isFulfilled(), true);
 }
 
-void tst_helpers_all::allPromisesSucceed_void()
+void tst_deprecations_helpers_qpromiseall::allPromisesSucceed_void()
 {
     auto p0 = QtPromise::resolve();
     auto p1 = QtPromise::resolve();
@@ -128,7 +128,7 @@ void tst_helpers_all::allPromisesSucceed_void()
         });
     });
 
-    auto p = QtPromise::all(QVector<QPromise<void>>{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<void>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p0.isFulfilled(), true);
@@ -139,7 +139,7 @@ void tst_helpers_all::allPromisesSucceed_void()
     QCOMPARE(p2.isFulfilled(), true);
 }
 
-void tst_helpers_all::atLeastOnePromiseReject()
+void tst_deprecations_helpers_qpromiseall::atLeastOnePromiseReject()
 {
     auto p0 = QtPromise::resolve(42);
     auto p1 = QtPromise::resolve(44);
@@ -149,7 +149,7 @@ void tst_helpers_all::atLeastOnePromiseReject()
         });
     });
 
-    auto p = QtPromise::all(QVector<QPromise<int>>{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<int>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
     QCOMPARE(p0.isFulfilled(), true);
@@ -160,7 +160,7 @@ void tst_helpers_all::atLeastOnePromiseReject()
     QCOMPARE(p2.isRejected(), true);
 }
 
-void tst_helpers_all::atLeastOnePromiseReject_void()
+void tst_deprecations_helpers_qpromiseall::atLeastOnePromiseReject_void()
 {
     auto p0 = QtPromise::resolve();
     auto p1 = QtPromise::resolve();
@@ -170,7 +170,7 @@ void tst_helpers_all::atLeastOnePromiseReject_void()
         });
     });
 
-    auto p = QtPromise::all(QVector<QPromise<void>>{p0, p2, p1});
+    auto p = qPromiseAll(QVector<QPromise<void>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p0.isFulfilled(), true);
@@ -181,13 +181,13 @@ void tst_helpers_all::atLeastOnePromiseReject_void()
     QCOMPARE(p2.isRejected(), true);
 }
 
-void tst_helpers_all::preserveOrder()
+void tst_deprecations_helpers_qpromiseall::preserveOrder()
 {
     auto p0 = QtPromise::resolve(42).delay(500);
     auto p1 = QtPromise::resolve(43).delay(100);
     auto p2 = QtPromise::resolve(44).delay(250);
 
-    auto p = QtPromise::all(QVector<QPromise<int>>{p0, p1, p2});
+    auto p = qPromiseAll(QVector<QPromise<int>>{p0, p1, p2});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
     QCOMPARE(p0.isPending(), true);
@@ -203,7 +203,7 @@ void tst_helpers_all::preserveOrder()
 // QVector::push_back/append isn't supported since it requires a default
 // constructor (see https://github.com/simonbrunel/qtpromise/issues/3)
 
-void tst_helpers_all::sequenceTypes()
+void tst_deprecations_helpers_qpromiseall::sequenceTypes()
 {
     SequenceTester<QList<QPromise<int>>>::exec();
     //SequenceTester<QVector<QPromise<int>>>::exec();
@@ -211,7 +211,7 @@ void tst_helpers_all::sequenceTypes()
     SequenceTester<std::vector<QPromise<int>>>::exec();
 }
 
-void tst_helpers_all::sequenceTypes_void()
+void tst_deprecations_helpers_qpromiseall::sequenceTypes_void()
 {
     SequenceTester<QList<QPromise<void>>>::exec();
     //SequenceTester<QVector<QPromise<void>>>::exec();

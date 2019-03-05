@@ -98,8 +98,11 @@ public:
     map(Functor fn);
 
 public: // STATIC
+
+    // DEPRECATED (remove at version 1)
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
-    inline static QPromise<QVector<T>> all(const Sequence<QPromise<T>, Args...>& promises);
+    Q_DECL_DEPRECATED_X("Use QtPromise::all instead") static inline QPromise<QVector<T>>
+    all(const Sequence<QPromise<T>, Args...>& promises);
 
     inline static QPromise<T> resolve(const T& value);
     inline static QPromise<T> resolve(T&& value);
@@ -116,8 +119,11 @@ public:
     QPromise(F&& resolver): QPromiseBase<void>(std::forward<F>(resolver)) { }
 
 public: // STATIC
+
+    // DEPRECATED (remove at version 1)
     template <template <typename, typename...> class Sequence = QVector, typename ...Args>
-    inline static QPromise<void> all(const Sequence<QPromise<void>, Args...>& promises);
+    Q_DECL_DEPRECATED_X("Use QtPromise::all instead") static inline QPromise<void>
+    all(const Sequence<QPromise<void>, Args...>& promises);
 
     inline static QPromise<void> resolve();
 

@@ -40,15 +40,68 @@ resolve()
 }
 
 template <typename T, template <typename, typename...> class Sequence = QVector, typename ...Args>
-static inline QPromise<QVector<T>> qPromiseAll(const Sequence<QPromise<T>, Args...>& promises)
+static inline QPromise<QVector<T>>
+all(const Sequence<QPromise<T>, Args...>& promises)
 {
-    return QPromise<T>::all(promises);
+    const int count = static_cast<int>(promises.size());
+    if (count == 0) {
+        return QtPromise::resolve(QVector<T>{});
+    }
+
+    return QPromise<QVector<T>>([=](
+        const QPromiseResolve<QVector<T>>& resolve,
+        const QPromiseReject<QVector<T>>& reject) {
+
+        QSharedPointer<int> remaining(new int(count));
+        QSharedPointer<QVector<T>> results(new QVector<T>(count));
+
+        int i = 0;
+        for (const auto& promise: promises) {
+            promise.then([=](const T& res) mutable {
+                (*results)[i] = res;
+                if (--(*remaining) == 0) {
+                    resolve(*results);
+                }
+            }, [=]() mutable {
+                if (*remaining != -1) {
+                    *remaining = -1;
+                    reject(std::current_exception());
+                }
+            });
+
+            i++;
+        }
+    });
 }
 
 template <template <typename, typename...> class Sequence = QVector, typename ...Args>
-static inline QPromise<void> qPromiseAll(const Sequence<QPromise<void>, Args...>& promises)
+static inline QPromise<void>
+all(const Sequence<QPromise<void>, Args...>& promises)
 {
-    return QPromise<void>::all(promises);
+    const int count = static_cast<int>(promises.size());
+    if (count == 0) {
+        return QtPromise::resolve();
+    }
+
+    return QPromise<void>([=](
+        const QPromiseResolve<void>& resolve,
+        const QPromiseReject<void>& reject) {
+
+        QSharedPointer<int> remaining(new int(count));
+
+        for (const auto& promise: promises) {
+            promise.then([=]() {
+                if (--(*remaining) == 0) {
+                    resolve();
+                }
+            }, [=]() {
+                if (*remaining != -1) {
+                    *remaining = -1;
+                    reject(std::current_exception());
+                }
+            });
+        }
+    });
 }
 
 template <typename Functor, typename... Args>
@@ -143,7 +196,7 @@ map(const Sequence& values, Functor fn)
         i++;
     }
 
-    return QPromise<ResType>::all(promises);
+    return QtPromise::all(promises);
 }
 
 template <typename Sequence, typename Functor>
@@ -175,6 +228,15 @@ qPromise(Args&&... args)
     -> decltype(QtPromise::resolve(std::forward<Args>(args)...))
 {
     return QtPromise::resolve(std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+Q_DECL_DEPRECATED_X("Use QtPromise::all instead")
+static inline auto
+qPromiseAll(Args&&... args)
+    -> decltype(QtPromise::all(std::forward<Args>(args)...))
+{
+    return QtPromise::all(std::forward<Args>(args)...);
 }
 
 } // namespace QtPromise
