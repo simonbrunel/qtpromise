@@ -38,6 +38,7 @@
 ## Exceptions
 
 * [`QPromiseCanceledException`](exceptions/canceled.md)
+* [`QPromiseContextException`](exceptions/context.md)
 * [`QPromiseTimeoutException`](exceptions/timeout.md)
 * [`QPromiseUndefinedException`](exceptions/undefined.md)
 
