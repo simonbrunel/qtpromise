@@ -12,11 +12,16 @@ title: connect
 (3) QtPromise::connect(QObject* sender, Signal(T) resolver, QObject* sender2, Signal(R) rejecter) -> QPromise<T>
 ```
 
-Creates a `QPromise<T>` that will be fulfilled with the `resolver` signal's first argument, or a `QPromise<void>` if `resolver` doesn't provide any argument.
+Creates a `QPromise<T>` that will be fulfilled with the `resolver` signal's first argument, or a
+`QPromise<void>` if `resolver` doesn't provide any argument.
 
-The second `(2)` and third `(3)` variants of this method will reject the `output` promise when the `rejecter` signal is emitted. The rejection reason is the value of the `rejecter` signal's first argument or [`QPromiseUndefinedException`](../exceptions/undefined) if `rejected` doesn't provide any argument.
+The second `(2)` and third `(3)` variants of this method will reject the `output` promise when the
+`rejecter` signal is emitted. The rejection reason is the value of the `rejecter` signal's first
+argument or [`QPromiseUndefinedException`](../exceptions/undefined) if `rejected` doesn't provide
+any argument.
 
-Additionally, the `output` promise will be automatically rejected with [`QPromiseContextException`](../exceptions/context.md) if `sender` is destroyed before the promise is resolved (that doesn't apply to `sender2`).
+Additionally, the `output` promise will be automatically rejected with [`QPromiseContextException`](../exceptions/context.md)
+if `sender` is destroyed before the promise is resolved (that doesn't apply to `sender2`).
 
 ```cpp
 class Sender : public QObject

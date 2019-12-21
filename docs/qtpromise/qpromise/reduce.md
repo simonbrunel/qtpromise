@@ -19,9 +19,12 @@ QPromise<Sequence<T>>::reduce(Reducer reducer, R|QPromise<R> initialValue) -> QP
 This method only applies to promise with sequence value.
 :::
 
-Iterates over all the promise values (i.e. `Sequence<T>`) and [reduces the sequence to a single value](https://en.wikipedia.org/wiki/Fold_%28higher-order_function%29) using the given `reducer` function and an optional `initialValue`. The type returned by `reducer` determines the type of the `output` promise.
+Iterates over all the promise values (i.e. `Sequence<T>`) and [reduces the sequence](https://en.wikipedia.org/wiki/Fold_%28higher-order_function%29)
+to a single value using the given `reducer` function and an optional `initialValue`. The type
+returned by `reducer` determines the type of the `output` promise.
 
-See [`QtPromise::reduce`](../helpers/reduce.md) for details, this method is provided for convenience and is similar to:
+See [`QtPromise::reduce`](../helpers/reduce.md) for details, this method is provided for convenience
+and is similar to:
 
 ```cpp
 promise.then([](const T& values) {

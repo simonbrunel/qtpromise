@@ -2,11 +2,14 @@
 
 ## Installation
 
-QtPromise is a [header-only](https://en.wikipedia.org/wiki/Header-only) library, simply download the [latest release](https://github.com/simonbrunel/qtpromise/releases/latest) (or [`git submodule`](https://git-scm.com/docs/git-submodule)) and include `qtpromise.pri` from your project `.pro`.
+QtPromise is a [header-only](https://en.wikipedia.org/wiki/Header-only) library, simply download the
+[latest release](https://github.com/simonbrunel/qtpromise/releases/latest) (or [`git submodule`](https://git-scm.com/docs/git-submodule))
+and include `qtpromise.pri` from your project `.pro`.
 
 ### qpm
 
-Alternatively and **only** if your project relies on [qpm](https://www.qpm.io/), you can install QtPromise as follow:
+Alternatively and **only** if your project relies on [qpm](https://www.qpm.io/), you can install
+QtPromise as follow:
 
 ```bash
 qpm install com.github.simonbrunel.qtpromise
@@ -28,7 +31,8 @@ Let's first make the code more readable by using the library namespace:
 using namespace QtPromise;
 ```
 
-This `download` function creates a [promise from callbacks](qpromise/constructor.md) which will be resolved when the network request is finished:
+This `download` function creates a [promise from callbacks](qpromise/constructor.md) which will be
+resolved when the network request is finished:
 
 ```cpp
 QPromise<QByteArray> download(const QUrl& url)
@@ -71,6 +75,7 @@ QPromise<Entries> uncompress(const QByteArray& data)
 ```
 
 It's then easy to chain the whole asynchronous process using promises:
+
 - initiate the promise chain by downloading a specific URL,
 - [`then`](qpromise/then.md) *and only if download succeeded*, uncompress received data,
 - [`then`](qpromise/then.md) validate and process the uncompressed entries,

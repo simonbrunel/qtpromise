@@ -1,13 +1,13 @@
 ---
-title: ::reject [static]
+title: ::reject (static)
 ---
 
-# QPromise::reject [static]
+# QPromise::reject (static)
 
 *Since: 0.1.0*
 
 ```cpp
-[static] QPromise<T>::reject(any reason) -> QPromise<T>
+(static) QPromise<T>::reject(any reason) -> QPromise<T>
 ```
 
 Creates a `QPromise<T>` that is rejected with the given `reason` of *whatever type*:

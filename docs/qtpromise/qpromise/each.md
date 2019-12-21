@@ -18,7 +18,9 @@ QPromise<Sequence<T>>::each(Functor functor) -> QPromise<Sequence<T>>
 This method only applies to promise with sequence value.
 :::
 
-Calls the given `functor` on each element in the promise value (i.e. `Sequence<T>`), then resolves to the original sequence unmodified. If `functor` throws, `output` is rejected with the new exception.
+Calls the given `functor` on each element in the promise value (i.e. `Sequence<T>`), then resolves
+to the original sequence unmodified. If `functor` throws, `output` is rejected with the new
+exception.
 
 ```cpp
 QPromise<QList<QByteArray>> input = {...}
@@ -33,7 +35,9 @@ output.then([](const QList<QByteArray>& res) {
 });
 ```
 
-If `functor` returns a promise (or `QFuture`), the `output` promise is delayed until all the promises are resolved. If any of the promises fail, `output` immediately rejects with the error of the promise that rejected, whether or not the other promises are resolved.
+If `functor` returns a promise (or `QFuture`), the `output` promise is delayed until all the
+promises are resolved. If any of the promises fail, `output` immediately rejects with the error
+of the promise that rejected, whether or not the other promises are resolved.
 
 ```cpp
 QPromise<QList<QUrl>> input = {...}
