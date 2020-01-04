@@ -42,9 +42,9 @@ auto output = QtPromise::connect(sender, &Sender::finished, &Sender::error);
 // 'output' type: QPromise<QByteArray>
 output.then([](const QByteArray& res) {
     // 'res' is the first argument of the 'finished' signal.
-}).fail([](ErrorCode err) {
-    // 'err' is the first argument of the 'error' signal.
-}).fail([](const QPromiseContextException& err) {
+}).fail([](ErrorCode error) {
+    // 'error' is the first argument of the 'error' signal.
+}).fail([](const QPromiseContextException& error) {
     // the 'sender' object has been destroyed before any of
     // the 'finished' or 'error' signals have been emitted.
 });

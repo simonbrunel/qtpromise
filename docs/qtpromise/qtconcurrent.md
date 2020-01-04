@@ -67,7 +67,7 @@ promise.then([](int res) {
 
         return QString("42");
     });
-}).fail(const CustomException& err) {
+}).fail([](const CustomException& error) {
     // {...}
 });
 ```

@@ -90,9 +90,9 @@ download(url).then(&uncompress).then([](const Entries& entries) {
     // {...} process entries
 }).finally([]() {
     // {...} cleanup
-}).fail([](QNetworkReply::NetworkError err) {
+}).fail([](QNetworkReply::NetworkError error) {
     // {...} handle network error
-}).fail([](const UpdateException& err) {
+}).fail([](const UpdateException& error) {
     // {...} handle update error
 }).fail([]() {
     // {...} catch all

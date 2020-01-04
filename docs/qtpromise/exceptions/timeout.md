@@ -8,7 +8,7 @@ This is the default exception thrown when reaching the time limit when using the
 ```cpp
 QPromise<int> input = {...}
 auto output = input.timeout(2000)
-    .fail([](const QPromiseTimeoutException& e) {
+    .fail([](const QPromiseTimeoutException& error) {
         // operation timed out after 2s!
     });
 ```

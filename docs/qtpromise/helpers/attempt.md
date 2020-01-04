@@ -41,7 +41,7 @@ auto output = process(url);
 // 'output' type: QPromise<QByteArray>
 output.then([](const QByteArray& res) {
     // {...}
-}).fail([](const InvalidUrlException& err) {
+}).fail([](const InvalidUrlException& error) {
     // {...}
 });
 ```

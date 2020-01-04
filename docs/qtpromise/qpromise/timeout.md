@@ -21,7 +21,7 @@ auto output = input.timeout(2000)
     .then([](int res) {
         // operation succeeded within 2 seconds
     })
-    .fail([](const QPromiseTimeoutException& e) {
+    .fail([](const QPromiseTimeoutException& error) {
         // operation timed out!
     });
 ```

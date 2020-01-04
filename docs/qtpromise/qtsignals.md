@@ -53,7 +53,7 @@ auto output = QtPromise::connect(obj, &Object::finished, &Object::error);
 // output type: QPromise<QByteArray>
 output.then([](const QByteArray& data) {
     // {...}
-}).fail(const ObjectError& error) {
+}).fail([](const ObjectError& error) {
     // {...}
 });
 ```
@@ -69,7 +69,7 @@ auto output = QtPromise::connect(obj, &Object::finished, &Object::error);
 // output type: QPromise<QByteArray>
 output.then([]() {
     // {...}
-}).fail(const QPromiseUndefinedException& error) {
+}).fail([](const QPromiseUndefinedException& error) {
     // {...}
 });
 ```
@@ -84,7 +84,7 @@ auto output = QtPromise::connect(objA, &ObjectA::finished, objB, &ObjectB::error
 // output type: QPromise<QByteArray>
 output.then([](const QByteArray& data) {
     // {...}
-}).fail(const ObjectBError& error) {
+}).fail([](const ObjectBError& error) {
     // {...}
 });
 ```

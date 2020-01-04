@@ -7,7 +7,7 @@ canceled (e.g. using [`QFuture::cancel()`](http://doc.qt.io/qt-5/qfuture.html#ca
 
 ```cpp
 auto output = QtPromise::resolve(future)
-    .fail([](const QPromiseCanceledException&) {
+    .fail([](const QPromiseCanceledException& error) {
         // `future` has been canceled!
     });
 ```

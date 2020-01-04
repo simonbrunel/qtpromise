@@ -17,12 +17,12 @@ rejected with the new exception.
 
 ```cpp
 QPromise<int> input = {...}
-auto output = input.tapFail([](Error err) {
-    log(err);
+auto output = input.tapFail([](const Error& error) {
+    log(error);
 }).then([](int res) {
     return process(res);
-}).fail([](Error err) {
-    handle(err);
+}).fail([](const Error& error) {
+    handle(error);
     return -1;
 });
 ```
