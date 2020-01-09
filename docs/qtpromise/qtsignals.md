@@ -59,7 +59,7 @@ output.then([](const QByteArray& data) {
 ```
 
 If the rejection signal doesn't provide any argument, the promise will be rejected with
-[`QPromiseUndefinedException`](../exceptions/undefined), for example:
+[`QPromiseUndefinedException`](exceptions/undefined.md), for example:
 
 ```cpp
 // [signal] Object::finished()

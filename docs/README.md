@@ -1,7 +1,6 @@
 ---
 home: true
 heroImage: /hero.svg
-actionLink: /qtpromise/getting-started.md
 footer: MIT Licensed | Copyright © 2019 Simon Brunel
 ---
 

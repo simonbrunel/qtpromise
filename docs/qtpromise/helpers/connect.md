@@ -17,7 +17,7 @@ Creates a `QPromise<T>` that will be fulfilled with the `resolver` signal's firs
 
 The second `(2)` and third `(3)` variants of this method will reject the `output` promise when the
 `rejecter` signal is emitted. The rejection reason is the value of the `rejecter` signal's first
-argument or [`QPromiseUndefinedException`](../exceptions/undefined) if `rejected` doesn't provide
+argument or [`QPromiseUndefinedException`](../exceptions/undefined.md) if `rejected` doesn't provide
 any argument.
 
 Additionally, the `output` promise will be automatically rejected with [`QPromiseContextException`](../exceptions/context.md)
