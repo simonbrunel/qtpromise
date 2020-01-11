@@ -104,7 +104,7 @@ struct SequenceTester<Sequence<QPromise<void>, Args...>>
 
 void tst_deprecations_qpromise_all::emptySequence()
 {
-    auto p = QPromise<int>::all({});
+    auto p = QPromise<int>::all(QVector<QPromise<int>>{});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
@@ -114,7 +114,7 @@ void tst_deprecations_qpromise_all::emptySequence()
 
 void tst_deprecations_qpromise_all::emptySequence_void()
 {
-    auto p = QPromise<void>::all({});
+    auto p = QPromise<void>::all(QVector<QPromise<void>>{});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
@@ -132,7 +132,7 @@ void tst_deprecations_qpromise_all::allPromisesSucceed()
         });
     });
 
-    auto p = QPromise<int>::all({p0, p2, p1});
+    auto p = QPromise<int>::all(QVector<QPromise<int>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
@@ -154,7 +154,7 @@ void tst_deprecations_qpromise_all::allPromisesSucceed_void()
         });
     });
 
-    auto p = QPromise<void>::all({p0, p2, p1});
+    auto p = QPromise<void>::all(QVector<QPromise<void>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
@@ -176,7 +176,7 @@ void tst_deprecations_qpromise_all::atLeastOnePromiseReject()
         });
     });
 
-    auto p = QPromise<int>::all({p0, p2, p1});
+    auto p = QPromise<int>::all(QVector<QPromise<int>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
@@ -198,7 +198,7 @@ void tst_deprecations_qpromise_all::atLeastOnePromiseReject_void()
         });
     });
 
-    auto p = QPromise<void>::all({p0, p2, p1});
+    auto p = QPromise<void>::all(QVector<QPromise<void>>{p0, p2, p1});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
@@ -216,7 +216,7 @@ void tst_deprecations_qpromise_all::preserveOrder()
     auto p1 = QtPromise::resolve(43).delay(100);
     auto p2 = QtPromise::resolve(44).delay(250);
 
-    auto p = QPromise<int>::all({p0, p1, p2});
+    auto p = QPromise<int>::all(QVector<QPromise<int>>{p0, p1, p2});
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 

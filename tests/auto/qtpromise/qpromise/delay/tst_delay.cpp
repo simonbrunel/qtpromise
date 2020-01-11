@@ -58,8 +58,8 @@ void tst_qpromise_delay::fulfilled()
     // Qt::CoarseTimer (default) Coarse timers try to
     // keep accuracy within 5% of the desired interval.
     // Require accuracy within 6% for passing the test.
-    QVERIFY(elapsed >= 1000 * 0.94);
-    QVERIFY(elapsed <= 1000 * 1.06);
+    QVERIFY(elapsed >= static_cast<qint64>(1000 * 0.94));
+    QVERIFY(elapsed <= static_cast<qint64>(1000 * 1.06));
 }
 
 void tst_qpromise_delay::rejected()

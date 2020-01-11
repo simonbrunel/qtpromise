@@ -19,9 +19,9 @@ environment:
       ARCH: x64
 
 build_script:
-  - cmd: qmake qtpromise.pro
-  - cmd: nmake
+  - cmd: cmake -G "NMake Makefiles"
+  - cmd: cmake --build .
 
 test_script:
-  - cmd: nmake check
+  - cmd: cmake --build . --target test
 

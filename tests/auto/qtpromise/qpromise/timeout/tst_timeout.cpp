@@ -111,6 +111,6 @@ void tst_qpromise_timeout::timeout()
     // Qt::CoarseTimer (default) Coarse timers try to
     // keep accuracy within 5% of the desired interval.
     // Require accuracy within 6% for passing the test.
-    QVERIFY(elapsed >= 2000 * 0.94);
-    QVERIFY(elapsed <= 2000 * 1.06);
+    QVERIFY(elapsed >= static_cast<qint64>(2000 * 0.94));
+    QVERIFY(elapsed <= static_cast<qint64>(2000 * 1.06));
 }

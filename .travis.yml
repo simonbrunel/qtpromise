@@ -22,14 +22,15 @@ install:
   - cd ..
 
 before_script:
+  - cmake --version
   - qmake --version
-  - lcov --version && gcov --version
   - gcc --version && g++ --version
+  - lcov --version && gcov --version
 
 script:
-  - qmake qtpromise.pro CONFIG+=coverage
-  - make -j4
-  - make check --quiet
+  - cmake -G "Unix Makefiles"
+  - cmake --build . -- -j12
+  - cmake --build . --target test
   - lcov -capture --directory . --o coverage.info
   - lcov -e coverage.info '**/src/**/*' -o coverage.info
 
