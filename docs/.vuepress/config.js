@@ -2,9 +2,13 @@ module.exports = {
     title: 'QtPromise',
     description: 'Promises/A+ implementation for Qt/C++',
     dest: 'dist/docs',
-    ga: 'UA-113899811-1',
     head: [
         ['link', { rel: 'icon', href: `/favicon.png` }],
+    ],
+    plugins: [
+        ['@vuepress/google-analytics', {
+            ga: 'UA-113899811-1'
+        }]
     ],
     themeConfig: {
         repo: 'simonbrunel/qtpromise',
