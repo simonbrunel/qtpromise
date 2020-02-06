@@ -30,7 +30,7 @@ inline QPromiseBase<T>::QPromiseBase(F callback)
 }
 
 template <typename T>
-template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type>
+template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type>
 inline QPromiseBase<T>::QPromiseBase(F callback)
     : m_d(new QtPromisePrivate::PromiseData<T>())
 {
