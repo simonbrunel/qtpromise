@@ -1,9 +1,12 @@
-add_subdirectory(all)
-add_subdirectory(attempt)
-add_subdirectory(connect)
-add_subdirectory(each)
-add_subdirectory(filter)
-add_subdirectory(map)
-add_subdirectory(reduce)
-add_subdirectory(reject)
-add_subdirectory(resolve)
+qtpromise_add_tests(helpers
+    SOURCES
+        tst_all.cpp
+        tst_attempt.cpp
+        tst_connect.cpp
+        tst_each.cpp
+        tst_filter.cpp
+        tst_map.cpp
+        tst_reduce.cpp
+        tst_reject.cpp
+        tst_resolve.cpp
+)

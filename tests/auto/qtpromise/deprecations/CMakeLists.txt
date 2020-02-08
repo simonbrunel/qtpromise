@@ -5,5 +5,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     add_compile_options(/wd4996)
 endif()
 
-add_subdirectory(helpers)
-add_subdirectory(qpromise)
+qtpromise_add_tests(deprecation
+    SOURCES
+        tst_helpers_qpromise.cpp
+        tst_helpers_qpromiseall.cpp
+        tst_qpromise_all.cpp
+)

@@ -1,14 +1,17 @@
-add_subdirectory(construct)
-add_subdirectory(delay)
-add_subdirectory(each)
-add_subdirectory(fail)
-add_subdirectory(filter)
-add_subdirectory(finally)
-add_subdirectory(map)
-add_subdirectory(operators)
-add_subdirectory(reduce)
-add_subdirectory(resolve)
-add_subdirectory(tap)
-add_subdirectory(tapfail)
-add_subdirectory(then)
-add_subdirectory(timeout)
+qtpromise_add_tests(qpromise
+    SOURCES
+        tst_construct.cpp
+        tst_delay.cpp
+        tst_each.cpp
+        tst_fail.cpp
+        tst_filter.cpp
+        tst_finally.cpp
+        tst_map.cpp
+        tst_operators.cpp
+        tst_reduce.cpp
+        tst_resolve.cpp
+        tst_tap.cpp
+        tst_tapfail.cpp
+        tst_then.cpp
+        tst_timeout.cpp
+)
