@@ -13,7 +13,7 @@
 // Qt
 #include <QtTest>
 
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
 #include <chrono>
 #endif
 
@@ -111,7 +111,7 @@ void tst_qpromise_timeout::timeout()
 
 void tst_qpromise_timeout::fulfilledStdChrono()
 {
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
 
@@ -133,7 +133,7 @@ void tst_qpromise_timeout::fulfilledStdChrono()
 
 void tst_qpromise_timeout::rejectedStdChrono()
 {
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
 
@@ -156,7 +156,7 @@ void tst_qpromise_timeout::rejectedStdChrono()
 
 void tst_qpromise_timeout::timeoutStdChrono()
 {
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
     bool failed = false;

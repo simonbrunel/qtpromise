@@ -16,7 +16,7 @@
 // Qt
 #include <QExplicitlySharedDataPointer>
 
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
 #include <chrono>
 #endif
 
@@ -76,7 +76,7 @@ public:
 
     template <typename E = QPromiseTimeoutException>
     inline QPromise<T> timeout(int msec, E&& error = E()) const;   
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
     template <typename E = QPromiseTimeoutException>
     inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const
     {
@@ -85,7 +85,7 @@ public:
 #endif
 
     inline QPromise<T> delay(int msec) const;
-#if __has_include(<chrono>)
+#if __cplusplus >= 201103
     inline QPromise<T> delay(std::chrono::milliseconds msec) const
     {
         return delay(static_cast<int>(msec.count()));
