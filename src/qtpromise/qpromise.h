@@ -30,6 +30,10 @@
 // Qt
 #include <QExplicitlySharedDataPointer>
 
+#if __has_include(<chrono>)
+#include <chrono>
+#endif
+
 namespace QtPromise {
 
 template <typename T>
@@ -85,9 +89,22 @@ public:
     inline QPromise<T> tapFail(THandler handler) const;
 
     template <typename E = QPromiseTimeoutException>
-    inline QPromise<T> timeout(int msec, E&& error = E()) const;
+    inline QPromise<T> timeout(int msec, E&& error = E()) const;   
+#if __has_include(<chrono>)
+    template <typename E = QPromiseTimeoutException>
+    inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const
+    {
+        return timeout(static_cast<int>(msec.count()), std::forward<E>(error));
+    }
+#endif
 
     inline QPromise<T> delay(int msec) const;
+#if __has_include(<chrono>)
+    inline QPromise<T> delay(std::chrono::milliseconds msec) const
+    {
+        return delay(static_cast<int>(msec.count()));
+    }
+#endif
     inline QPromise<T> wait() const;
 
 public: // STATIC

@@ -27,6 +27,10 @@
 // Qt
 #include <QtTest>
 
+#if __has_include(<chrono>)
+#include <chrono>
+#endif
+
 using namespace QtPromise;
 
 class tst_qpromise_delay : public QObject
@@ -36,6 +40,11 @@ class tst_qpromise_delay : public QObject
 private Q_SLOTS:
     void fulfilled();
     void rejected();
+
+    // These tests cannot be wrapped with preprocessor #if because of a moc bug
+    // See https://bugreports.qt.io/browse/QTBUG-81536
+    void fulfilledStdChrono();
+    void rejectedStdChrono();
 };
 
 QTEST_MAIN(tst_qpromise_delay)
@@ -76,4 +85,45 @@ void tst_qpromise_delay::rejected()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
     QCOMPARE(p.isRejected(), true);
     QVERIFY(elapsed <= 10);
+}
+
+void tst_qpromise_delay::fulfilledStdChrono()
+{
+#if __has_include(<chrono>)
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+
+    timer.start();
+
+    auto p = QPromise<int>::resolve(42).delay(std::chrono::seconds{1}).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+    QCOMPARE(waitForValue(p, -1), 42);
+    QCOMPARE(p.isFulfilled(), true);
+
+    // Qt::CoarseTimer (default) Coarse timers try to
+    // keep accuracy within 5% of the desired interval.
+    // Require accuracy within 6% for passing the test.
+    QVERIFY(elapsed >= static_cast<qint64>(1000 * 0.94));
+    QVERIFY(elapsed <= static_cast<qint64>(1000 * 1.06));
+#endif
+}
+
+void tst_qpromise_delay::rejectedStdChrono()
+{
+#if __has_include(<chrono>)
+    QElapsedTimer timer;
+    qint64 elapsed = -1;
+
+    timer.start();
+
+    auto p = QPromise<int>::reject(QString("foo")).delay(std::chrono::seconds{1}).finally([&]() {
+        elapsed = timer.elapsed();
+    });
+
+    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(p.isRejected(), true);
+    QVERIFY(elapsed <= 10);
+#endif
 }
