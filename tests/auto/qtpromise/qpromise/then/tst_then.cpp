@@ -1,25 +1,13 @@
 /*
- * Copyright (c) 2019 Simon Brunel, https://github.com/simonbrunel
+ * Copyright (c) Simon Brunel, https://github.com/simonbrunel
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies
- * or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * This source code is licensed under the MIT license found in
+ * the LICENSE file in the root directory of this source tree.
  */
 
 #include "../../shared/utils.h"
+
+#include <functional>
 
 // QtPromise
 #include <QtPromise>
@@ -39,11 +27,43 @@ private Q_SLOTS:
     void rejectSync();
     void rejectAsync();
     void skipResult();
-    void noHandler();
+    void nullHandler();
+    void functionPtrHandlers();
+    void stdFunctionHandlers();
+    void stdBindHandlers();
+    void lambdaHandlers();
 };
 
 QTEST_MAIN(tst_qpromise_then)
 #include "tst_then.moc"
+
+namespace {
+
+const float kRes = 0.42f;
+const float kFail = -1.f;
+
+float fnNoArg() { return kRes; }
+float fnArgByVal(float v) { return v; }
+float fnArgByRef(const float& v) { return v; }
+
+class Klass {
+public: // STATICS
+    static float kFnNoArg() { return kRes; }
+    static float kFnArgByVal(float v) { return v; }
+    static float kFnArgByRef(const float& v) { return v; }
+
+public:
+    Klass(float v) : m_v{v} {}
+
+    float fnNoArg() const { return m_v; }
+    float fnArgByVal(float v) const { return v + m_v; }
+    float fnArgByRef(const float& v) const { return v + m_v; }
+
+private:
+    const float m_v;
+};
+
+} // namespace
 
 void tst_qpromise_then::resolveSync()
 {
@@ -129,7 +149,7 @@ void tst_qpromise_then::skipResult()
     QCOMPARE(value, 43);
 }
 
-void tst_qpromise_then::noHandler()
+void tst_qpromise_then::nullHandler()
 {
     {   // resolved
         auto p = QPromise<int>::resolve(42).then(nullptr);
@@ -142,5 +162,127 @@ void tst_qpromise_then::noHandler()
 
         QCOMPARE(waitForError(p, QString()), QString("foo"));
         QCOMPARE(p.isRejected(), true);
+    }
+}
+
+void tst_qpromise_then::functionPtrHandlers()
+{
+    {   // Global functions.
+        auto p0 = QtPromise::resolve().then(&fnNoArg);
+        auto p1 = QtPromise::resolve(kRes).then(&fnArgByVal);
+        auto p2 = QtPromise::resolve(kRes).then(&fnArgByRef);
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+    {   // Static member functions.
+        auto p0 = QtPromise::resolve().then(&Klass::kFnNoArg);
+        auto p1 = QtPromise::resolve(kRes).then(&Klass::kFnArgByVal);
+        auto p2 = QtPromise::resolve(kRes).then(&Klass::kFnArgByRef);
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+}
+
+// https://github.com/simonbrunel/qtpromise/issues/29
+void tst_qpromise_then::stdFunctionHandlers()
+{
+    {   // lvalue.
+        std::function<float()> stdFnNoArg = fnNoArg;
+        std::function<float(float)> stdFnArgByVal = fnArgByVal;
+        std::function<float(const float&)> stdFnArgByRef = fnArgByRef;
+
+        auto p0 = QtPromise::resolve().then(stdFnNoArg);
+        auto p1 = QtPromise::resolve(kRes).then(stdFnArgByVal);
+        auto p2 = QtPromise::resolve(kRes).then(stdFnArgByRef);
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+    {   // const lvalue.
+        const std::function<float()> stdFnNoArg = fnNoArg;
+        const std::function<float(float)> stdFnArgByVal = fnArgByVal;
+        const std::function<float(const float&)> stdFnArgByRef = fnArgByRef;
+
+        auto p0 = QtPromise::resolve().then(stdFnNoArg);
+        auto p1 = QtPromise::resolve(kRes).then(stdFnArgByVal);
+        auto p2 = QtPromise::resolve(kRes).then(stdFnArgByRef);
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+    {   // rvalue.
+        auto p0 = QtPromise::resolve().then(std::function<float()>{fnNoArg});
+        auto p1 = QtPromise::resolve(kRes).then(std::function<float(float)>{fnArgByVal});
+        auto p2 = QtPromise::resolve(kRes).then(std::function<float(const float&)>{fnArgByRef});
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+}
+
+//// https://github.com/simonbrunel/qtpromise/issues/29
+void tst_qpromise_then::stdBindHandlers()
+{
+    using namespace std::placeholders;
+
+    const float val{42.f};
+    const Klass obj{val};
+
+    const std::function<float()> bindNoArg = std::bind(&Klass::fnNoArg, &obj);
+    const std::function<float(float)> bindArgByVal = std::bind(&Klass::fnArgByVal, &obj, _1);
+    const std::function<float(const float&)> bindArgByRef = std::bind(&Klass::fnArgByRef, &obj, _1);
+
+    auto p0 = QtPromise::resolve().then(bindNoArg);
+    auto p1 = QtPromise::resolve(kRes).then(bindArgByVal);
+    auto p2 = QtPromise::resolve(kRes).then(bindArgByRef);
+
+    QCOMPARE(waitForValue(p0, kFail), val);
+    QCOMPARE(waitForValue(p1, kFail), val + kRes);
+    QCOMPARE(waitForValue(p2, kFail), val + kRes);
+}
+
+void tst_qpromise_then::lambdaHandlers()
+{
+    {   // lvalue.
+        auto lambdaNoArg = []() { return kRes; };
+        auto lambdaArgByVal = [](float v) { return v; };
+        auto lambdaArgByRef = [](const float& v) { return v; };
+
+        auto p0 = QtPromise::resolve().then(lambdaNoArg);
+        auto p1 = QtPromise::resolve(kRes).then(lambdaArgByVal);
+        auto p2 = QtPromise::resolve(kRes).then(lambdaArgByRef);
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+    {   // const lvalue.
+        const auto lambdaNoArg = []() { return kRes; };
+        const auto lambdaArgByVal = [](float v) { return v; };
+        const auto lambdaArgByRef = [](const float& v) { return v; };
+
+        auto p0 = QtPromise::resolve().then(lambdaNoArg);
+        auto p1 = QtPromise::resolve(kRes).then(lambdaArgByVal);
+        auto p2 = QtPromise::resolve(kRes).then(lambdaArgByRef);
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
+    }
+    {   // rvalue.
+        auto p0 = QtPromise::resolve().then([]() { return kRes; });
+        auto p1 = QtPromise::resolve(kRes).then([](float v) { return v; });
+        auto p2 = QtPromise::resolve(kRes).then([](const float& v) { return v; });
+
+        QCOMPARE(waitForValue(p0, kFail), kRes);
+        QCOMPARE(waitForValue(p1, kFail), kRes);
+        QCOMPARE(waitForValue(p2, kFail), kRes);
     }
 }

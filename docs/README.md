@@ -1,7 +1,7 @@
 ---
 home: true
 heroImage: /hero.svg
-footer: MIT Licensed | Copyright © 2019 Simon Brunel
+footer: MIT Licensed | Copyright © Simon Brunel, https://github.com/simonbrunel
 ---
 
 <p align="center">
