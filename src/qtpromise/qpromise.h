@@ -75,22 +75,14 @@ public:
     inline QPromise<T> tapFail(THandler handler) const;
 
     template <typename E = QPromiseTimeoutException>
-    inline QPromise<T> timeout(int msec, E&& error = E()) const;   
-#if __cplusplus >= 201103
-    template <typename E = QPromiseTimeoutException>
-    inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const
-    {
-        return timeout(static_cast<int>(msec.count()), std::forward<E>(error));
-    }
-#endif
+    inline QPromise<T> timeout(int msec, E&& error = E()) const;
 
-    inline QPromise<T> delay(int msec) const;
-#if __cplusplus >= 201103
-    inline QPromise<T> delay(std::chrono::milliseconds msec) const
-    {
-        return delay(static_cast<int>(msec.count()));
-    }
-#endif
+    template <typename E = QPromiseTimeoutException>
+    inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const;
+
+    inline QPromise<T> delay(int msec) const;    
+    inline QPromise<T> delay(std::chrono::milliseconds msec) const;
+
     inline QPromise<T> wait() const;
 
 public: // STATIC

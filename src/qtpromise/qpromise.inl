@@ -132,6 +132,13 @@ inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
 }
 
 template <typename T>
+template <typename E>
+inline QPromise<T> QPromiseBase<T>::timeout(std::chrono::milliseconds msec, E&& error) const
+{
+    return timeout(static_cast<int>(msec.count()), std::forward<E>(error));
+}
+
+template <typename T>
 inline QPromise<T> QPromiseBase<T>::delay(int msec) const
 {
     return tap([=]() {
@@ -139,6 +146,12 @@ inline QPromise<T> QPromiseBase<T>::delay(int msec) const
             QTimer::singleShot(msec, resolve);
         });
     });
+}
+
+template<typename T>
+inline QPromise<T> QPromiseBase<T>::delay(std::chrono::milliseconds msec) const
+{
+    return delay(static_cast<int>(msec.count()));
 }
 
 template <typename T>
