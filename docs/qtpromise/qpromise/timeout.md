@@ -26,17 +26,15 @@ auto output = input.timeout(2000)
     });
 ```
 
+---
+
 *Since: 0.6.0*
 
 ```cpp
 QPromise<T>::timeout(std::chrono::milliseconds msec, any error = QPromiseTimeoutException) -> QPromise<T>
 ```
 
-This is a convenience overload accepting durations from the the standard C++ library. It is available only if your compiler supports the `<chrono>` header. 
-This method returns a promise that will be resolved with the `input` promise's fulfillment value
-or rejection reason. However, if the `input` promise is not fulfilled or rejected within `msec`
-milliseconds, the `output` promise is rejected with `error` as the reason ([`QPromiseTimeoutException`](../exceptions/timeout.md)
-by default).
+This is a convenience overload accepting [durations from the C++ Standard Library](https://en.cppreference.com/w/cpp/chrono/duration).
 
 ```cpp
 QPromise<int> input = {...}
