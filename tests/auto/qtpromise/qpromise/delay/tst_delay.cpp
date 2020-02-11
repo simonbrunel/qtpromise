@@ -13,9 +13,8 @@
 // Qt
 #include <QtTest>
 
-#if __cplusplus >= 201103
+// C++ Standard Library
 #include <chrono>
-#endif
 
 using namespace QtPromise;
 
@@ -75,7 +74,6 @@ void tst_qpromise_delay::rejected()
 
 void tst_qpromise_delay::fulfilledStdChrono()
 {
-#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
 
@@ -93,12 +91,10 @@ void tst_qpromise_delay::fulfilledStdChrono()
     // Require accuracy within 6% for passing the test.
     QVERIFY(elapsed >= static_cast<qint64>(1000 * 0.94));
     QVERIFY(elapsed <= static_cast<qint64>(1000 * 1.06));
-#endif
 }
 
 void tst_qpromise_delay::rejectedStdChrono()
 {
-#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
 
@@ -111,5 +107,4 @@ void tst_qpromise_delay::rejectedStdChrono()
     QCOMPARE(waitForError(p, QString()), QString("foo"));
     QCOMPARE(p.isRejected(), true);
     QVERIFY(elapsed <= 10);
-#endif
 }

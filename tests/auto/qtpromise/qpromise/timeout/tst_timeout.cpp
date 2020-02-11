@@ -13,9 +13,8 @@
 // Qt
 #include <QtTest>
 
-#if __cplusplus >= 201103
+// C++ Standard Library
 #include <chrono>
-#endif
 
 using namespace QtPromise;
 
@@ -111,7 +110,6 @@ void tst_qpromise_timeout::timeout()
 
 void tst_qpromise_timeout::fulfilledStdChrono()
 {
-#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
 
@@ -122,18 +120,16 @@ void tst_qpromise_timeout::fulfilledStdChrono()
             resolve(42);
         });
     }).timeout(std::chrono::seconds{2}).finally([&]() {
-                     elapsed = timer.elapsed();
-                 });
+        elapsed = timer.elapsed();
+    });
 
     QCOMPARE(waitForValue(p, -1), 42);
     QCOMPARE(p.isFulfilled(), true);
     QVERIFY(elapsed < 2000);
-#endif
 }
 
 void tst_qpromise_timeout::rejectedStdChrono()
 {
-#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
 
@@ -144,19 +140,17 @@ void tst_qpromise_timeout::rejectedStdChrono()
             reject(QString("foo"));
         });
     }).timeout(std::chrono::seconds{2}).finally([&]() {
-                     elapsed = timer.elapsed();
-                 });
+        elapsed = timer.elapsed();
+    });
 
 
     QCOMPARE(waitForError(p, QString()), QString("foo"));
     QCOMPARE(p.isRejected(), true);
     QVERIFY(elapsed < 2000);
-#endif
 }
 
 void tst_qpromise_timeout::timeoutStdChrono()
 {
-#if __cplusplus >= 201103
     QElapsedTimer timer;
     qint64 elapsed = -1;
     bool failed = false;
@@ -168,13 +162,13 @@ void tst_qpromise_timeout::timeoutStdChrono()
             resolve(42);
         });
     }).timeout(std::chrono::seconds{2}).finally([&]() {
-                     elapsed = timer.elapsed();
-                 });
+        elapsed = timer.elapsed();
+    });
 
     p.fail([&](const QPromiseTimeoutException&) {
-         failed = true;
-         return -1;
-     }).wait();
+        failed = true;
+        return -1;
+    }).wait();
 
     QCOMPARE(waitForValue(p, -1), -1);
     QCOMPARE(p.isRejected(), true);
@@ -185,5 +179,4 @@ void tst_qpromise_timeout::timeoutStdChrono()
     // Require accuracy within 6% for passing the test.
     QVERIFY(elapsed >= static_cast<qint64>(2000 * 0.94));
     QVERIFY(elapsed <= static_cast<qint64>(2000 * 1.06));
-#endif
 }
