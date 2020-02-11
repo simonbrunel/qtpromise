@@ -16,6 +16,9 @@
 // Qt
 #include <QExplicitlySharedDataPointer>
 
+// C++ Standard Library
+#include <chrono>
+
 namespace QtPromise {
 
 template <typename T>
@@ -73,7 +76,12 @@ public:
     template <typename E = QPromiseTimeoutException>
     inline QPromise<T> timeout(int msec, E&& error = E()) const;
 
-    inline QPromise<T> delay(int msec) const;
+    template <typename E = QPromiseTimeoutException>
+    inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const;
+
+    inline QPromise<T> delay(int msec) const;    
+    inline QPromise<T> delay(std::chrono::milliseconds msec) const;
+
     inline QPromise<T> wait() const;
 
 public: // STATIC
