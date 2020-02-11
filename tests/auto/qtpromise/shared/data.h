@@ -8,7 +8,6 @@
 #ifndef QTPROMISE_TESTS_AUTO_SHARED_DATA_H
 #define QTPROMISE_TESTS_AUTO_SHARED_DATA_H
 
-// STL
 #include <utility>
 
 struct Logs {

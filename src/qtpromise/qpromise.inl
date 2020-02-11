@@ -8,10 +8,9 @@
 #include "qpromise.h"
 #include "qpromisehelpers.h"
 
-// Qt
-#include <QCoreApplication>
-#include <QSharedPointer>
-#include <QTimer>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QTimer>
 
 namespace QtPromise {
 

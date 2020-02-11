@@ -13,10 +13,8 @@
 #include "qpromiseglobal.h"
 #include "qpromiseresolver.h"
 
-// Qt
-#include <QExplicitlySharedDataPointer>
+#include <QtCore/QExplicitlySharedDataPointer>
 
-// C++ Standard Library
 #include <chrono>
 
 namespace QtPromise {
@@ -79,7 +77,7 @@ public:
     template <typename E = QPromiseTimeoutException>
     inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const;
 
-    inline QPromise<T> delay(int msec) const;    
+    inline QPromise<T> delay(int msec) const;
     inline QPromise<T> delay(std::chrono::milliseconds msec) const;
 
     inline QPromise<T> wait() const;

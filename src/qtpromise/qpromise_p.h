@@ -10,15 +10,14 @@
 
 #include "qpromiseglobal.h"
 
-// Qt
-#include <QCoreApplication>
-#include <QAbstractEventDispatcher>
-#include <QThread>
-#include <QVector>
-#include <QReadWriteLock>
-#include <QSharedPointer>
-#include <QSharedData>
-#include <QPointer>
+#include <QtCore/QAbstractEventDispatcher>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QPointer>
+#include <QtCore/QReadWriteLock>
+#include <QtCore/QSharedData>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QThread>
+#include <QtCore/QVector>
 
 namespace QtPromise {
 

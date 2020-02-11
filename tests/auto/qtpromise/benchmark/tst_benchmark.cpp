@@ -7,10 +7,7 @@
 
 #include "../shared/data.h"
 
-// QtPromise
 #include <QtPromise>
-
-// Qt
 #include <QtTest>
 
 #ifdef Q_CC_MSVC

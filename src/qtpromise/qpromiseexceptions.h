@@ -11,8 +11,7 @@
 #include "qpromise_p.h"
 #include "qpromiseglobal.h"
 
-// Qt
-#include <QException>
+#include <QtCore/QException>
 
 namespace QtPromise {
 

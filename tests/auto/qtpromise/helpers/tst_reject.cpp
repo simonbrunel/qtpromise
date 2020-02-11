@@ -7,13 +7,9 @@
 
 #include "../shared/utils.h"
 
-// QtPromise
 #include <QtPromise>
-
-// Qt
 #include <QtTest>
 
-// STL
 #include <memory>
 
 using namespace QtPromise;

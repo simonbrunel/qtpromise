@@ -8,8 +8,7 @@
 #ifndef QTPROMISE_QPROMISECONNECTIONS_H
 #define QTPROMISE_QPROMISECONNECTIONS_H
 
-// Qt
-#include <QSharedPointer>
+#include <QtCore/QSharedPointer>
 
 namespace QtPromise {
 

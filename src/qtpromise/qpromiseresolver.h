@@ -10,8 +10,7 @@
 
 #include "qpromiseexceptions.h"
 
-// Qt
-#include <QExplicitlySharedDataPointer>
+#include <QtCore/QExplicitlySharedDataPointer>
 
 namespace QtPromise {
 

@@ -5,11 +5,8 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-// QtPromise
-#include <QtPromise>
-
-// Qt
 #include <QtConcurrent>
+#include <QtPromise>
 #include <QtTest>
 
 using namespace QtPromise;

@@ -8,12 +8,10 @@
 #ifndef QTPROMISE_QPROMISEGLOBAL_H
 #define QTPROMISE_QPROMISEGLOBAL_H
 
-// QtCore
 #include <QtGlobal>
 
-// STL
-#include <functional>
 #include <array>
+#include <functional>
 
 namespace QtPromisePrivate
 {

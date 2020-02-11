@@ -7,11 +7,8 @@
 
 #include "../shared/utils.h"
 
-// QtPromise
-#include <QtPromise>
-
-// Qt
 #include <QtConcurrent>
+#include <QtPromise>
 #include <QtTest>
 
 using namespace QtPromise;

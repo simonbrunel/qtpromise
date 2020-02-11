@@ -10,9 +10,8 @@
 
 #include "qpromiseexceptions.h"
 
-// Qt
-#include <QFutureWatcher>
-#include <QFuture>
+#include <QtCore/QFuture>
+#include <QtCore/QFutureWatcher>
 
 namespace QtPromisePrivate {
 

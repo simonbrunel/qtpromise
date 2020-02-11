@@ -8,14 +8,10 @@
 #include "../shared/data.h"
 #include "../shared/utils.h"
 
-// QtPromise
 #include <QtPromise>
-
-// Qt
 #include <QtConcurrent>
 #include <QtTest>
 
-// STL
 #include <memory>
 
 using namespace QtPromise;

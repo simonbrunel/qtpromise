@@ -8,8 +8,7 @@
 #ifndef QTPROMISE_TESTS_AUTO_SHARED_SENDER_H
 #define QTPROMISE_TESTS_AUTO_SHARED_SENDER_H
 
-// Qt
-#include <QObject>
+#include <QtCore/QObject>
 
 class Object : public QObject
 {
