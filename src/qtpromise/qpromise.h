@@ -16,9 +16,8 @@
 // Qt
 #include <QExplicitlySharedDataPointer>
 
-#if __cplusplus >= 201103
+// C++ Standard Library
 #include <chrono>
-#endif
 
 namespace QtPromise {
 
