@@ -26,8 +26,6 @@ private Q_SLOTS:
     void fulfilled();
     void rejected();
 
-    // These tests cannot be wrapped with preprocessor #if because of a moc bug
-    // See https://bugreports.qt.io/browse/QTBUG-81536
     void fulfilledStdChrono();
     void rejectedStdChrono();
 };
