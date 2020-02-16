@@ -81,8 +81,8 @@ class PromiseValue
 {
 public:
     PromiseValue() { }
-    PromiseValue(const T& data) : m_data(new T(data)) { }
-    PromiseValue(T&& data) : m_data(new T(std::move(data))) { }
+    PromiseValue(const T& data) : m_data(QSharedPointer<T>::create(data)) { }
+    PromiseValue(T&& data) : m_data(QSharedPointer<T>::create(std::forward<T>(data))) { }
     bool isNull() const { return m_data.isNull(); }
     const T& data() const { return *m_data; }
 

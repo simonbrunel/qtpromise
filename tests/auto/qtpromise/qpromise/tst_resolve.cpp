@@ -103,10 +103,10 @@ void tst_qpromise_resolve::qtSharedPtr()
     QWeakPointer<Data> wptr;
 
     {
-        QSharedPointer<Data> sptr0(new Data(42));
+        auto sptr0 = QSharedPointer<Data>::create(42);
         const QSharedPointer<Data> sptr1 = sptr0;
 
-        auto p0 = QPromise<QSharedPointer<Data>>::resolve(QSharedPointer<Data>(new Data(42)));
+        auto p0 = QPromise<QSharedPointer<Data>>::resolve(QSharedPointer<Data>::create(42));
         auto p1 = QPromise<QSharedPointer<Data>>::resolve(sptr0);
         auto p2 = QPromise<QSharedPointer<Data>>::resolve(sptr1);
 
@@ -139,10 +139,10 @@ void tst_qpromise_resolve::stdSharedPtr()
     std::weak_ptr<Data> wptr;
 
     {
-        std::shared_ptr<Data> sptr0(new Data(42));
+        auto sptr0 = std::make_shared<Data>(42);
         const std::shared_ptr<Data> sptr1 = sptr0;
 
-        auto p0 = QPromise<std::shared_ptr<Data>>::resolve(std::shared_ptr<Data>(new Data(42)));
+        auto p0 = QPromise<std::shared_ptr<Data>>::resolve(std::make_shared<Data>(42));
         auto p1 = QPromise<std::shared_ptr<Data>>::resolve(sptr0);
         auto p2 = QPromise<std::shared_ptr<Data>>::resolve(sptr1);
 

@@ -15,7 +15,7 @@ namespace QtPromise {
 class QPromiseConnections
 {
 public:
-    QPromiseConnections() : m_d(new Data()) { }
+    QPromiseConnections() : m_d(QSharedPointer<Data>::create()) { }
 
     int count() const { return m_d->connections.count(); }
 

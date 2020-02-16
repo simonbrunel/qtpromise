@@ -108,10 +108,10 @@ void tst_deprecations_helpers_qpromise::qtSharedPtr()
     QWeakPointer<Data> wptr;
 
     {
-        QSharedPointer<Data> sptr0(new Data(42));
+        auto sptr0 = QSharedPointer<Data>::create(42);
         const QSharedPointer<Data> sptr1 = sptr0;
 
-        auto p0 = qPromise(QSharedPointer<Data>(new Data(42)));
+        auto p0 = qPromise(QSharedPointer<Data>::create(42));
         auto p1 = qPromise(sptr0);
         auto p2 = qPromise(sptr1);
 
@@ -144,10 +144,10 @@ void tst_deprecations_helpers_qpromise::stdSharedPtr()
     std::weak_ptr<Data> wptr;
 
     {
-        std::shared_ptr<Data> sptr0(new Data(42));
+        auto sptr0 = std::make_shared<Data>(42);
         const std::shared_ptr<Data> sptr1 = sptr0;
 
-        auto p0 = qPromise(std::shared_ptr<Data>(new Data(42)));
+        auto p0 = qPromise(std::make_shared<Data>(42));
         auto p1 = qPromise(sptr0);
         auto p2 = qPromise(sptr1);
 

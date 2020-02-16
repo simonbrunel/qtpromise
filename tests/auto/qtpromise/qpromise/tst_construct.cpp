@@ -276,7 +276,7 @@ void tst_qpromise_construct::connectAndResolve()
 
             connect(object.data(), &QObject::objectNameChanged,
                 [=, &wptr](const QString& name) {
-                    std::shared_ptr<int> sptr(new int(42));
+                    auto sptr = std::make_shared<int>(42);
 
                     wptr = sptr;
 
@@ -313,7 +313,7 @@ void tst_qpromise_construct::connectAndReject()
 
             connect(object.data(), &QObject::objectNameChanged,
                 [=, &wptr](const QString& name) {
-                    std::shared_ptr<int> sptr(new int(42));
+                    auto sptr = std::make_shared<int>(42);
 
                     wptr = sptr;
 

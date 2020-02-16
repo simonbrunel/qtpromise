@@ -59,8 +59,8 @@ all(const Sequence<QPromise<T>, Args...>& promises)
         const QPromiseResolve<QVector<T>>& resolve,
         const QPromiseReject<QVector<T>>& reject) {
 
-        QSharedPointer<int> remaining(new int(count));
-        QSharedPointer<QVector<T>> results(new QVector<T>(count));
+        auto remaining = QSharedPointer<int>::create(count);
+        auto results = QSharedPointer<QVector<T>>::create(count);
 
         int i = 0;
         for (const auto& promise: promises) {
@@ -94,7 +94,7 @@ all(const Sequence<QPromise<void>, Args...>& promises)
         const QPromiseResolve<void>& resolve,
         const QPromiseReject<void>& reject) {
 
-        QSharedPointer<int> remaining(new int(count));
+        auto remaining = QSharedPointer<int>::create(count);
 
         for (const auto& promise: promises) {
             promise.then([=]() {
