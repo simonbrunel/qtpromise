@@ -35,7 +35,7 @@ QPromise<int> input = ...
 auto output = input.then([](int res) {
     return QtConcurrent::run([]() {
         // {...}
-        return QString("42");
+        return QString{"42"};
     });
 });
 
@@ -62,10 +62,10 @@ promise.then([](int res) {
         // {...}
 
         if (!success) {
-            throw CustomException();
+            throw CustomException{};
         }
 
-        return QString("42");
+        return QString{"42"};
     });
 }).fail([](const CustomException& error) {
     // {...}

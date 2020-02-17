@@ -65,7 +65,7 @@ void tst_helpers_connect::resolveOneSenderOneArg()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
     QCOMPARE(sender.hasConnections(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForValue(p, QString()), QString("foo"));
+    QCOMPARE(waitForValue(p, QString{}), QString{"foo"});
     QCOMPARE(sender.hasConnections(), false);
 }
 
@@ -110,7 +110,7 @@ void tst_helpers_connect::rejectOneSenderOneArg()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(sender.hasConnections(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForError(p, QString()), QString("bar"));
+    QCOMPARE(waitForError(p, QString{}), QString{"bar"});
     QCOMPARE(sender.hasConnections(), false);
 }
 
@@ -131,7 +131,7 @@ void tst_helpers_connect::rejectOneSenderManyArgs()
 
 void tst_helpers_connect::rejectOneSenderDestroyed()
 {
-    Object* sender = new Object();
+    auto sender = new Object{};
     QtPromisePrivate::qtpromise_defer([&]() {
         sender->deleteLater();
     });
@@ -171,7 +171,7 @@ void tst_helpers_connect::rejectTwoSendersOneArg()
     QCOMPARE(s0.hasConnections(), true);
     QCOMPARE(s1.hasConnections(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForError(p, QString()), QString("bar"));
+    QCOMPARE(waitForError(p, QString{}), QString{"bar"});
     QCOMPARE(s0.hasConnections(), false);
     QCOMPARE(s1.hasConnections(), false);
 }
@@ -195,8 +195,8 @@ void tst_helpers_connect::rejectTwoSendersManyArgs()
 
 void tst_helpers_connect::rejectTwoSendersDestroyed()
 {
-    Object* s0 = new Object();
-    Object* s1 = new Object();
+    auto s0 = new Object{};
+    auto s1 = new Object{};
 
     QtPromisePrivate::qtpromise_defer([&]() {
         QObject::connect(s1, &QObject::destroyed, [&]() {

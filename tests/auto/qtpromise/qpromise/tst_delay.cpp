@@ -57,11 +57,11 @@ void tst_qpromise_delay::rejected()
 
     timer.start();
 
-    auto p = QPromise<int>::reject(QString("foo")).delay(1000).finally([&]() {
+    auto p = QPromise<int>::reject(QString{"foo"}).delay(1000).finally([&]() {
         elapsed = timer.elapsed();
     });
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
     QVERIFY(elapsed <= 10);
 }
@@ -94,11 +94,11 @@ void tst_qpromise_delay::rejectedStdChrono()
 
     timer.start();
 
-    auto p = QPromise<int>::reject(QString("foo")).delay(std::chrono::seconds{1}).finally([&]() {
+    auto p = QPromise<int>::reject(QString{"foo"}).delay(std::chrono::seconds{1}).finally([&]() {
         elapsed = timer.elapsed();
     });
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
     QVERIFY(elapsed <= 10);
 }

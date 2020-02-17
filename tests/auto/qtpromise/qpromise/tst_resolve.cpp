@@ -67,7 +67,7 @@ void tst_qpromise_resolve::moveRValue()
     Data::logs().reset();
 
     {
-        auto p = QtPromise::resolve(Data(42)).wait();
+        auto p = QtPromise::resolve(Data{42}).wait();
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Data>>::value));
     }
@@ -83,7 +83,7 @@ void tst_qpromise_resolve::copyLValue()
     Data::logs().reset();
 
     {
-        Data value(42);
+        Data value{42};
         auto p = QtPromise::resolve(value).wait();
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Data>>::value));
@@ -114,8 +114,8 @@ void tst_qpromise_resolve::qtSharedPtr()
         Q_STATIC_ASSERT((std::is_same<decltype(p1), QPromise<QSharedPointer<Data>>>::value));
         Q_STATIC_ASSERT((std::is_same<decltype(p2), QPromise<QSharedPointer<Data>>>::value));
 
-        QCOMPARE(waitForValue(p1, QSharedPointer<Data>()), sptr0);
-        QCOMPARE(waitForValue(p2, QSharedPointer<Data>()), sptr1);
+        QCOMPARE(waitForValue(p1, QSharedPointer<Data>{}), sptr0);
+        QCOMPARE(waitForValue(p2, QSharedPointer<Data>{}), sptr1);
 
         wptr = sptr0;
 
@@ -150,8 +150,8 @@ void tst_qpromise_resolve::stdSharedPtr()
         Q_STATIC_ASSERT((std::is_same<decltype(p1), QPromise<std::shared_ptr<Data>>>::value));
         Q_STATIC_ASSERT((std::is_same<decltype(p2), QPromise<std::shared_ptr<Data>>>::value));
 
-        QCOMPARE(waitForValue(p1, std::shared_ptr<Data>()), sptr0);
-        QCOMPARE(waitForValue(p2, std::shared_ptr<Data>()), sptr1);
+        QCOMPARE(waitForValue(p1, std::shared_ptr<Data>{}), sptr0);
+        QCOMPARE(waitForValue(p2, std::shared_ptr<Data>{}), sptr1);
 
         wptr = sptr0;
 

@@ -29,7 +29,7 @@ QPromise<QByteArray> process(const QUrl& url)
 {
     return QtPromise::attempt([&]() {
         if (!url.isValid()) {
-            throw InvalidUrlException();
+            throw InvalidUrlException{};
         }
 
         return download(url);

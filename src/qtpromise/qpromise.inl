@@ -17,9 +17,9 @@ namespace QtPromise {
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
 inline QPromiseBase<T>::QPromiseBase(F callback)
-    : m_d(new QtPromisePrivate::PromiseData<T>())
+    : m_d{new QtPromisePrivate::PromiseData<T>{}}
 {
-    QtPromisePrivate::PromiseResolver<T> resolver(*this);
+    QtPromisePrivate::PromiseResolver<T> resolver{*this};
 
     try {
         callback(QPromiseResolve<T>(resolver));
@@ -31,9 +31,9 @@ inline QPromiseBase<T>::QPromiseBase(F callback)
 template <typename T>
 template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type>
 inline QPromiseBase<T>::QPromiseBase(F callback)
-    : m_d(new QtPromisePrivate::PromiseData<T>())
+    : m_d{new QtPromisePrivate::PromiseData<T>{}}
 {
-    QtPromisePrivate::PromiseResolver<T> resolver(*this);
+    QtPromisePrivate::PromiseResolver<T> resolver{*this};
 
     try {
         callback(QPromiseResolve<T>(resolver), QPromiseReject<T>(resolver));
@@ -115,7 +115,7 @@ template <typename E>
 inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
 {
     QPromise<T> p = *this;
-    return QPromise<T>([&](
+    return QPromise<T>{[&](
         const QPromiseResolve<T>& resolve,
         const QPromiseReject<T>& reject) {
 
@@ -127,7 +127,7 @@ inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
         });
 
         QtPromisePrivate::PromiseFulfill<QPromise<T>>::call(p, resolve, reject);
-    });
+    }};
 }
 
 template <typename T>
@@ -141,9 +141,9 @@ template <typename T>
 inline QPromise<T> QPromiseBase<T>::delay(int msec) const
 {
     return tap([=]() {
-        return QPromise<void>([&](const QPromiseResolve<void>& resolve) {
+        return QPromise<void>{[&](const QPromiseResolve<void>& resolve) {
             QTimer::singleShot(msec, resolve);
-        });
+        }};
     });
 }
 
@@ -169,9 +169,9 @@ template <typename T>
 template <typename E>
 inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 {
-    return QPromise<T>([&](const QPromiseResolve<T>&, const QPromiseReject<T>& reject) {
+    return QPromise<T>{[&](const QPromiseResolve<T>&, const QPromiseReject<T>& reject) {
         reject(std::forward<E>(error));
-    });
+    }};
 }
 
 template <typename T>
@@ -246,17 +246,17 @@ inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...
 template <typename T>
 inline QPromise<T> QPromise<T>::resolve(const T& value)
 {
-    return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
+    return QPromise<T>{[&](const QPromiseResolve<T>& resolve) {
        resolve(value);
-    });
+    }};
 }
 
 template <typename T>
 inline QPromise<T> QPromise<T>::resolve(T&& value)
 {
-    return QPromise<T>([&](const QPromiseResolve<T>& resolve) {
+    return QPromise<T>{[&](const QPromiseResolve<T>& resolve) {
        resolve(std::forward<T>(value));
-    });
+    }};
 }
 
 template <template <typename, typename...> class Sequence, typename ...Args>

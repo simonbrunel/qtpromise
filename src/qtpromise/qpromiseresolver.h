@@ -25,9 +25,9 @@ class PromiseResolver
 {
 public:
     PromiseResolver(QtPromise::QPromise<T> promise)
-        : m_d(new Data())
+        : m_d{new Data{}}
     {
-        m_d->promise = new QtPromise::QPromise<T>(std::move(promise));
+        m_d->promise = new QtPromise::QPromise<T>{std::move(promise)};
     }
 
     template <typename E>
@@ -47,7 +47,7 @@ public:
         auto promise = m_d->promise;
         if (promise) {
             Q_ASSERT(promise->isPending());
-            promise->m_d->reject(QtPromise::QPromiseUndefinedException());
+            promise->m_d->reject(QtPromise::QPromiseUndefinedException{});
             promise->m_d->dispatch();
             release();
         }
@@ -102,7 +102,7 @@ class QPromiseResolve
 {
 public:
     QPromiseResolve(QtPromisePrivate::PromiseResolver<T> resolver)
-        : m_resolver(std::move(resolver))
+        : m_resolver{std::move(resolver)}
     { }
 
     template <typename V>
@@ -125,7 +125,7 @@ class QPromiseReject
 {
 public:
     QPromiseReject(QtPromisePrivate::PromiseResolver<T> resolver)
-        : m_resolver(std::move(resolver))
+        : m_resolver{std::move(resolver)}
     { }
 
     template <typename E>

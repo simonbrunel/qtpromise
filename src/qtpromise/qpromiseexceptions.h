@@ -21,7 +21,7 @@ public:
     void raise() const Q_DECL_OVERRIDE { throw *this; }
     QPromiseCanceledException* clone() const Q_DECL_OVERRIDE
     {
-        return new QPromiseCanceledException(*this);
+        return new QPromiseCanceledException{*this};
     }
 };
 
@@ -31,7 +31,7 @@ public:
     void raise() const Q_DECL_OVERRIDE { throw *this; }
     QPromiseContextException* clone() const Q_DECL_OVERRIDE
     {
-        return new QPromiseContextException(*this);
+        return new QPromiseContextException{*this};
     }
 };
 
@@ -41,7 +41,7 @@ public:
     void raise() const Q_DECL_OVERRIDE { throw *this; }
     QPromiseTimeoutException* clone() const Q_DECL_OVERRIDE
     {
-        return new QPromiseTimeoutException(*this);
+        return new QPromiseTimeoutException{*this};
     }
 };
 
@@ -51,7 +51,7 @@ public:
     void raise() const Q_DECL_OVERRIDE { throw *this; }
     QPromiseUndefinedException* clone() const Q_DECL_OVERRIDE
     {
-        return new QPromiseUndefinedException(*this);
+        return new QPromiseUndefinedException{*this};
     }
 };
 

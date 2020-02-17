@@ -30,14 +30,14 @@ promise that rejected, whether or not the other promises are resolved.
 QPromise<QList<QUrl>> input = {...}
 
 auto output = input.map([](const QUrl& url, int index) {
-    return QPromise<QByteArray>([&](auto resolve, auto reject) {
+    return QPromise<QByteArray>{[&](auto resolve, auto reject) {
         // download content at 'url' and resolve
         // {...}
-    });
+    }};
 }).map([](const QByteArray& value, ...) {
     // process the downloaded QByteArray
     // {...}
-    return DownloadResult(value);
+    return DownloadResult{value};
 });
 
 // 'output' resolves as soon as all promises returned by

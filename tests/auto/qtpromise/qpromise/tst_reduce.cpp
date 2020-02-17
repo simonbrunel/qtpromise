@@ -63,8 +63,8 @@ struct SequenceTester
         QCOMPARE(p1.isPending(), true);
         QCOMPARE(waitForValue(p0, -1), 21);
         QCOMPARE(waitForValue(p1, -1), 23);
-        QCOMPARE(v0, QVector<int>({4, 6, 1, 11, 8, 2}));
-        QCOMPARE(v1, QVector<int>({2, 4, 0, 6, 6, 1, 13, 8, 2}));
+        QCOMPARE(v0, (QVector<int>{4, 6, 1, 11, 8, 2}));
+        QCOMPARE(v1, (QVector<int>{2, 4, 0, 6, 6, 1, 13, 8, 2}));
     }
 };
 
@@ -109,8 +109,8 @@ void tst_qpromise_reduce::regularValues()
     QCOMPARE(p1.isPending(), true);
     QCOMPARE(waitForValue(p0, -1), 21);
     QCOMPARE(waitForValue(p1, -1), 23);
-    QCOMPARE(v0, QVector<int>({4, 6, 1, 11, 8, 2}));
-    QCOMPARE(v1, QVector<int>({2, 4, 0, 6, 6, 1, 13, 8, 2}));
+    QCOMPARE(v0, (QVector<int>{4, 6, 1, 11, 8, 2}));
+    QCOMPARE(v1, (QVector<int>{2, 4, 0, 6, 6, 1, 13, 8, 2}));
 }
 
 void tst_qpromise_reduce::promiseValues()
@@ -139,8 +139,8 @@ void tst_qpromise_reduce::promiseValues()
     QCOMPARE(p1.isPending(), true);
     QCOMPARE(waitForValue(p0, -1), 21);
     QCOMPARE(waitForValue(p1, -1), 23);
-    QCOMPARE(v0, QVector<int>({4, 6, 1, 11, 8, 2}));
-    QCOMPARE(v1, QVector<int>({2, 4, 0, 6, 6, 1, 13, 8, 2}));
+    QCOMPARE(v0, (QVector<int>{4, 6, 1, 11, 8, 2}));
+    QCOMPARE(v1, (QVector<int>{2, 4, 0, 6, 6, 1, 13, 8, 2}));
 }
 
 void tst_qpromise_reduce::convertResultType()
@@ -148,15 +148,15 @@ void tst_qpromise_reduce::convertResultType()
     QVector<int> inputs{4, 6, 8};
 
     auto p = QtPromise::resolve(inputs).reduce([&](const QString& acc, int cur, int idx) {
-        return QString("%1:%2:%3").arg(acc).arg(cur).arg(idx);
-    }, QString("foo"));
+        return QString{"%1:%2:%3"}.arg(acc).arg(cur).arg(idx);
+    }, QString{"foo"});
 
     // NOTE(SB): when no initial value is given, the result type is the sequence type.
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
 
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForValue(p, QString()), QString("foo:4:0:6:1:8:2"));
+    QCOMPARE(waitForValue(p, QString{}), QString{"foo:4:0:6:1:8:2"});
 }
 
 void tst_qpromise_reduce::delayedInitialValue()
@@ -172,7 +172,7 @@ void tst_qpromise_reduce::delayedInitialValue()
 
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForValue(p, -1), 23);
-    QCOMPARE(values, QVector<int>({2, 4, 0, 6, 6, 1, 13, 8, 2}));
+    QCOMPARE(values, (QVector<int>{2, 4, 0, 6, 6, 1, 13, 8, 2}));
 }
 
 void tst_qpromise_reduce::delayedFulfilled()
@@ -197,8 +197,8 @@ void tst_qpromise_reduce::delayedFulfilled()
     QCOMPARE(p1.isPending(), true);
     QCOMPARE(waitForValue(p0, -1), 21);
     QCOMPARE(waitForValue(p1, -1), 23);
-    QCOMPARE(v0, QVector<int>({4, 6, 1, 11, 8, 2}));
-    QCOMPARE(v1, QVector<int>({2, 4, 0, 6, 6, 1, 13, 8, 2}));
+    QCOMPARE(v0, (QVector<int>{4, 6, 1, 11, 8, 2}));
+    QCOMPARE(v1, (QVector<int>{2, 4, 0, 6, 6, 1, 13, 8, 2}));
 }
 
 void tst_qpromise_reduce::delayedRejected()
@@ -210,14 +210,14 @@ void tst_qpromise_reduce::delayedRejected()
     auto p0 = QtPromise::resolve(inputs).reduce([&](int acc, int cur, int idx) {
         v0 << acc << cur << idx;
         if (cur == 6) {
-            return QPromise<int>::reject(QString("foo"));
+            return QPromise<int>::reject(QString{"foo"});
         }
         return QtPromise::resolve(acc + cur + idx);
     });
     auto p1 = QtPromise::resolve(inputs).reduce([&](int acc, int cur, int idx) {
         v1 << acc << cur << idx;
         if (cur == 6) {
-            return QPromise<int>::reject(QString("bar"));
+            return QPromise<int>::reject(QString{"bar"});
         }
         return QtPromise::resolve(acc + cur + idx);
     }, 2);
@@ -227,10 +227,10 @@ void tst_qpromise_reduce::delayedRejected()
 
     QCOMPARE(p0.isPending(), true);
     QCOMPARE(p1.isPending(), true);
-    QCOMPARE(waitForError(p0, QString()), QString("foo"));
-    QCOMPARE(waitForError(p1, QString()), QString("bar"));
-    QCOMPARE(v0, QVector<int>({4, 6, 1}));
-    QCOMPARE(v1, QVector<int>({2, 4, 0, 6, 6, 1}));
+    QCOMPARE(waitForError(p0, QString{}), QString{"foo"});
+    QCOMPARE(waitForError(p1, QString{}), QString{"bar"});
+    QCOMPARE(v0, (QVector<int>{4, 6, 1}));
+    QCOMPARE(v1, (QVector<int>{2, 4, 0, 6, 6, 1}));
 }
 
 void tst_qpromise_reduce::functorThrows()
@@ -242,14 +242,14 @@ void tst_qpromise_reduce::functorThrows()
     auto p0 = QtPromise::resolve(inputs).reduce([&](int acc, int cur, int idx) {
         v0 << acc << cur << idx;
         if (cur == 6) {
-            throw QString("foo");
+            throw QString{"foo"};
         }
         return acc + cur + idx;
     });
     auto p1 = QtPromise::resolve(inputs).reduce([&](int acc, int cur, int idx) {
         v1 << acc << cur << idx;
         if (cur == 6) {
-            throw QString("bar");
+            throw QString{"bar"};
         }
         return acc + cur + idx;
     }, 2);
@@ -259,10 +259,10 @@ void tst_qpromise_reduce::functorThrows()
 
     QCOMPARE(p0.isPending(), true);
     QCOMPARE(p1.isPending(), true);
-    QCOMPARE(waitForError(p0, QString()), QString("foo"));
-    QCOMPARE(waitForError(p1, QString()), QString("bar"));
-    QCOMPARE(v0, QVector<int>({4, 6, 1}));
-    QCOMPARE(v1, QVector<int>({2, 4, 0, 6, 6, 1}));
+    QCOMPARE(waitForError(p0, QString{}), QString{"foo"});
+    QCOMPARE(waitForError(p1, QString{}), QString{"bar"});
+    QCOMPARE(v0, (QVector<int>{4, 6, 1}));
+    QCOMPARE(v1, (QVector<int>{2, 4, 0, 6, 6, 1}));
 }
 
 void tst_qpromise_reduce::sequenceTypes()

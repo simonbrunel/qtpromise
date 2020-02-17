@@ -23,12 +23,12 @@ resolve(T&& value)
     using ResolveType = QPromiseResolve<ValueType>;
     using RejectType = QPromiseReject<ValueType>;
 
-    return PromiseType([&](ResolveType&& resolve, RejectType&& reject) {
+    return PromiseType{[&](ResolveType&& resolve, RejectType&& reject) {
         PromiseFulfill<Unqualified<T>>::call(
             std::forward<T>(value),
             std::forward<ResolveType>(resolve),
             std::forward<RejectType>(reject));
-    });
+    }};
 }
 
 template <typename T>
@@ -41,9 +41,9 @@ resolve(QPromise<T> value)
 static inline QPromise<void>
 resolve()
 {
-    return QPromise<void>([](const QPromiseResolve<void>& resolve) {
+    return QPromise<void>{[](const QPromiseResolve<void>& resolve) {
         resolve();
-    });
+    }};
 }
 
 template <typename T, template <typename, typename...> class Sequence = QVector, typename ...Args>
@@ -55,7 +55,7 @@ all(const Sequence<QPromise<T>, Args...>& promises)
         return QtPromise::resolve(QVector<T>{});
     }
 
-    return QPromise<QVector<T>>([=](
+    return QPromise<QVector<T>>{[=](
         const QPromiseResolve<QVector<T>>& resolve,
         const QPromiseReject<QVector<T>>& reject) {
 
@@ -78,7 +78,7 @@ all(const Sequence<QPromise<T>, Args...>& promises)
 
             i++;
         }
-    });
+    }};
 }
 
 template <template <typename, typename...> class Sequence = QVector, typename ...Args>
@@ -90,7 +90,7 @@ all(const Sequence<QPromise<void>, Args...>& promises)
         return QtPromise::resolve();
     }
 
-    return QPromise<void>([=](
+    return QPromise<void>{[=](
         const QPromiseResolve<void>& resolve,
         const QPromiseReject<void>& reject) {
 
@@ -108,7 +108,7 @@ all(const Sequence<QPromise<void>, Args...>& promises)
                 }
             });
         }
-    });
+    }};
 }
 
 template <typename Functor, typename... Args>
@@ -127,14 +127,14 @@ attempt(Functor&& fn, Args&&... args)
     using ResolveType = QPromiseResolve<ValueType>;
     using RejectType = QPromiseReject<ValueType>;
 
-    return PromiseType(
+    return PromiseType{
         [&](ResolveType&& resolve, RejectType&& reject) {
             PromiseDispatch<typename FunctorType::ResultType>::call(
                 std::forward<ResolveType>(resolve),
                 std::forward<RejectType>(reject),
                 std::forward<Functor>(fn),
                 std::forward<Args>(args)...);
-        });
+        }};
 }
 
 template <typename Sender, typename Signal>
@@ -144,12 +144,12 @@ connect(const Sender* sender, Signal signal)
     using namespace QtPromisePrivate;
     using T = typename PromiseFromSignal<Signal>::Type;
 
-    return QPromise<T>(
+    return QPromise<T>{
         [&](const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject) {
             QPromiseConnections connections;
             connectSignalToResolver(connections, resolve, sender, signal);
             connectDestroyedToReject(connections, reject, sender);
-        });
+        }};
 }
 
 template <typename FSender, typename FSignal, typename RSender, typename RSignal>
@@ -159,13 +159,13 @@ connect(const FSender* fsender, FSignal fsignal, const RSender* rsender, RSignal
     using namespace QtPromisePrivate;
     using T = typename PromiseFromSignal<FSignal>::Type;
 
-    return QPromise<T>(
+    return QPromise<T>{
         [&](const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject) {
             QPromiseConnections connections;
             connectSignalToResolver(connections, resolve, fsender, fsignal);
             connectSignalToResolver(connections, reject, rsender, rsignal);
             connectDestroyedToReject(connections, reject, fsender);
-        });
+        }};
 }
 
 template <typename Sender, typename FSignal, typename RSignal>
@@ -195,11 +195,11 @@ map(const Sequence& values, Functor fn)
 
     std::vector<QPromise<ResType>> promises;
     for (const auto& v : values) {
-        promises.push_back(QPromise<ResType>([&](
+        promises.push_back(QPromise<ResType>{[&](
             const QPromiseResolve<ResType>& resolve,
             const QPromiseReject<ResType>& reject) {
                 PromiseFulfill<RetType>::call(fn(v, i), resolve, reject);
-            }));
+            }});
 
         i++;
     }

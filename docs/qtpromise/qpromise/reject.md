@@ -16,11 +16,11 @@ Creates a `QPromise<T>` that is rejected with the given `reason` of *whatever ty
 QPromise<int> compute(const QString& type)
 {
     if (type == "foobar") {
-        return QPromise<int>::reject(QString("Unknown type: %1").arg(type));
+        return QPromise<int>::reject(QString{"Unknown type: %1"}.arg(type));
     }
 
-    return QPromise<int>([](const QPromiseResolve<int>& resolve) {
+    return QPromise<int>{[](const QPromiseResolve<int>& resolve) {
         // {...}
-    });
+    }};
 }
 ```

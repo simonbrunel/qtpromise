@@ -42,10 +42,10 @@ struct SequenceTester
             values << i << v;
         }).each([&](int v, ...) {
             values << v;
-            return QString("foo");
+            return QString{"foo"};
         }).each([&](int v, ...) {
             values << v + 1;
-            return QtPromise::resolve(QString("foo")).then([&](){
+            return QtPromise::resolve(QString{"foo"}).then([&](){
                 values << -1;
             });
         }).each([&](int v, ...) {
@@ -53,7 +53,7 @@ struct SequenceTester
         });
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Sequence>>::value));
-        QCOMPARE(waitForValue(p, Sequence()), Sequence({42, 43, 44}));
+        QCOMPARE(waitForValue(p, Sequence{}), (Sequence{42, 43, 44}));
 
         QVector<int> expected{
             0, 42, 1, 43, 2, 44,
@@ -76,8 +76,8 @@ void tst_qpromise_each::emptySequence()
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>());
-    QCOMPARE(values, QVector<int>({}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), QVector<int>{});
+    QCOMPARE(values, (QVector<int>{}));
 }
 
 void tst_qpromise_each::preserveValues()
@@ -88,8 +88,8 @@ void tst_qpromise_each::preserveValues()
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
-    QCOMPARE(values, QVector<int>({43, 44, 45}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 43, 44}));
+    QCOMPARE(values, (QVector<int>{43, 44, 45}));
 }
 
 void tst_qpromise_each::ignoreResult()
@@ -101,8 +101,8 @@ void tst_qpromise_each::ignoreResult()
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
-    QCOMPARE(values, QVector<int>({43, 44, 45}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 43, 44}));
+    QCOMPARE(values, (QVector<int>{43, 44, 45}));
 }
 
 void tst_qpromise_each::delayedFulfilled()
@@ -116,7 +116,7 @@ void tst_qpromise_each::delayedFulfilled()
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 43, 44}));
     QMap<int, int> expected{{42, 0}, {43, 1}, {44, 2}};
     QCOMPARE(values, expected);
 }
@@ -124,32 +124,32 @@ void tst_qpromise_each::delayedFulfilled()
 void tst_qpromise_each::delayedRejected()
 {
     auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).each([](int v, ...) {
-        return QPromise<int>([&](
+        return QPromise<int>{[&](
             const QPromiseResolve<int>& resolve,
             const QPromiseReject<int>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     if (v == 44) {
-                        reject(QString("foo"));
+                        reject(QString{"foo"});
                     }
                     resolve(v);
                 });
-            });
+            }};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
 }
 
 void tst_qpromise_each::functorThrows()
 {
     auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).each([](int v, ...) {
         if (v == 44) {
-            throw QString("foo");
+            throw QString{"foo"};
         }
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
 }
 
 void tst_qpromise_each::functorArguments()
@@ -160,8 +160,8 @@ void tst_qpromise_each::functorArguments()
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
-    QCOMPARE(values, QVector<int>({0, 42, 1, 43, 2, 44}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 43, 44}));
+    QCOMPARE(values, (QVector<int>{0, 42, 1, 43, 2, 44}));
 }
 
 void tst_qpromise_each::sequenceTypes()

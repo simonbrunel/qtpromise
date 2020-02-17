@@ -33,9 +33,9 @@ QPromise<QList<QUrl>> input = {...}
 auto output = input.filter([](const QUrl& url, ...) {
     return url.isValid();  // Keep only valid URLs
 }).filter([](const QUrl& url, ...) {
-    return QPromise<bool>([&](auto resolve, auto reject) {
+    return QPromise<bool>{[&](auto resolve, auto reject) {
         // resolve(true) if `url` is reachable, else resolve(false)
-    });
+    }};
 });
 
 // 'output' resolves as soon as all promises returned by

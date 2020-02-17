@@ -33,9 +33,9 @@ auto output = QtPromise::reduce(QList<QUrl>{
     "file:f2.txt"    // contains "42"
 }, [](const QString& acc, const QString& cur, int idx) {
     return readAsync(cur).then([=](const QString& res) {
-        return QString("%1;%2:%3").arg(acc).arg(idx).arg(res);
+        return QString{"%1;%2:%3"}.arg(acc).arg(idx).arg(res);
     });
-}, QString("index:text"));
+}, QString{"index:text"});
 
 // 'output' resolves as soon as all promises returned by
 // 'reducer' are fulfilled or at least one is rejected.

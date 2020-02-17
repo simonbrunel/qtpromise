@@ -30,7 +30,7 @@ struct PromiseFulfill<QFuture<T>>
     {
         using Watcher = QFutureWatcher<T>;
 
-        Watcher* watcher = new Watcher();
+        Watcher* watcher = new Watcher{};
         QObject::connect(watcher, &Watcher::finished, [=]() mutable {
             try {
                 if (watcher->isCanceled()) {
@@ -40,7 +40,7 @@ struct PromiseFulfill<QFuture<T>>
                     // rethrown potential exceptions using waitForFinished() and thus detect
                     // if the future has been canceled by the user or an exception.
                     watcher->waitForFinished();
-                    reject(QtPromise::QPromiseCanceledException());
+                    reject(QtPromise::QPromiseCanceledException{});
                 } else {
                     PromiseFulfill<T>::call(watcher->result(), resolve, reject);
                 }
@@ -65,13 +65,13 @@ struct PromiseFulfill<QFuture<void>>
     {
         using Watcher = QFutureWatcher<void>;
 
-        Watcher* watcher = new Watcher();
+        Watcher* watcher = new Watcher{};
         QObject::connect(watcher, &Watcher::finished, [=]() mutable {
             try {
                 if (watcher->isCanceled()) {
                     // let's rethrown potential exception
                     watcher->waitForFinished();
-                    reject(QtPromise::QPromiseCanceledException());
+                    reject(QtPromise::QPromiseCanceledException{});
                 } else {
                     resolve();
                 }

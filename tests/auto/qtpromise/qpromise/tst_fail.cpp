@@ -32,7 +32,7 @@ QTEST_MAIN(tst_qpromise_fail)
 
 namespace {
 
-const QString kErr = "0.42";
+const QString kErr{"0.42"};
 const float kRes = 0.42f;
 const float kFail = -1.f;
 
@@ -66,17 +66,17 @@ void tst_qpromise_fail::sameType()
 
     QString error;
     p.fail([&](const std::domain_error& e) {
-        error += QString(e.what()) + "0";
+        error += QString{e.what()} + "0";
         return -1;
     }).fail([&](const std::out_of_range& e) {
-        error += QString(e.what()) + "1";
+        error += QString{e.what()} + "1";
         return -1;
     }).fail([&](const std::exception& e) {
-        error += QString(e.what()) + "2";
+        error += QString{e.what()} + "2";
         return -1;
     }).wait();
 
-    QCOMPARE(error, QString("foo1"));
+    QCOMPARE(error, QString{"foo1"});
 }
 
 void tst_qpromise_fail::baseClass()
@@ -86,17 +86,17 @@ void tst_qpromise_fail::baseClass()
 
     QString error;
     p.fail([&](const std::runtime_error& e) {
-        error += QString(e.what()) + "0";
+        error += QString{e.what()} + "0";
         return -1;
     }).fail([&](const std::logic_error& e) {
-        error += QString(e.what()) + "1";
+        error += QString{e.what()} + "1";
         return -1;
     }).fail([&](const std::exception& e) {
-        error += QString(e.what()) + "2";
+        error += QString{e.what()} + "2";
         return -1;
     }).wait();
 
-    QCOMPARE(error, QString("foo1"));
+    QCOMPARE(error, QString{"foo1"});
 }
 
 void tst_qpromise_fail::catchAll()
@@ -105,17 +105,17 @@ void tst_qpromise_fail::catchAll()
 
     QString error;
     p.fail([&](const std::runtime_error& e) {
-        error += QString(e.what()) + "0";
+        error += QString{e.what()} + "0";
         return -1;
     }).fail([&]() {
         error += "bar";
         return -1;
     }).fail([&](const std::exception& e) {
-        error += QString(e.what()) + "2";
+        error += QString{e.what()} + "2";
         return -1;
     }).wait();
 
-    QCOMPARE(error, QString("bar"));
+    QCOMPARE(error, QString{"bar"});
 }
 
 void tst_qpromise_fail::functionPtrHandlers()
@@ -185,7 +185,7 @@ void tst_qpromise_fail::stdBindHandlers()
 {
     using namespace std::placeholders;
 
-    const float val{42.f};
+    const float val = 42.f;
     const Klass obj{val};
 
     const std::function<float()> bindNoArg = std::bind(&Klass::fnNoArg, &obj);

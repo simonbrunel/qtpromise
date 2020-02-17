@@ -43,25 +43,25 @@ void tst_helpers_attempt::voidResult()
 void tst_helpers_attempt::typedResult()
 {
     auto p = QtPromise::attempt([]() {
-        return QString("foo");
+        return QString{"foo"};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
     QCOMPARE(p.isFulfilled(), true);
-    QCOMPARE(waitForValue(p, QString()), QString("foo"));
+    QCOMPARE(waitForValue(p, QString{}), QString{"foo"});
 }
 
 void tst_helpers_attempt::futureResult()
 {
     auto p = QtPromise::attempt([]() {
         return QtConcurrent::run([]() {
-            return QString("foo");
+            return QString{"foo"};
         });
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForValue(p, QString()), QString("foo"));
+    QCOMPARE(waitForValue(p, QString{}), QString{"foo"});
 }
 
 void tst_helpers_attempt::promiseResult()
@@ -79,23 +79,23 @@ void tst_helpers_attempt::functorThrows()
 {
     auto p = QtPromise::attempt([]() {
         if (true) {
-            throw QString("bar");
+            throw QString{"bar"};
         }
         return 42;
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
     QCOMPARE(p.isRejected(), true);
-    QCOMPARE(waitForError(p, QString()), QString("bar"));
+    QCOMPARE(waitForError(p, QString{}), QString{"bar"});
 }
 
 void tst_helpers_attempt::callWithParams()
 {
     auto p = QtPromise::attempt([&](int i, const QString& s) {
-        return QString("%1:%2").arg(i).arg(s);
+        return QString{"%1:%2"}.arg(i).arg(s);
     }, 42, "foo");
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
     QCOMPARE(p.isFulfilled(), true);
-    QCOMPARE(waitForValue(p, QString()), QString("42:foo"));
+    QCOMPARE(waitForValue(p, QString{}), QString{"42:foo"});
 }

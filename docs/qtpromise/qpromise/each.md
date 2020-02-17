@@ -43,9 +43,9 @@ of the promise that rejected, whether or not the other promises are resolved.
 QPromise<QList<QUrl>> input = {...}
 
 auto output = input.each([](const QUrl& url, ...) {
-    return QPromise<void>([&](auto resolve, auto reject) {
+    return QPromise<void>{[&](auto resolve, auto reject) {
         // process url asynchronously ...
-    })
+    }};
 });
 
 // `output` resolves as soon as all promises returned by

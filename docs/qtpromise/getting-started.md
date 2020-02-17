@@ -145,11 +145,11 @@ will be resolved when the network request is finished:
 ```cpp
 QtPromise::QPromise<QByteArray> download(const QUrl& url)
 {
-    return QtPromise::QPromise<QByteArray>([&](
+    return QtPromise::QPromise<QByteArray>{[&](
         const QtPromise::QPromiseResolve<QByteArray>& resolve,
         const QtPromise::QPromiseReject<QByteArray>& reject) {
 
-        QNetworkReply* reply = manager->get(QNetworkRequest(url));
+        QNetworkReply* reply = manager->get(QNetworkRequest{url});
         QObject::connect(reply, &QNetworkReply::finished, [=]() {
             if (reply->error() == QNetworkReply::NoError) {
                 resolve(reply->readAll());
@@ -159,7 +159,7 @@ QtPromise::QPromise<QByteArray> download(const QUrl& url)
 
             reply->deleteLater();
         });
-    });
+    }};
 }
 ```
 
@@ -174,7 +174,7 @@ QtPromise::QPromise<Entries> uncompress(const QByteArray& data)
         // {...} uncompress data and parse content.
 
         if (error) {
-            throw MalformedException();
+            throw MalformedException{};
         }
 
         return entries;
@@ -193,7 +193,7 @@ It's then easy to chain the whole asynchronous process using promises:
 ```cpp
 download(url).then(&uncompress).then([](const Entries& entries) {
     if (entries.isEmpty()) {
-        throw UpdateException("No entries");
+        throw UpdateException{"No entries"};
     }
     // {...} process entries
 }).finally([]() {

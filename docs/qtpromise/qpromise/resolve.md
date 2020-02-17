@@ -19,9 +19,9 @@ QPromise<int> compute(const QString& type)
         return QPromise<int>::resolve(42);
     }
 
-    return QPromise<int>([](const QPromiseResolve<int>& resolve) {
+    return QPromise<int>{[](const QPromiseResolve<int>& resolve) {
         // {...}
-    });
+    }};
 }
 ```
 

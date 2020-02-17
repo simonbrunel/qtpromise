@@ -28,10 +28,10 @@ auto output = QtPromise::map(QVector{
     QUrl("http://b..."),
     QUrl("http://c...")
 }, [](const QUrl& url, ...) {
-    return QPromise<QByteArray>([&](auto resolve, auto reject) {
+    return QPromise<QByteArray>{[&](auto resolve, auto reject) {
         // download content at url and resolve
         // {...}
-    });
+    }};
 });
 
 // 'output' resolves as soon as all promises returned by

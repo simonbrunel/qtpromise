@@ -42,8 +42,8 @@ static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
 
     struct Event : public QEvent
     {
-        Event(FType&& f) : QEvent(QEvent::None), m_f(std::move(f)) { }
-        Event(const FType& f) : QEvent(QEvent::None), m_f(f) { }
+        Event(FType&& f) : QEvent{QEvent::None}, m_f{std::move(f)} { }
+        Event(const FType& f) : QEvent{QEvent::None}, m_f{f} { }
         ~Event() { m_f(); }
         FType m_f;
     };
@@ -66,7 +66,7 @@ static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
     }
 
     Q_ASSERT_X(target, "postMetaCall", "Target thread must have an event loop");
-    QCoreApplication::postEvent(target, new Event(std::forward<F>(f)));
+    QCoreApplication::postEvent(target, new Event{std::forward<F>(f)});
 }
 
 template <typename F>
@@ -104,7 +104,7 @@ public:
     }
 
     PromiseError() { }
-    PromiseError(const std::exception_ptr& exception) : m_data(exception) { }
+    PromiseError(const std::exception_ptr& exception) : m_data{exception} { }
     void rethrow() const { std::rethrow_exception(m_data); }
     bool isNull() const { return m_data == nullptr; }
 
@@ -422,19 +422,19 @@ public:
 
     bool isPending() const
     {
-        QReadLocker lock(&m_lock);
+        QReadLocker lock{&m_lock};
         return !m_settled;
     }
 
     void addHandler(std::function<F> handler)
     {
-        QWriteLocker lock(&m_lock);
+        QWriteLocker lock{&m_lock};
         m_handlers.append({QThread::currentThread(), std::move(handler)});
     }
 
     void addCatcher(std::function<void(const PromiseError&)> catcher)
     {
-        QWriteLocker lock(&m_lock);
+        QWriteLocker lock{&m_lock};
         m_catchers.append({QThread::currentThread(), std::move(catcher)});
     }
 
@@ -443,7 +443,7 @@ public:
     {
         Q_ASSERT(isPending());
         Q_ASSERT(m_error.isNull());
-        m_error = PromiseError(std::forward<E>(error));
+        m_error = PromiseError{std::forward<E>(error)};
         setSettled();
     }
 
@@ -467,8 +467,8 @@ public:
         // captured in the handler and/or catcher lambdas.
 
         m_lock.lockForWrite();
-        QVector<Handler> handlers(std::move(m_handlers));
-        QVector<Catcher> catchers(std::move(m_catchers));
+        QVector<Handler> handlers = std::move(m_handlers);
+        QVector<Catcher> catchers = std::move(m_catchers);
         m_lock.unlock();
 
         if (m_error.isNull()) {
@@ -476,7 +476,7 @@ public:
             return;
         }
 
-        PromiseError error(m_error);
+        PromiseError error = m_error;
         Q_ASSERT(!error.isNull());
 
         for (const auto& catcher: catchers) {
@@ -492,7 +492,7 @@ protected:
 
     void setSettled()
     {
-        QWriteLocker lock(&m_lock);
+        QWriteLocker lock{&m_lock};
         Q_ASSERT(!m_settled);
         m_settled = true;
     }
@@ -517,7 +517,7 @@ public:
     {
         Q_ASSERT(this->isPending());
         Q_ASSERT(m_value.isNull());
-        m_value = PromiseValue<T>(std::forward<V>(value));
+        m_value = PromiseValue<T>{std::forward<V>(value)};
         this->setSettled();
     }
 
@@ -529,7 +529,7 @@ public:
 
     void notify(const QVector<Handler>& handlers) Q_DECL_OVERRIDE
     {
-        PromiseValue<T> value(m_value);
+        PromiseValue<T> value = m_value;
         Q_ASSERT(!value.isNull());
 
         for (const auto& handler: handlers) {

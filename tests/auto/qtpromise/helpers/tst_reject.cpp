@@ -44,7 +44,7 @@ void tst_helpers_reject::rejectWithQSharedPtr()
         auto sptr = QSharedPointer<int>::create(42);
         auto p = QPromise<int>::reject(sptr);
 
-        QCOMPARE(waitForError(p, QSharedPointer<int>()), sptr);
+        QCOMPARE(waitForError(p, QSharedPointer<int>{}), sptr);
 
         wptr = sptr;
         sptr.reset();
@@ -64,7 +64,7 @@ void tst_helpers_reject::rejectWithStdSharedPtr()
         auto sptr = std::make_shared<int>(42);
         auto p = QPromise<int>::reject(sptr);
 
-        QCOMPARE(waitForError(p, std::shared_ptr<int>()), sptr);
+        QCOMPARE(waitForError(p, std::shared_ptr<int>{}), sptr);
 
         wptr = sptr;
         sptr.reset();

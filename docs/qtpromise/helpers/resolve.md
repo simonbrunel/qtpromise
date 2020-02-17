@@ -16,7 +16,7 @@ resolved from a given `value` but without the extra typing:
 ```cpp
 auto promise = QtPromise::resolve();                // QPromise<void>
 auto promise = QtPromise::resolve(42);              // QPromise<int>
-auto promise = QtPromise::resolve(QString("foo"));  // QPromise<QString>
+auto promise = QtPromise::resolve(QString{"foo"});  // QPromise<QString>
 ```
 
 This method also allows to convert `QFuture<T>` to `QPromise<T>`, delayed until the `QFuture` is

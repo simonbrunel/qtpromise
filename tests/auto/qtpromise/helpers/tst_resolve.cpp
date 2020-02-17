@@ -72,7 +72,7 @@ void tst_helpers_resolve::moveRValue()
     Data::logs().reset();
 
     {
-        auto p = QtPromise::resolve(Data(42)).wait();
+        auto p = QtPromise::resolve(Data{42}).wait();
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Data>>::value));
     }
@@ -88,7 +88,7 @@ void tst_helpers_resolve::copyLValue()
     Data::logs().reset();
 
     {
-        Data value(42);
+        Data value{42};
         auto p = QtPromise::resolve(value).wait();
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Data>>::value));
@@ -119,8 +119,8 @@ void tst_helpers_resolve::qtSharedPtr()
         Q_STATIC_ASSERT((std::is_same<decltype(p1), QPromise<QSharedPointer<Data>>>::value));
         Q_STATIC_ASSERT((std::is_same<decltype(p2), QPromise<QSharedPointer<Data>>>::value));
 
-        QCOMPARE(waitForValue(p1, QSharedPointer<Data>()), sptr0);
-        QCOMPARE(waitForValue(p2, QSharedPointer<Data>()), sptr1);
+        QCOMPARE(waitForValue(p1, QSharedPointer<Data>{}), sptr0);
+        QCOMPARE(waitForValue(p2, QSharedPointer<Data>{}), sptr1);
 
         wptr = sptr0;
 
@@ -155,8 +155,8 @@ void tst_helpers_resolve::stdSharedPtr()
         Q_STATIC_ASSERT((std::is_same<decltype(p1), QPromise<std::shared_ptr<Data>>>::value));
         Q_STATIC_ASSERT((std::is_same<decltype(p2), QPromise<std::shared_ptr<Data>>>::value));
 
-        QCOMPARE(waitForValue(p1, std::shared_ptr<Data>()), sptr0);
-        QCOMPARE(waitForValue(p2, std::shared_ptr<Data>()), sptr1);
+        QCOMPARE(waitForValue(p1, std::shared_ptr<Data>{}), sptr0);
+        QCOMPARE(waitForValue(p2, std::shared_ptr<Data>{}), sptr1);
 
         wptr = sptr0;
 
@@ -180,10 +180,10 @@ void tst_helpers_resolve::typedPromise()
         });
     };
 
-    QPromise<int> v0(resolver);
+    QPromise<int> v0{resolver};
     const QPromise<int> v1 = v0;
 
-    auto p0 = QtPromise::resolve(QPromise<int>(resolver));
+    auto p0 = QtPromise::resolve(QPromise<int>{resolver});
     auto p1 = QtPromise::resolve(v0);
     auto p2 = QtPromise::resolve(v1);
 
@@ -207,10 +207,10 @@ void tst_helpers_resolve::voidPromise()
         });
     };
 
-    QPromise<void> v0(resolver);
+    QPromise<void> v0{resolver};
     const QPromise<void> v1 = v0;
 
-    auto p0 = QtPromise::resolve(QPromise<void>(resolver));
+    auto p0 = QtPromise::resolve(QPromise<void>{resolver});
     auto p1 = QtPromise::resolve(v0);
     auto p2 = QtPromise::resolve(v1);
 

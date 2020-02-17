@@ -45,7 +45,7 @@ connectSignalToResolver(
 {
     connections << QObject::connect(sender, signal, [=]() {
         connections.disconnect();
-        reject(QtPromise::QPromiseUndefinedException());
+        reject(QtPromise::QPromiseUndefinedException{});
     });
 }
 
@@ -89,7 +89,7 @@ void connectDestroyedToReject(
 {
     connections << QObject::connect(sender, &QObject::destroyed, [=]() {
         connections.disconnect();
-        reject(QtPromise::QPromiseContextException());
+        reject(QtPromise::QPromiseContextException{});
     });
 }
 

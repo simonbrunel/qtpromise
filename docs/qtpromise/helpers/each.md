@@ -27,9 +27,9 @@ auto output = QtPromise::each(QVector<QUrl>{
     QUrl("http://b..."),
     QUrl("http://c...")
 }, [](const QUrl& url, ...) {
-    return QPromise<void>([&](auto resolve, auto reject) {
+    return QPromise<void>{[&](auto resolve, auto reject) {
         // process url asynchronously ...
-    })
+    }};
 });
 
 // `output` resolves as soon as all promises returned by

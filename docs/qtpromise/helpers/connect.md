@@ -31,7 +31,7 @@ Q_SIGNALS:
     void error(ErrorCode);
 };
 
-auto sender = new Sender();
+auto sender = new Sender{};
 auto output = QtPromise::connect(sender, &Sender::finished, &Sender::error);
 
 // 'output' resolves as soon as one of the following events happens:

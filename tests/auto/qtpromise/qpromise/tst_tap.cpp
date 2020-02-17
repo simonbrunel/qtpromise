@@ -59,20 +59,20 @@ void tst_qpromise_tap::fulfilledSync_void()
 void tst_qpromise_tap::fulfilledThrows()
 {
     auto p = QPromise<int>::resolve(42).tap([&](int) {
-        throw QString("foo");
+        throw QString{"foo"};
     });
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
 }
 
 void tst_qpromise_tap::fulfilledThrows_void()
 {
     auto p = QPromise<void>::resolve().tap([&]() {
-        throw QString("foo");
+        throw QString{"foo"};
     });
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
 }
 
@@ -80,12 +80,12 @@ void tst_qpromise_tap::fulfilledAsyncResolve()
 {
     QVector<int> values;
     auto p = QPromise<int>::resolve(1).tap([&](int) {
-        QPromise<int> p([&](const QPromiseResolve<int>& resolve) {
+        QPromise<int> p{[&](const QPromiseResolve<int>& resolve) {
             QtPromisePrivate::qtpromise_defer([=, &values]() {
                 values << 3;
                 resolve(4); // ignored!
             });
-        });
+        }};
 
         values << 2;
         return p;
@@ -96,19 +96,19 @@ void tst_qpromise_tap::fulfilledAsyncResolve()
     }).wait();
 
     QCOMPARE(p.isFulfilled(), true);
-    QCOMPARE(values, QVector<int>({2, 3, 1}));
+    QCOMPARE(values, (QVector<int>{2, 3, 1}));
 }
 
 void tst_qpromise_tap::fulfilledAsyncReject()
 {
     QVector<int> values;
     auto p = QPromise<int>::resolve(1).tap([&](int) {
-        QPromise<int> p([&](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+        QPromise<int> p{[&](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
             QtPromisePrivate::qtpromise_defer([=, &values]() {
                 values << 3;
-                reject(QString("foo"));
+                reject(QString{"foo"});
             });
-        });
+        }};
 
         values << 2;
         return p;
@@ -118,19 +118,19 @@ void tst_qpromise_tap::fulfilledAsyncReject()
         values << r;
     }).wait();
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
-    QCOMPARE(values, QVector<int>({2, 3}));
+    QCOMPARE(values, (QVector<int>{2, 3}));
 }
 
 void tst_qpromise_tap::rejectedSync()
 {
     int value = -1;
-    auto p = QPromise<int>::reject(QString("foo")).tap([&](int res) {
+    auto p = QPromise<int>::reject(QString{"foo"}).tap([&](int res) {
         value = res + 1;
     });
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(value, -1);
 }
@@ -138,11 +138,11 @@ void tst_qpromise_tap::rejectedSync()
 void tst_qpromise_tap::rejectedSync_void()
 {
     int value = -1;
-    auto p = QPromise<void>::reject(QString("foo")).tap([&]() {
+    auto p = QPromise<void>::reject(QString{"foo"}).tap([&]() {
         value = 43;
     });
 
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(value, -1);
 }

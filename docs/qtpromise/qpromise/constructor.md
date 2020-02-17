@@ -18,7 +18,7 @@ QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReje
         if (success) {
             resolve(result);
         } else {
-            reject(customException());
+            reject(customException{});
         }
     });
 });
@@ -32,9 +32,9 @@ no argument.
 C++14 alternative:
 
 ```cpp
-QPromise<int> promise([](const auto& resolve, const auto& reject) {
+QPromise<int> promise{[](const auto& resolve, const auto& reject) {
     // {...}
-});
+}};
 ```
 
 ## Undefined rejection reason
@@ -46,7 +46,7 @@ a promise without explicit reason, in which case, a built-in [`QPromiseUndefined
 is thrown:
 
 ```cpp
-QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
+QPromise<int> promise{[](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
     async_method([=](bool success, int result) {
         if (success) {
             resolve(result);
@@ -54,7 +54,7 @@ QPromise<int> promise([](const QPromiseResolve<int>& resolve, const QPromiseReje
             reject();
         }
     });
-});
+}};
 ```
 
 ```cpp

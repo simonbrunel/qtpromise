@@ -39,20 +39,20 @@ void tst_qpromise_operators::move()
     QCOMPARE(p0.isFulfilled(), true);
     QCOMPARE(waitForValue(p0, -1), 42);
 
-    p0 = QPromise<int>([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+    p0 = QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
         QtPromisePrivate::qtpromise_defer([=]() {
-            reject(QString("foo"));
+            reject(QString{"foo"});
         });
-    });
+    }};
 
     QCOMPARE(p0.isPending(), true);
-    QCOMPARE(waitForError(p0, QString()), QString("foo"));
+    QCOMPARE(waitForError(p0, QString{}), QString{"foo"});
 
-    p0 = QPromise<int>([](const QPromiseResolve<int>& resolve) {
+    p0 = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
         QtPromisePrivate::qtpromise_defer([=]() {
             resolve(43);
         });
-    });
+    }};
 
     QCOMPARE(p0.isPending(), true);
     QCOMPARE(waitForValue(p0, -1), 43);
@@ -65,20 +65,20 @@ void tst_qpromise_operators::move_void()
     QCOMPARE(p0.isFulfilled(), true);
     QCOMPARE(waitForValue(p0, -1, 42), 42);
 
-    p0 = QPromise<void>([](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
+    p0 = QPromise<void>{[](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
         QtPromisePrivate::qtpromise_defer([=]() {
-            reject(QString("foo"));
+            reject(QString{"foo"});
         });
-    });
+    }};
 
     QCOMPARE(p0.isPending(), true);
-    QCOMPARE(waitForError(p0, QString()), QString("foo"));
+    QCOMPARE(waitForError(p0, QString{}), QString{"foo"});
 
-    p0 = QPromise<void>([](const QPromiseResolve<void>& resolve) {
+    p0 = QPromise<void>{[](const QPromiseResolve<void>& resolve) {
         QtPromisePrivate::qtpromise_defer([=]() {
             resolve();
         });
-    });
+    }};
 
     QCOMPARE(p0.isPending(), true);
     QCOMPARE(waitForValue(p0, -1, 43), 43);
@@ -86,17 +86,17 @@ void tst_qpromise_operators::move_void()
 
 void tst_qpromise_operators::copy()
 {
-    auto p0 = QPromise<int>([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+    auto p0 = QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
         QtPromisePrivate::qtpromise_defer([=]() {
-            reject(QString("foo"));
+            reject(QString{"foo"});
         });
-    });
+    }};
 
-    auto p1 = QPromise<int>([](const QPromiseResolve<int>& resolve) {
+    auto p1 = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
         QtPromisePrivate::qtpromise_defer([=]() {
             resolve(42);
         });
-    });
+    }};
 
     QCOMPARE(p0 == p1, false);
     QCOMPARE(p0.isPending(), true);
@@ -113,17 +113,17 @@ void tst_qpromise_operators::copy()
 
 void tst_qpromise_operators::copy_void()
 {
-    auto p0 = QPromise<void>([](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
+    auto p0 = QPromise<void>{[](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
         QtPromisePrivate::qtpromise_defer([=]() {
-            reject(QString("foo"));
+            reject(QString{"foo"});
         });
-    });
+    }};
 
-    auto p1 = QPromise<void>([](const QPromiseResolve<void>& resolve) {
+    auto p1 = QPromise<void>{[](const QPromiseResolve<void>& resolve) {
         QtPromisePrivate::qtpromise_defer([=]() {
             resolve();
         });
-    });
+    }};
 
     QCOMPARE(p0 == p1, false);
     QCOMPARE(p0.isPending(), true);
@@ -229,5 +229,5 @@ void tst_qpromise_operators::chaining_void()
 
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForValue(p, -1, 42), 42);
-    QCOMPARE(values, QVector<int>({0, 2, 4, 6}));
+    QCOMPARE(values, (QVector<int>{0, 2, 4, 6}));
 }

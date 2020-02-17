@@ -31,8 +31,8 @@ public:
     template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type = 0>
     inline QPromiseBase(F resolver);
 
-    QPromiseBase(const QPromiseBase<T>& other): m_d(other.m_d) {}
-    QPromiseBase(const QPromise<T>& other): m_d(other.m_d) {}
+    QPromiseBase(const QPromiseBase<T>& other): m_d{other.m_d} {}
+    QPromiseBase(const QPromise<T>& other): m_d{other.m_d} {}
     QPromiseBase(QPromiseBase<T>&& other) Q_DECL_NOEXCEPT { swap(other); }
 
     virtual ~QPromiseBase() { }
@@ -72,10 +72,10 @@ public:
     inline QPromise<T> tapFail(THandler handler) const;
 
     template <typename E = QPromiseTimeoutException>
-    inline QPromise<T> timeout(int msec, E&& error = E()) const;
+    inline QPromise<T> timeout(int msec, E&& error = E{}) const;
 
     template <typename E = QPromiseTimeoutException>
-    inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E()) const;
+    inline QPromise<T> timeout(std::chrono::milliseconds msec, E&& error = E{}) const;
 
     inline QPromise<T> delay(int msec) const;
     inline QPromise<T> delay(std::chrono::milliseconds msec) const;

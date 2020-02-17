@@ -29,10 +29,10 @@ auto output = QtPromise::filter(QVector{
     QUrl("http://b..."),
     QUrl("http://c...")
 }, [](const QUrl& url, ...) {
-    return QPromise<bool>([&](auto resolve, auto reject) {
+    return QPromise<bool>{[&](auto resolve, auto reject) {
         // resolve(true) if 'url' is reachable, else resolve(false)
         // {...}
-    });
+    }};
 });
 
 // 'output' resolves as soon as all promises returned by

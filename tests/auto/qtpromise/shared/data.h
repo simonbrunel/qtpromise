@@ -40,7 +40,7 @@ public: // STATICS
 
 struct Data : public Logger
 {
-    Data(int v) : Logger(), m_value(v) {}
+    Data(int v) : Logger{}, m_value{v} {}
     int value() const { return m_value; }
 
     // MSVC 2013 doesn't support implicit generation of the move constructor and
@@ -49,11 +49,11 @@ struct Data : public Logger
     // https://stackoverflow.com/a/26581337
 
     Data(const Data& other)
-        : Logger(other)
-        , m_value(other.m_value)
+        : Logger{other}
+        , m_value{other.m_value}
     { }
 
-    Data(Data&& other) : Logger(std::forward<Data>(other))
+    Data(Data&& other) : Logger{std::forward<Data>(other)}
     {
         std::swap(m_value, other.m_value);
     }

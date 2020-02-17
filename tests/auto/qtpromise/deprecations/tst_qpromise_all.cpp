@@ -55,7 +55,7 @@ struct SequenceTester
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
         QCOMPARE(p.isPending(), true);
-        QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 46, 43, 44}));
+        QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 46, 43, 44}));
     }
 };
 
@@ -92,7 +92,7 @@ void tst_deprecations_qpromise_all::emptySequence()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
 
     QCOMPARE(p.isFulfilled(), true);
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>{});
+    QCOMPARE(waitForValue(p, QVector<int>{}), QVector<int>{});
 }
 
 void tst_deprecations_qpromise_all::emptySequence_void()
@@ -109,11 +109,11 @@ void tst_deprecations_qpromise_all::allPromisesSucceed()
 {
     auto p0 = QtPromise::resolve(42);
     auto p1 = QtPromise::resolve(44);
-    auto p2 = QPromise<int>([](const QPromiseResolve<int>& resolve) {
+    auto p2 = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
         QtPromisePrivate::qtpromise_defer([=](){
             resolve(43);
         });
-    });
+    }};
 
     auto p = QPromise<int>::all(QVector<QPromise<int>>{p0, p2, p1});
 
@@ -123,7 +123,7 @@ void tst_deprecations_qpromise_all::allPromisesSucceed()
     QCOMPARE(p1.isFulfilled(), true);
     QCOMPARE(p2.isPending(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 43, 44}));
     QCOMPARE(p2.isFulfilled(), true);
 }
 
@@ -131,11 +131,11 @@ void tst_deprecations_qpromise_all::allPromisesSucceed_void()
 {
     auto p0 = QtPromise::resolve();
     auto p1 = QtPromise::resolve();
-    auto p2 = QPromise<void>([](const QPromiseResolve<void>& resolve) {
+    auto p2 = QPromise<void>{[](const QPromiseResolve<void>& resolve) {
         QtPromisePrivate::qtpromise_defer([=](){
             resolve();
         });
-    });
+    }};
 
     auto p = QPromise<void>::all(QVector<QPromise<void>>{p0, p2, p1});
 
@@ -153,11 +153,11 @@ void tst_deprecations_qpromise_all::atLeastOnePromiseReject()
 {
     auto p0 = QtPromise::resolve(42);
     auto p1 = QtPromise::resolve(44);
-    auto p2 = QPromise<int>([](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+    auto p2 = QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
         QtPromisePrivate::qtpromise_defer([=](){
-            reject(QString("foo"));
+            reject(QString{"foo"});
         });
-    });
+    }};
 
     auto p = QPromise<int>::all(QVector<QPromise<int>>{p0, p2, p1});
 
@@ -167,7 +167,7 @@ void tst_deprecations_qpromise_all::atLeastOnePromiseReject()
     QCOMPARE(p1.isFulfilled(), true);
     QCOMPARE(p2.isPending(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p2.isRejected(), true);
 }
 
@@ -175,11 +175,11 @@ void tst_deprecations_qpromise_all::atLeastOnePromiseReject_void()
 {
     auto p0 = QtPromise::resolve();
     auto p1 = QtPromise::resolve();
-    auto p2 = QPromise<void>([](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
+    auto p2 = QPromise<void>{[](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
         QtPromisePrivate::qtpromise_defer([=](){
-            reject(QString("foo"));
+            reject(QString{"foo"});
         });
-    });
+    }};
 
     auto p = QPromise<void>::all(QVector<QPromise<void>>{p0, p2, p1});
 
@@ -189,7 +189,7 @@ void tst_deprecations_qpromise_all::atLeastOnePromiseReject_void()
     QCOMPARE(p1.isFulfilled(), true);
     QCOMPARE(p2.isPending(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForError(p, QString()), QString("foo"));
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p2.isRejected(), true);
 }
 
@@ -207,7 +207,7 @@ void tst_deprecations_qpromise_all::preserveOrder()
     QCOMPARE(p1.isPending(), true);
     QCOMPARE(p2.isPending(), true);
     QCOMPARE(p.isPending(), true);
-    QCOMPARE(waitForValue(p, QVector<int>()), QVector<int>({42, 43, 44}));
+    QCOMPARE(waitForValue(p, QVector<int>{}), (QVector<int>{42, 43, 44}));
     QCOMPARE(p0.isFulfilled(), true);
     QCOMPARE(p1.isFulfilled(), true);
     QCOMPARE(p2.isFulfilled(), true);
