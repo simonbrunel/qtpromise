@@ -206,3 +206,6 @@ download(url).then(&uncompress).then([](const Entries& entries) {
     // {...} catch all
 });
 ```
+
+Note that `MalformedException` in the example above is thrown from a QtConcurrent thread and should 
+meet [specific conditions](qtconcurrent.md#error).
