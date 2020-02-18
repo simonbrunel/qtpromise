@@ -50,12 +50,27 @@ The `output` promise is resolved when the `QFuture` is [finished](https://doc.qt
 ## Error
 
 Exceptions thrown from a QtConcurrent thread reject the associated promise with the exception as the
-reason. Note that if you throw an exception that is not a subclass of `QException`, the promise will
+reason. For this to work, the exception should be a [`QException`](https://doc.qt.io/qt-5/qexception.html) 
+or its subclass. Correct subclassing of [`QException`](https://doc.qt.io/qt-5/qexception.html) 
+includes overriding its methods [`clone()`](https://doc.qt.io/qt-5/qexception.html#clone) and 
+[`raise()`](https://doc.qt.io/qt-5/qexception.html#raise). Without these overrides the promise will 
+be rejected with [`QException`](https://doc.qt.io/qt-5/qexception.html). 
+
+Note that if you throw an exception that is not a subclass of `QException`, the promise will
 be rejected with [`QUnhandledException`](https://doc.qt.io/qt-5/qunhandledexception.html#details)
 (this restriction only applies to exceptions thrown from a QtConcurrent thread,
-[read more](https://doc.qt.io/qt-5/qexception.html#details)).
+[read more](https://doc.qt.io/qt-5/qexception.html#details)). 
 
 ```cpp
+class CustomException : public QException
+{
+public:
+    void raise() const override { throw *this; }
+    CustomException* clone() const override { return new CustomException{*this}; }
+};
+
+// {...}
+
 QPromise<int> promise = ...
 promise.then([](int res) {
     return QtConcurrent::run([]() {
