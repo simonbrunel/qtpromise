@@ -33,7 +33,7 @@ QTEST_MAIN(tst_helpers_filter)
 
 namespace {
 
-template <class Sequence>
+template<class Sequence>
 struct SequenceTester
 {
     static void exec()
@@ -74,10 +74,10 @@ void tst_helpers_filter::delayedFulfilled()
 {
     auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QPromise<bool>{[&](const QPromiseResolve<bool>& resolve) {
-                QtPromisePrivate::qtpromise_defer([=]() {
-                    resolve(v % 2 == 0);
-                });
-            }};
+            QtPromisePrivate::qtpromise_defer([=]() {
+                resolve(v % 2 == 0);
+            });
+        }};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
@@ -87,9 +87,8 @@ void tst_helpers_filter::delayedFulfilled()
 void tst_helpers_filter::delayedRejected()
 {
     auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [](int v, ...) {
-        return QPromise<bool>{[&](
-            const QPromiseResolve<bool>& resolve,
-            const QPromiseReject<bool>& reject) {
+        return QPromise<bool>{
+            [&](const QPromiseResolve<bool>& resolve, const QPromiseReject<bool>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     if (v == 44) {
                         reject(QString{"foo"});
@@ -119,7 +118,7 @@ void tst_helpers_filter::functorThrows()
 void tst_helpers_filter::functorArguments()
 {
     QMap<int, int> args;
-     auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [&](int v, int i) {
+    auto p = QtPromise::filter(QVector<int>{42, 43, 44}, [&](int v, int i) {
         args[v] = i;
         return i % 2 == 0;
     });

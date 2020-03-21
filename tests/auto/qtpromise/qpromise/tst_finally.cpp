@@ -184,8 +184,8 @@ void tst_qpromise_finally::rejectedAsyncResolve()
     });
 
     p.then([&](int r) {
-        values << r;
-    }).wait();
+         values << r;
+     }).wait();
 
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);

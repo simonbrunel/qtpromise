@@ -175,7 +175,7 @@ void tst_deprecations_helpers_qpromise::stdSharedPtr()
 void tst_deprecations_helpers_qpromise::typedPromise()
 {
     auto resolver = [](const QPromiseResolve<int>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             resolve(42);
         });
     };
@@ -202,7 +202,7 @@ void tst_deprecations_helpers_qpromise::typedPromise()
 void tst_deprecations_helpers_qpromise::voidPromise()
 {
     auto resolver = [](const QPromiseResolve<void>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             resolve();
         });
     };
@@ -228,7 +228,9 @@ void tst_deprecations_helpers_qpromise::voidPromise()
 
 void tst_deprecations_helpers_qpromise::typedFuture()
 {
-    auto fn = [](){ return 42; };
+    auto fn = []() {
+        return 42;
+    };
     QFuture<int> v0 = QtConcurrent::run(fn);
     const QFuture<int> v1 = v0;
 
@@ -250,7 +252,7 @@ void tst_deprecations_helpers_qpromise::typedFuture()
 
 void tst_deprecations_helpers_qpromise::voidFuture()
 {
-    auto fn = [](){ };
+    auto fn = []() {};
     QFuture<void> v0 = QtConcurrent::run(fn);
     const QFuture<void> v1 = v0;
 

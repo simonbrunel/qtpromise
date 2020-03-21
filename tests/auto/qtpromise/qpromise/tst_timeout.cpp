@@ -39,12 +39,13 @@ void tst_qpromise_timeout::fulfilled()
     timer.start();
 
     auto p = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
-        QTimer::singleShot(1000, [=]() {
-            resolve(42);
-        });
-    }}.timeout(2000).finally([&]() {
-        elapsed = timer.elapsed();
-    });
+                 QTimer::singleShot(1000, [=]() {
+                     resolve(42);
+                 });
+             }}.timeout(2000)
+                 .finally([&]() {
+                     elapsed = timer.elapsed();
+                 });
 
     QCOMPARE(waitForValue(p, -1), 42);
     QCOMPARE(p.isFulfilled(), true);
@@ -59,13 +60,13 @@ void tst_qpromise_timeout::rejected()
     timer.start();
 
     auto p = QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-        QTimer::singleShot(1000, [=]() {
-            reject(QString{"foo"});
-        });
-    }}.timeout(2000).finally([&]() {
-        elapsed = timer.elapsed();
-    });
-
+                 QTimer::singleShot(1000, [=]() {
+                     reject(QString{"foo"});
+                 });
+             }}.timeout(2000)
+                 .finally([&]() {
+                     elapsed = timer.elapsed();
+                 });
 
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
@@ -81,17 +82,18 @@ void tst_qpromise_timeout::timeout()
     timer.start();
 
     auto p = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
-        QTimer::singleShot(4000, [=]() {
-            resolve(42);
-        });
-    }}.timeout(2000).finally([&]() {
-        elapsed = timer.elapsed();
-    });
+                 QTimer::singleShot(4000, [=]() {
+                     resolve(42);
+                 });
+             }}.timeout(2000)
+                 .finally([&]() {
+                     elapsed = timer.elapsed();
+                 });
 
     p.fail([&](const QPromiseTimeoutException&) {
-        failed = true;
-        return -1;
-    }).wait();
+         failed = true;
+         return -1;
+     }).wait();
 
     QCOMPARE(waitForValue(p, -1), -1);
     QCOMPARE(p.isRejected(), true);
@@ -112,12 +114,13 @@ void tst_qpromise_timeout::fulfilledStdChrono()
     timer.start();
 
     auto p = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
-        QTimer::singleShot(1000, [=]() {
-            resolve(42);
-        });
-    }}.timeout(std::chrono::seconds{2}).finally([&]() {
-        elapsed = timer.elapsed();
-    });
+                 QTimer::singleShot(1000, [=]() {
+                     resolve(42);
+                 });
+             }}.timeout(std::chrono::seconds{2})
+                 .finally([&]() {
+                     elapsed = timer.elapsed();
+                 });
 
     QCOMPARE(waitForValue(p, -1), 42);
     QCOMPARE(p.isFulfilled(), true);
@@ -132,13 +135,13 @@ void tst_qpromise_timeout::rejectedStdChrono()
     timer.start();
 
     auto p = QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-        QTimer::singleShot(1000, [=]() {
-            reject(QString{"foo"});
-        });
-    }}.timeout(std::chrono::seconds{2}).finally([&]() {
-        elapsed = timer.elapsed();
-    });
-
+                 QTimer::singleShot(1000, [=]() {
+                     reject(QString{"foo"});
+                 });
+             }}.timeout(std::chrono::seconds{2})
+                 .finally([&]() {
+                     elapsed = timer.elapsed();
+                 });
 
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);
@@ -154,17 +157,18 @@ void tst_qpromise_timeout::timeoutStdChrono()
     timer.start();
 
     auto p = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
-        QTimer::singleShot(4000, [=]() {
-            resolve(42);
-        });
-    }}.timeout(std::chrono::seconds{2}).finally([&]() {
-        elapsed = timer.elapsed();
-    });
+                 QTimer::singleShot(4000, [=]() {
+                     resolve(42);
+                 });
+             }}.timeout(std::chrono::seconds{2})
+                 .finally([&]() {
+                     elapsed = timer.elapsed();
+                 });
 
     p.fail([&](const QPromiseTimeoutException&) {
-        failed = true;
-        return -1;
-    }).wait();
+         failed = true;
+         return -1;
+     }).wait();
 
     QCOMPARE(waitForValue(p, -1), -1);
     QCOMPARE(p.isRejected(), true);

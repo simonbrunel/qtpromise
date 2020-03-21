@@ -92,8 +92,8 @@ void tst_qpromise_tap::fulfilledAsyncResolve()
     });
 
     p.then([&](int r) {
-        values << r;
-    }).wait();
+         values << r;
+     }).wait();
 
     QCOMPARE(p.isFulfilled(), true);
     QCOMPARE(values, (QVector<int>{2, 3, 1}));
@@ -115,8 +115,8 @@ void tst_qpromise_tap::fulfilledAsyncReject()
     });
 
     p.then([&](int r) {
-        values << r;
-    }).wait();
+         values << r;
+     }).wait();
 
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QCOMPARE(p.isRejected(), true);

@@ -15,18 +15,16 @@
 
 namespace QtPromisePrivate {
 
-template <typename T>
-struct PromiseDeduce<QFuture<T>>
-    : public PromiseDeduce<T>
+template<typename T>
+struct PromiseDeduce<QFuture<T>> : public PromiseDeduce<T>
 { };
 
-template <typename T>
+template<typename T>
 struct PromiseFulfill<QFuture<T>>
 {
-    static void call(
-        const QFuture<T>& future,
-        const QtPromise::QPromiseResolve<T>& resolve,
-        const QtPromise::QPromiseReject<T>& reject)
+    static void call(const QFuture<T>& future,
+                     const QtPromise::QPromiseResolve<T>& resolve,
+                     const QtPromise::QPromiseReject<T>& reject)
     {
         using Watcher = QFutureWatcher<T>;
 
@@ -55,13 +53,12 @@ struct PromiseFulfill<QFuture<T>>
     }
 };
 
-template <>
+template<>
 struct PromiseFulfill<QFuture<void>>
 {
-    static void call(
-        const QFuture<void>& future,
-        const QtPromise::QPromiseResolve<void>& resolve,
-        const QtPromise::QPromiseReject<void>& reject)
+    static void call(const QFuture<void>& future,
+                     const QtPromise::QPromiseResolve<void>& resolve,
+                     const QtPromise::QPromiseReject<void>& reject)
     {
         using Watcher = QFutureWatcher<void>;
 

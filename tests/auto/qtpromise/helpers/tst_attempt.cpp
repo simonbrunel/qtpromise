@@ -91,9 +91,12 @@ void tst_helpers_attempt::functorThrows()
 
 void tst_helpers_attempt::callWithParams()
 {
-    auto p = QtPromise::attempt([&](int i, const QString& s) {
-        return QString{"%1:%2"}.arg(i).arg(s);
-    }, 42, "foo");
+    auto p = QtPromise::attempt(
+        [&](int i, const QString& s) {
+            return QString{"%1:%2"}.arg(i).arg(s);
+        },
+        42,
+        "foo");
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
     QCOMPARE(p.isFulfilled(), true);

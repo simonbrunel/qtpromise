@@ -33,7 +33,7 @@ QTEST_MAIN(tst_helpers_map)
 
 namespace {
 
-template <class Sequence>
+template<class Sequence>
 struct SequenceTester
 {
     static void exec()
@@ -83,10 +83,10 @@ void tst_helpers_map::delayedFulfilled()
 {
     auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
         return QPromise<int>{[&](const QPromiseResolve<int>& resolve) {
-                QtPromisePrivate::qtpromise_defer([=]() {
-                    resolve(v + 1);
-                });
-            }};
+            QtPromisePrivate::qtpromise_defer([=]() {
+                resolve(v + 1);
+            });
+        }};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
@@ -96,9 +96,8 @@ void tst_helpers_map::delayedFulfilled()
 void tst_helpers_map::delayedRejected()
 {
     auto p = QtPromise::map(QVector<int>{42, 43, 44}, [](int v, ...) {
-        return QPromise<int>{[&](
-            const QPromiseResolve<int>& resolve,
-            const QPromiseReject<int>& reject) {
+        return QPromise<int>{
+            [&](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     if (v == 43) {
                         reject(QString{"foo"});

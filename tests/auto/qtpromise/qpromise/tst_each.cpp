@@ -32,36 +32,34 @@ QTEST_MAIN(tst_qpromise_each)
 
 namespace {
 
-template <class Sequence>
+template<class Sequence>
 struct SequenceTester
 {
     static void exec()
     {
         QVector<int> values;
-        auto p = QtPromise::resolve(Sequence{42, 43, 44}).each([&](int v, int i) {
-            values << i << v;
-        }).each([&](int v, ...) {
-            values << v;
-            return QString{"foo"};
-        }).each([&](int v, ...) {
-            values << v + 1;
-            return QtPromise::resolve(QString{"foo"}).then([&](){
-                values << -1;
-            });
-        }).each([&](int v, ...) {
-            values << v + 2;
-        });
+        auto p = QtPromise::resolve(Sequence{42, 43, 44})
+                     .each([&](int v, int i) {
+                         values << i << v;
+                     })
+                     .each([&](int v, ...) {
+                         values << v;
+                         return QString{"foo"};
+                     })
+                     .each([&](int v, ...) {
+                         values << v + 1;
+                         return QtPromise::resolve(QString{"foo"}).then([&]() {
+                             values << -1;
+                         });
+                     })
+                     .each([&](int v, ...) {
+                         values << v + 2;
+                     });
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Sequence>>::value));
         QCOMPARE(waitForValue(p, Sequence{}), (Sequence{42, 43, 44}));
 
-        QVector<int> expected{
-            0, 42, 1, 43, 2, 44,
-            42, 43, 44,
-            43, 44, 45,
-            -1, -1, -1,
-            44, 45, 46
-        };
+        QVector<int> expected{0, 42, 1, 43, 2, 44, 42, 43, 44, 43, 44, 45, -1, -1, -1, 44, 45, 46};
         QCOMPARE(values, expected);
     }
 };
@@ -124,9 +122,8 @@ void tst_qpromise_each::delayedFulfilled()
 void tst_qpromise_each::delayedRejected()
 {
     auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).each([](int v, ...) {
-        return QPromise<int>{[&](
-            const QPromiseResolve<int>& resolve,
-            const QPromiseReject<int>& reject) {
+        return QPromise<int>{
+            [&](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     if (v == 44) {
                         reject(QString{"foo"});

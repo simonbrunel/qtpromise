@@ -40,10 +40,12 @@ void tst_thread::resolve()
             source = QThread::currentThread();
             resolve(42);
         });
-    }}.then([&](int res) {
-        target = QThread::currentThread();
-        value = res;
-    }).wait();
+    }}
+        .then([&](int res) {
+            target = QThread::currentThread();
+            value = res;
+        })
+        .wait();
 
     QVERIFY(source != nullptr);
     QVERIFY(source != target);
@@ -62,10 +64,12 @@ void tst_thread::resolve_void()
             source = QThread::currentThread();
             resolve();
         });
-    }}.then([&]() {
-        target = QThread::currentThread();
-        value = 43;
-    }).wait();
+    }}
+        .then([&]() {
+            target = QThread::currentThread();
+            value = 43;
+        })
+        .wait();
 
     QVERIFY(source != nullptr);
     QVERIFY(source != target);
@@ -84,11 +88,13 @@ void tst_thread::reject()
             source = QThread::currentThread();
             reject(QString{"foo"});
         });
-    }}.fail([&](const QString& err) {
-        target = QThread::currentThread();
-        error = err;
-        return -1;
-    }).wait();
+    }}
+        .fail([&](const QString& err) {
+            target = QThread::currentThread();
+            error = err;
+            return -1;
+        })
+        .wait();
 
     QVERIFY(source != nullptr);
     QVERIFY(source != target);
@@ -106,12 +112,15 @@ void tst_thread::then()
 
     int value = -1;
     QThread* target = nullptr;
-    QtPromise::resolve(QtConcurrent::run([&](const QPromise<int>& p) {
-        p.then([&](int res) {
-            target = QThread::currentThread();
-            value = res;
-        }).wait();
-    }, p)).wait();
+    QtPromise::resolve(QtConcurrent::run(
+                           [&](const QPromise<int>& p) {
+                               p.then([&](int res) {
+                                    target = QThread::currentThread();
+                                    value = res;
+                                }).wait();
+                           },
+                           p))
+        .wait();
 
     QVERIFY(target != nullptr);
     QVERIFY(source != target);
@@ -129,12 +138,15 @@ void tst_thread::then_void()
 
     int value = -1;
     QThread* target = nullptr;
-    QtPromise::resolve(QtConcurrent::run([&](const QPromise<void>& p) {
-        p.then([&]() {
-            target = QThread::currentThread();
-            value = 43;
-        }).wait();
-    }, p)).wait();
+    QtPromise::resolve(QtConcurrent::run(
+                           [&](const QPromise<void>& p) {
+                               p.then([&]() {
+                                    target = QThread::currentThread();
+                                    value = 43;
+                                }).wait();
+                           },
+                           p))
+        .wait();
 
     QVERIFY(target != nullptr);
     QVERIFY(source != target);
@@ -152,13 +164,16 @@ void tst_thread::fail()
 
     QString error;
     QThread* target = nullptr;
-    QtPromise::resolve(QtConcurrent::run([&](const QPromise<int>& p) {
-        p.fail([&](const QString& err) {
-            target = QThread::currentThread();
-            error = err;
-            return -1;
-        }).wait();
-    }, p)).wait();
+    QtPromise::resolve(QtConcurrent::run(
+                           [&](const QPromise<int>& p) {
+                               p.fail([&](const QString& err) {
+                                    target = QThread::currentThread();
+                                    error = err;
+                                    return -1;
+                                }).wait();
+                           },
+                           p))
+        .wait();
 
     QVERIFY(target != nullptr);
     QVERIFY(source != target);
@@ -176,12 +191,15 @@ void tst_thread::finally()
 
     int value = -1;
     QThread* target = nullptr;
-    QtPromise::resolve(QtConcurrent::run([&](const QPromise<int>& p) {
-        p.finally([&]() {
-            target = QThread::currentThread();
-            value = 43;
-        }).wait();
-    }, p)).wait();
+    QtPromise::resolve(QtConcurrent::run(
+                           [&](const QPromise<int>& p) {
+                               p.finally([&]() {
+                                    target = QThread::currentThread();
+                                    value = 43;
+                                }).wait();
+                           },
+                           p))
+        .wait();
 
     QVERIFY(target != nullptr);
     QVERIFY(source != target);

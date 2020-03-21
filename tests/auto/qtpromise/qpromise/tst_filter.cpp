@@ -33,20 +33,21 @@ QTEST_MAIN(tst_qpromise_filter)
 
 namespace {
 
-template <class Sequence>
+template<class Sequence>
 struct SequenceTester
 {
     static void exec()
     {
-        auto p = QtPromise::resolve(Sequence{
-            42, 43, 44, 45, 46, 47, 48, 49, 50, 51
-        }).filter([](int v, ...) {
-            return v > 42 && v < 51;
-        }).filter([](int, int i) {
-            return QPromise<bool>::resolve(i % 2 == 0);
-        }).filter([](int v, ...) {
-            return v != 45;
-        });
+        auto p = QtPromise::resolve(Sequence{42, 43, 44, 45, 46, 47, 48, 49, 50, 51})
+                     .filter([](int v, ...) {
+                         return v > 42 && v < 51;
+                     })
+                     .filter([](int, int i) {
+                         return QPromise<bool>::resolve(i % 2 == 0);
+                     })
+                     .filter([](int v, ...) {
+                         return v != 45;
+                     });
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Sequence>>::value));
         QCOMPARE(waitForValue(p, Sequence{}), (Sequence{43, 47, 49}));
@@ -79,10 +80,10 @@ void tst_qpromise_filter::delayedFulfilled()
 {
     auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([](int v, ...) {
         return QPromise<bool>{[&](const QPromiseResolve<bool>& resolve) {
-                QtPromisePrivate::qtpromise_defer([=]() {
-                    resolve(v % 2 == 0);
-                });
-            }};
+            QtPromisePrivate::qtpromise_defer([=]() {
+                resolve(v % 2 == 0);
+            });
+        }};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
@@ -92,9 +93,8 @@ void tst_qpromise_filter::delayedFulfilled()
 void tst_qpromise_filter::delayedRejected()
 {
     auto p = QPromise<QVector<int>>::resolve({42, 43, 44}).filter([](int v, ...) {
-        return QPromise<bool>{[&](
-            const QPromiseResolve<bool>& resolve,
-            const QPromiseReject<bool>& reject) {
+        return QPromise<bool>{
+            [&](const QPromiseResolve<bool>& resolve, const QPromiseReject<bool>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     if (v == 43) {
                         reject(QString{"foo"});

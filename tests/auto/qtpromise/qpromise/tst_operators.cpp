@@ -204,7 +204,7 @@ void tst_qpromise_operators::notEqualTo_void()
 void tst_qpromise_operators::chaining()
 {
     auto p = QPromise<int>::resolve(1);
-    for (int i=0; i<4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         p = p.then([](int res) {
             return QPromise<int>::resolve(res * 2);
         });
@@ -220,7 +220,7 @@ void tst_qpromise_operators::chaining_void()
 
     auto p = QPromise<void>::resolve();
 
-    for (int i=0; i<4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         p = p.then([i, &values]() {
             values.append(i * 2);
             return QPromise<void>::resolve();

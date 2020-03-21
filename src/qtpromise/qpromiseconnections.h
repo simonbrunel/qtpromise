@@ -31,15 +31,17 @@ private:
     {
         QVector<QMetaObject::Connection> connections;
 
-        ~Data() {
+        ~Data()
+        {
             if (!connections.empty()) {
                 qWarning("QPromiseConnections: destroyed with unhandled connections.");
                 disconnect();
             }
         }
 
-        void disconnect() {
-            for (const auto& connection: connections) {
+        void disconnect()
+        {
+            for (const auto& connection : connections) {
                 QObject::disconnect(connection);
             }
             connections.clear();

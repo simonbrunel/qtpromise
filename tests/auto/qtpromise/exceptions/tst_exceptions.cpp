@@ -30,10 +30,12 @@ QTEST_MAIN(tst_exceptions)
 
 namespace {
 
-template <class E>
+template<class E>
 void verify()
 {
-    auto p = QtPromise::resolve(QtConcurrent::run([]() { throw E(); }));
+    auto p = QtPromise::resolve(QtConcurrent::run([]() {
+        throw E();
+    }));
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForRejected<E>(p), true);
     QCOMPARE(p.isRejected(), true);

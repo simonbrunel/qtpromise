@@ -270,23 +270,23 @@ void tst_qpromise_construct::connectAndResolve()
     std::weak_ptr<int> wptr;
 
     {
-        auto p = QPromise<std::shared_ptr<int>>{[&](
-            const QPromiseResolve<std::shared_ptr<int>>& resolve,
-            const QPromiseReject<std::shared_ptr<int>>& reject) {
+        auto p =
+            QPromise<std::shared_ptr<int>>{[&](const QPromiseResolve<std::shared_ptr<int>>& resolve,
+                                               const QPromiseReject<std::shared_ptr<int>>& reject) {
+                connect(object.data(),
+                        &QObject::objectNameChanged,
+                        [=, &wptr](const QString& name) {
+                            auto sptr = std::make_shared<int>(42);
 
-            connect(object.data(), &QObject::objectNameChanged,
-                [=, &wptr](const QString& name) {
-                    auto sptr = std::make_shared<int>(42);
+                            wptr = sptr;
 
-                    wptr = sptr;
-
-                    if (name == "foobar") {
-                        resolve(sptr);
-                    } else {
-                        reject(42);
-                    }
-                });
-        }};
+                            if (name == "foobar") {
+                                resolve(sptr);
+                            } else {
+                                reject(42);
+                            }
+                        });
+            }};
 
         QCOMPARE(p.isPending(), true);
 
@@ -307,22 +307,19 @@ void tst_qpromise_construct::connectAndReject()
     std::weak_ptr<int> wptr;
 
     {
-        auto p = QPromise<int>{[&](
-            const QPromiseResolve<int>& resolve,
-            const QPromiseReject<int>& reject) {
+        auto p = QPromise<int>{[&](const QPromiseResolve<int>& resolve,
+                                   const QPromiseReject<int>& reject) {
+            connect(object.data(), &QObject::objectNameChanged, [=, &wptr](const QString& name) {
+                auto sptr = std::make_shared<int>(42);
 
-            connect(object.data(), &QObject::objectNameChanged,
-                [=, &wptr](const QString& name) {
-                    auto sptr = std::make_shared<int>(42);
+                wptr = sptr;
 
-                    wptr = sptr;
-
-                    if (name == "foobar") {
-                        reject(sptr);
-                    } else {
-                        resolve(42);
-                    }
-                });
+                if (name == "foobar") {
+                    reject(sptr);
+                } else {
+                    resolve(42);
+                }
+            });
         }};
 
         QCOMPARE(p.isPending(), true);

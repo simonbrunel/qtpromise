@@ -33,18 +33,14 @@ QTEST_MAIN(tst_deprecations_helpers_qpromiseall)
 
 namespace {
 
-template <class Sequence>
+template<class Sequence>
 struct SequenceTester
 {
     Q_STATIC_ASSERT((std::is_same<typename Sequence::value_type, QPromise<int>>::value));
 
     static void exec()
     {
-        Sequence promises{
-            QtPromise::resolve(42),
-            QtPromise::resolve(43),
-            QtPromise::resolve(44)
-        };
+        Sequence promises{QtPromise::resolve(42), QtPromise::resolve(43), QtPromise::resolve(44)};
 
         promises.push_back(QtPromise::resolve(45));
         promises.insert(++promises.begin(), QtPromise::resolve(46));
@@ -58,16 +54,14 @@ struct SequenceTester
     }
 };
 
-template <template <typename, typename...> class Sequence, typename ...Args>
+template<template<typename, typename...> class Sequence, typename... Args>
 struct SequenceTester<Sequence<QPromise<void>, Args...>>
 {
     static void exec()
     {
-        Sequence<QPromise<void>, Args...> promises{
-            QtPromise::resolve(),
-            QtPromise::resolve(),
-            QtPromise::resolve()
-        };
+        Sequence<QPromise<void>, Args...> promises{QtPromise::resolve(),
+                                                   QtPromise::resolve(),
+                                                   QtPromise::resolve()};
 
         promises.push_back(QtPromise::resolve());
         promises.insert(++promises.begin(), QtPromise::resolve());
@@ -106,7 +100,7 @@ void tst_deprecations_helpers_qpromiseall::allPromisesSucceed()
     auto p0 = QtPromise::resolve(42);
     auto p1 = QtPromise::resolve(44);
     auto p2 = QPromise<int>{[](const QPromiseResolve<int>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             resolve(43);
         });
     }};
@@ -127,7 +121,7 @@ void tst_deprecations_helpers_qpromiseall::allPromisesSucceed_void()
     auto p0 = QtPromise::resolve();
     auto p1 = QtPromise::resolve();
     auto p2 = QPromise<void>{[](const QPromiseResolve<void>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             resolve();
         });
     }};
@@ -148,7 +142,7 @@ void tst_deprecations_helpers_qpromiseall::atLeastOnePromiseReject()
     auto p0 = QtPromise::resolve(42);
     auto p1 = QtPromise::resolve(44);
     auto p2 = QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             reject(QString{"foo"});
         });
     }};
@@ -169,7 +163,7 @@ void tst_deprecations_helpers_qpromiseall::atLeastOnePromiseReject_void()
     auto p0 = QtPromise::resolve();
     auto p1 = QtPromise::resolve();
     auto p2 = QPromise<void>{[](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             reject(QString{"foo"});
         });
     }};
@@ -210,7 +204,7 @@ void tst_deprecations_helpers_qpromiseall::preserveOrder()
 void tst_deprecations_helpers_qpromiseall::sequenceTypes()
 {
     SequenceTester<QList<QPromise<int>>>::exec();
-    //SequenceTester<QVector<QPromise<int>>>::exec();
+    // SequenceTester<QVector<QPromise<int>>>::exec();
     SequenceTester<std::list<QPromise<int>>>::exec();
     SequenceTester<std::vector<QPromise<int>>>::exec();
 }
@@ -218,7 +212,7 @@ void tst_deprecations_helpers_qpromiseall::sequenceTypes()
 void tst_deprecations_helpers_qpromiseall::sequenceTypes_void()
 {
     SequenceTester<QList<QPromise<void>>>::exec();
-    //SequenceTester<QVector<QPromise<void>>>::exec();
+    // SequenceTester<QVector<QPromise<void>>>::exec();
     SequenceTester<std::list<QPromise<void>>>::exec();
     SequenceTester<std::vector<QPromise<void>>>::exec();
 }

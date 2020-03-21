@@ -33,23 +33,28 @@ QTEST_MAIN(tst_qpromise_map)
 
 namespace {
 
-template <class Sequence>
+template<class Sequence>
 struct SequenceTester
 {
     static void exec()
     {
-        auto p = QtPromise::resolve(Sequence{42, 43, 44}).map([](int v, ...) {
-            return QString::number(v + 1);
-        }).map([](const QString& v, int i) {
-            return QtPromise::resolve(QString{"%1:%2"}.arg(i).arg(v));
-        }).map([](const QString& v, ...) {
-            return QtPromise::resolve((v + "!").toUtf8());
-        }).map([](const QByteArray& v, ...) {
-            return QString::fromUtf8(v);
-        });
+        auto p = QtPromise::resolve(Sequence{42, 43, 44})
+                     .map([](int v, ...) {
+                         return QString::number(v + 1);
+                     })
+                     .map([](const QString& v, int i) {
+                         return QtPromise::resolve(QString{"%1:%2"}.arg(i).arg(v));
+                     })
+                     .map([](const QString& v, ...) {
+                         return QtPromise::resolve((v + "!").toUtf8());
+                     })
+                     .map([](const QByteArray& v, ...) {
+                         return QString::fromUtf8(v);
+                     });
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<QString>>>::value));
-        QCOMPARE(waitForValue(p, QVector<QString>{}), (QVector<QString>{"0:43!", "1:44!", "2:45!"}));
+        QCOMPARE(waitForValue(p, QVector<QString>{}),
+                 (QVector<QString>{"0:43!", "1:44!", "2:45!"}));
     }
 };
 
@@ -89,10 +94,10 @@ void tst_qpromise_map::delayedFulfilled()
 {
     auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
         return QPromise<int>{[&](const QPromiseResolve<int>& resolve) {
-                QtPromisePrivate::qtpromise_defer([=]() {
-                    resolve(v + 1);
-                });
-            }};
+            QtPromisePrivate::qtpromise_defer([=]() {
+                resolve(v + 1);
+            });
+        }};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVector<int>>>::value));
@@ -102,9 +107,8 @@ void tst_qpromise_map::delayedFulfilled()
 void tst_qpromise_map::delayedRejected()
 {
     auto p = QtPromise::resolve(QVector<int>{42, 43, 44}).map([](int v, ...) {
-        return QPromise<int>{[&](
-            const QPromiseResolve<int>& resolve,
-            const QPromiseReject<int>& reject) {
+        return QPromise<int>{
+            [&](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
                 QtPromisePrivate::qtpromise_defer([=]() {
                     if (v == 43) {
                         reject(QString{"foo"});

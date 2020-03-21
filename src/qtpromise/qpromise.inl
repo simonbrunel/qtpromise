@@ -14,10 +14,9 @@
 
 namespace QtPromise {
 
-template <typename T>
-template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
-inline QPromiseBase<T>::QPromiseBase(F callback)
-    : m_d{new QtPromisePrivate::PromiseData<T>{}}
+template<typename T>
+template<typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 1, int>::type>
+inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::PromiseData<T>{}}
 {
     QtPromisePrivate::PromiseResolver<T> resolver{*this};
 
@@ -28,10 +27,9 @@ inline QPromiseBase<T>::QPromiseBase(F callback)
     }
 }
 
-template <typename T>
-template <typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type>
-inline QPromiseBase<T>::QPromiseBase(F callback)
-    : m_d{new QtPromisePrivate::PromiseData<T>{}}
+template<typename T>
+template<typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type>
+inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::PromiseData<T>{}}
 {
     QtPromisePrivate::PromiseResolver<T> resolver{*this};
 
@@ -42,17 +40,16 @@ inline QPromiseBase<T>::QPromiseBase(F callback)
     }
 }
 
-template <typename T>
-template <typename TFulfilled, typename TRejected>
+template<typename T>
+template<typename TFulfilled, typename TRejected>
 inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
 QPromiseBase<T>::then(const TFulfilled& fulfilled, const TRejected& rejected) const
 {
     using namespace QtPromisePrivate;
     using PromiseType = typename PromiseHandler<T, TFulfilled>::Promise;
 
-    PromiseType next([&](
-        const QPromiseResolve<typename PromiseType::Type>& resolve,
-        const QPromiseReject<typename PromiseType::Type>& reject) {
+    PromiseType next([&](const QPromiseResolve<typename PromiseType::Type>& resolve,
+                         const QPromiseReject<typename PromiseType::Type>& reject) {
         m_d->addHandler(PromiseHandler<T, TFulfilled>::create(fulfilled, resolve, reject));
         m_d->addCatcher(PromiseCatcher<T, TRejected>::create(rejected, resolve, reject));
     });
@@ -64,24 +61,24 @@ QPromiseBase<T>::then(const TFulfilled& fulfilled, const TRejected& rejected) co
     return next;
 }
 
-template <typename T>
-template <typename TFulfilled>
+template<typename T>
+template<typename TFulfilled>
 inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
 QPromiseBase<T>::then(TFulfilled&& fulfilled) const
 {
     return then(std::forward<TFulfilled>(fulfilled), nullptr);
 }
 
-template <typename T>
-template <typename TRejected>
+template<typename T>
+template<typename TRejected>
 inline typename QtPromisePrivate::PromiseHandler<T, std::nullptr_t>::Promise
 QPromiseBase<T>::fail(TRejected&& rejected) const
 {
     return then(nullptr, std::forward<TRejected>(rejected));
 }
 
-template <typename T>
-template <typename THandler>
+template<typename T>
+template<typename THandler>
 inline QPromise<T> QPromiseBase<T>::finally(THandler handler) const
 {
     QPromise<T> p = *this;
@@ -90,8 +87,8 @@ inline QPromise<T> QPromiseBase<T>::finally(THandler handler) const
     });
 }
 
-template <typename T>
-template <typename THandler>
+template<typename T>
+template<typename THandler>
 inline QPromise<T> QPromiseBase<T>::tap(THandler handler) const
 {
     QPromise<T> p = *this;
@@ -100,25 +97,22 @@ inline QPromise<T> QPromiseBase<T>::tap(THandler handler) const
     });
 }
 
-template <typename T>
-template <typename THandler>
+template<typename T>
+template<typename THandler>
 inline QPromise<T> QPromiseBase<T>::tapFail(THandler handler) const
 {
     QPromise<T> p = *this;
-    return p.then([](){}, handler).then([=]() {
+    return p.then([]() {}, handler).then([=]() {
         return p;
     });
 }
 
-template <typename T>
-template <typename E>
+template<typename T>
+template<typename E>
 inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
 {
     QPromise<T> p = *this;
-    return QPromise<T>{[&](
-        const QPromiseResolve<T>& resolve,
-        const QPromiseReject<T>& reject) {
-
+    return QPromise<T>{[&](const QPromiseResolve<T>& resolve, const QPromiseReject<T>& reject) {
         QTimer::singleShot(msec, [=]() {
             // we don't need to verify the current promise state, reject()
             // takes care of checking if the promise is already resolved,
@@ -130,14 +124,14 @@ inline QPromise<T> QPromiseBase<T>::timeout(int msec, E&& error) const
     }};
 }
 
-template <typename T>
-template <typename E>
+template<typename T>
+template<typename E>
 inline QPromise<T> QPromiseBase<T>::timeout(std::chrono::milliseconds msec, E&& error) const
 {
     return timeout(static_cast<int>(msec.count()), std::forward<E>(error));
 }
 
-template <typename T>
+template<typename T>
 inline QPromise<T> QPromiseBase<T>::delay(int msec) const
 {
     return tap([=]() {
@@ -153,7 +147,7 @@ inline QPromise<T> QPromiseBase<T>::delay(std::chrono::milliseconds msec) const
     return delay(static_cast<int>(msec.count()));
 }
 
-template <typename T>
+template<typename T>
 inline QPromise<T> QPromiseBase<T>::wait() const
 {
     // @TODO wait timeout + global timeout
@@ -165,8 +159,8 @@ inline QPromise<T> QPromiseBase<T>::wait() const
     return *this;
 }
 
-template <typename T>
-template <typename E>
+template<typename T>
+template<typename E>
 inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 {
     return QPromise<T>{[&](const QPromiseResolve<T>&, const QPromiseReject<T>& reject) {
@@ -174,8 +168,8 @@ inline QPromise<T> QPromiseBase<T>::reject(E&& error)
     }};
 }
 
-template <typename T>
-template <typename Functor>
+template<typename T>
+template<typename Functor>
 inline QPromise<T> QPromise<T>::each(Functor fn)
 {
     return this->tap([=](const T& values) {
@@ -183,12 +177,10 @@ inline QPromise<T> QPromise<T>::each(Functor fn)
 
         std::vector<QPromise<void>> promises;
         for (const auto& v : values) {
-            promises.push_back(
-                QtPromise::attempt(fn, v, i)
-                    .then([]() {
-                        // Cast to void in case fn returns a non promise value.
-                        // TODO remove when implicit cast is implemented.
-                    }));
+            promises.push_back(QtPromise::attempt(fn, v, i).then([]() {
+                // Cast to void in case fn returns a non promise value.
+                // TODO remove when implicit cast is implemented.
+            }));
 
             i++;
         }
@@ -197,8 +189,8 @@ inline QPromise<T> QPromise<T>::each(Functor fn)
     });
 }
 
-template <typename T>
-template <typename Functor>
+template<typename T>
+template<typename Functor>
 inline QPromise<T> QPromise<T>::filter(Functor fn)
 {
     return this->then([=](const T& values) {
@@ -206,8 +198,8 @@ inline QPromise<T> QPromise<T>::filter(Functor fn)
     });
 }
 
-template <typename T>
-template <typename Functor>
+template<typename T>
+template<typename Functor>
 inline typename QtPromisePrivate::PromiseMapper<T, Functor>::PromiseType
 QPromise<T>::map(Functor fn)
 {
@@ -216,8 +208,8 @@ QPromise<T>::map(Functor fn)
     });
 }
 
-template <typename T>
-template <typename Functor, typename Input>
+template<typename T>
+template<typename Functor, typename Input>
 inline typename QtPromisePrivate::PromiseDeduce<Input>::Type
 QPromise<T>::reduce(Functor fn, Input initial)
 {
@@ -226,8 +218,8 @@ QPromise<T>::reduce(Functor fn, Input initial)
     });
 }
 
-template <typename T>
-template <typename Functor, typename U>
+template<typename T>
+template<typename Functor, typename U>
 inline typename QtPromisePrivate::PromiseDeduce<typename U::value_type>::Type
 QPromise<T>::reduce(Functor fn)
 {
@@ -236,30 +228,30 @@ QPromise<T>::reduce(Functor fn)
     });
 }
 
-template <typename T>
-template <template <typename, typename...> class Sequence, typename ...Args>
+template<typename T>
+template<template<typename, typename...> class Sequence, typename... Args>
 inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
     return QtPromise::all(promises);
 }
 
-template <typename T>
+template<typename T>
 inline QPromise<T> QPromise<T>::resolve(const T& value)
 {
     return QPromise<T>{[&](const QPromiseResolve<T>& resolve) {
-       resolve(value);
+        resolve(value);
     }};
 }
 
-template <typename T>
+template<typename T>
 inline QPromise<T> QPromise<T>::resolve(T&& value)
 {
     return QPromise<T>{[&](const QPromiseResolve<T>& resolve) {
-       resolve(std::forward<T>(value));
+        resolve(std::forward<T>(value));
     }};
 }
 
-template <template <typename, typename...> class Sequence, typename ...Args>
+template<template<typename, typename...> class Sequence, typename... Args>
 inline QPromise<void> QPromise<void>::all(const Sequence<QPromise<void>, Args...>& promises)
 {
     return QtPromise::all(promises);

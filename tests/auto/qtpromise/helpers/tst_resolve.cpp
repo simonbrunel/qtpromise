@@ -8,8 +8,8 @@
 #include "../shared/data.h"
 #include "../shared/utils.h"
 
-#include <QtPromise>
 #include <QtConcurrent>
+#include <QtPromise>
 #include <QtTest>
 
 #include <memory>
@@ -175,7 +175,7 @@ void tst_helpers_resolve::stdSharedPtr()
 void tst_helpers_resolve::typedPromise()
 {
     auto resolver = [](const QPromiseResolve<int>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             resolve(42);
         });
     };
@@ -202,7 +202,7 @@ void tst_helpers_resolve::typedPromise()
 void tst_helpers_resolve::voidPromise()
 {
     auto resolver = [](const QPromiseResolve<void>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=](){
+        QtPromisePrivate::qtpromise_defer([=]() {
             resolve();
         });
     };
@@ -228,7 +228,9 @@ void tst_helpers_resolve::voidPromise()
 
 void tst_helpers_resolve::typedFuture()
 {
-    auto fn = [](){ return 42; };
+    auto fn = []() {
+        return 42;
+    };
     QFuture<int> v0 = QtConcurrent::run(fn);
     const QFuture<int> v1 = v0;
 
@@ -250,7 +252,7 @@ void tst_helpers_resolve::typedFuture()
 
 void tst_helpers_resolve::voidFuture()
 {
-    auto fn = [](){ };
+    auto fn = []() {};
     QFuture<void> v0 = QtConcurrent::run(fn);
     const QFuture<void> v1 = v0;
 

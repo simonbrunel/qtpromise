@@ -39,18 +39,28 @@ namespace {
 const float kRes = 0.42f;
 const float kFail = -1.f;
 
-float fnNoArg() { return kRes; }
-float fnArgByVal(float v) { return v; }
-float fnArgByRef(const float& v) { return v; }
+float fnNoArg()
+{
+    return kRes;
+}
+float fnArgByVal(float v)
+{
+    return v;
+}
+float fnArgByRef(const float& v)
+{
+    return v;
+}
 
-class Klass {
+class Klass
+{
 public: // STATICS
     static float kFnNoArg() { return kRes; }
     static float kFnArgByVal(float v) { return v; }
     static float kFnArgByRef(const float& v) { return v; }
 
 public:
-    Klass(float v) : m_v{v} {}
+    Klass(float v) : m_v{v} { }
 
     float fnNoArg() const { return m_v; }
     float fnArgByVal(float v) const { return v + m_v; }
@@ -69,14 +79,17 @@ void tst_qpromise_then::resolveSync()
     auto input = QPromise<int>::resolve(42);
     auto output = input.then([&](int res) {
         values << res;
-        return QString::number(res+1);
+        return QString::number(res + 1);
     });
 
-    output.then([&](const QString& res) {
-        values << res;
-    }).then([&]() {
-        values << 44;
-    }).wait();
+    output
+        .then([&](const QString& res) {
+            values << res;
+        })
+        .then([&]() {
+            values << 44;
+        })
+        .wait();
 
     QCOMPARE(values, (QVariantList{42, QString{"43"}, 44}));
     QCOMPARE(input.isFulfilled(), true);
@@ -107,11 +120,14 @@ void tst_qpromise_then::rejectSync()
     });
 
     QString error;
-    output.then([&](int res) {
-        error += "bar" + QString::number(res);
-    }).fail([&](const QString& err) {
-        error += err;
-    }).wait();
+    output
+        .then([&](int res) {
+            error += "bar" + QString::number(res);
+        })
+        .fail([&](const QString& err) {
+            error += err;
+        })
+        .wait();
 
     QCOMPARE(error, QString{"foo42"});
     QCOMPARE(input.isFulfilled(), true);
@@ -121,11 +137,12 @@ void tst_qpromise_then::rejectSync()
 void tst_qpromise_then::rejectAsync()
 {
     auto p = QPromise<int>::resolve(42).then([](int res) {
-        return QPromise<void>{[=](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
-            QtPromisePrivate::qtpromise_defer([=]() {
-                reject(QString{"foo%1"}.arg(res));
-            });
-        }};
+        return QPromise<void>{
+            [=](const QPromiseResolve<void>&, const QPromiseReject<void>& reject) {
+                QtPromisePrivate::qtpromise_defer([=]() {
+                    reject(QString{"foo%1"}.arg(res));
+                });
+            }};
     });
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
@@ -139,8 +156,8 @@ void tst_qpromise_then::skipResult()
 
     int value = -1;
     p.then([&]() {
-        value = 43;
-    }).wait();
+         value = 43;
+     }).wait();
 
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
     QCOMPARE(value, 43);
@@ -148,13 +165,13 @@ void tst_qpromise_then::skipResult()
 
 void tst_qpromise_then::nullHandler()
 {
-    {   // resolved
+    { // resolved
         auto p = QPromise<int>::resolve(42).then(nullptr);
 
         QCOMPARE(waitForValue(p, -1), 42);
         QCOMPARE(p.isFulfilled(), true);
     }
-    {   // rejected
+    { // rejected
         auto p = QPromise<int>::reject(QString{"foo"}).then(nullptr);
 
         QCOMPARE(waitForError(p, QString{}), QString{"foo"});
@@ -164,7 +181,7 @@ void tst_qpromise_then::nullHandler()
 
 void tst_qpromise_then::functionPtrHandlers()
 {
-    {   // Global functions.
+    { // Global functions.
         auto p0 = QtPromise::resolve().then(&fnNoArg);
         auto p1 = QtPromise::resolve(kRes).then(&fnArgByVal);
         auto p2 = QtPromise::resolve(kRes).then(&fnArgByRef);
@@ -173,7 +190,7 @@ void tst_qpromise_then::functionPtrHandlers()
         QCOMPARE(waitForValue(p1, kFail), kRes);
         QCOMPARE(waitForValue(p2, kFail), kRes);
     }
-    {   // Static member functions.
+    { // Static member functions.
         auto p0 = QtPromise::resolve().then(&Klass::kFnNoArg);
         auto p1 = QtPromise::resolve(kRes).then(&Klass::kFnArgByVal);
         auto p2 = QtPromise::resolve(kRes).then(&Klass::kFnArgByRef);
@@ -187,7 +204,7 @@ void tst_qpromise_then::functionPtrHandlers()
 // https://github.com/simonbrunel/qtpromise/issues/29
 void tst_qpromise_then::stdFunctionHandlers()
 {
-    {   // lvalue.
+    { // lvalue.
         std::function<float()> stdFnNoArg = fnNoArg;
         std::function<float(float)> stdFnArgByVal = fnArgByVal;
         std::function<float(const float&)> stdFnArgByRef = fnArgByRef;
@@ -200,7 +217,7 @@ void tst_qpromise_then::stdFunctionHandlers()
         QCOMPARE(waitForValue(p1, kFail), kRes);
         QCOMPARE(waitForValue(p2, kFail), kRes);
     }
-    {   // const lvalue.
+    { // const lvalue.
         const std::function<float()> stdFnNoArg = fnNoArg;
         const std::function<float(float)> stdFnArgByVal = fnArgByVal;
         const std::function<float(const float&)> stdFnArgByRef = fnArgByRef;
@@ -213,7 +230,7 @@ void tst_qpromise_then::stdFunctionHandlers()
         QCOMPARE(waitForValue(p1, kFail), kRes);
         QCOMPARE(waitForValue(p2, kFail), kRes);
     }
-    {   // rvalue.
+    { // rvalue.
         auto p0 = QtPromise::resolve().then(std::function<float()>{fnNoArg});
         auto p1 = QtPromise::resolve(kRes).then(std::function<float(float)>{fnArgByVal});
         auto p2 = QtPromise::resolve(kRes).then(std::function<float(const float&)>{fnArgByRef});
@@ -247,10 +264,16 @@ void tst_qpromise_then::stdBindHandlers()
 
 void tst_qpromise_then::lambdaHandlers()
 {
-    {   // lvalue.
-        auto lambdaNoArg = []() { return kRes; };
-        auto lambdaArgByVal = [](float v) { return v; };
-        auto lambdaArgByRef = [](const float& v) { return v; };
+    { // lvalue.
+        auto lambdaNoArg = []() {
+            return kRes;
+        };
+        auto lambdaArgByVal = [](float v) {
+            return v;
+        };
+        auto lambdaArgByRef = [](const float& v) {
+            return v;
+        };
 
         auto p0 = QtPromise::resolve().then(lambdaNoArg);
         auto p1 = QtPromise::resolve(kRes).then(lambdaArgByVal);
@@ -260,10 +283,16 @@ void tst_qpromise_then::lambdaHandlers()
         QCOMPARE(waitForValue(p1, kFail), kRes);
         QCOMPARE(waitForValue(p2, kFail), kRes);
     }
-    {   // const lvalue.
-        const auto lambdaNoArg = []() { return kRes; };
-        const auto lambdaArgByVal = [](float v) { return v; };
-        const auto lambdaArgByRef = [](const float& v) { return v; };
+    { // const lvalue.
+        const auto lambdaNoArg = []() {
+            return kRes;
+        };
+        const auto lambdaArgByVal = [](float v) {
+            return v;
+        };
+        const auto lambdaArgByRef = [](const float& v) {
+            return v;
+        };
 
         auto p0 = QtPromise::resolve().then(lambdaNoArg);
         auto p1 = QtPromise::resolve(kRes).then(lambdaArgByVal);
@@ -273,10 +302,16 @@ void tst_qpromise_then::lambdaHandlers()
         QCOMPARE(waitForValue(p1, kFail), kRes);
         QCOMPARE(waitForValue(p2, kFail), kRes);
     }
-    {   // rvalue.
-        auto p0 = QtPromise::resolve().then([]() { return kRes; });
-        auto p1 = QtPromise::resolve(kRes).then([](float v) { return v; });
-        auto p2 = QtPromise::resolve(kRes).then([](const float& v) { return v; });
+    { // rvalue.
+        auto p0 = QtPromise::resolve().then([]() {
+            return kRes;
+        });
+        auto p1 = QtPromise::resolve(kRes).then([](float v) {
+            return v;
+        });
+        auto p2 = QtPromise::resolve(kRes).then([](const float& v) {
+            return v;
+        });
 
         QCOMPARE(waitForValue(p0, kFail), kRes);
         QCOMPARE(waitForValue(p1, kFail), kRes);
