@@ -30,7 +30,7 @@ public:
     inline QPromiseBase(F resolver);
 
     template<typename F,
-             typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type = 0>
+             typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
     QPromiseBase(const QPromiseBase<T>& other) : m_d{other.m_d} { }

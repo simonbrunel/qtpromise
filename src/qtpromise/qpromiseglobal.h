@@ -56,9 +56,11 @@ struct ArgsTraits<>
     static const size_t count = 0;
 };
 
-// Fallback implementation (type not supported).
+// Fallback implementation, including types (T) which are not functions but
+// also lambda with `auto` arguments, which are not covered but still valid
+// callbacks (see the QPromiseBase<T> template constructor).
 template<typename T, typename Enabled = void>
-struct ArgsOf
+struct ArgsOf : public ArgsTraits<>
 { };
 
 // Partial specialization for null function.

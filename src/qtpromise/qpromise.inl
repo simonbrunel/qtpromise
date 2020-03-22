@@ -28,9 +28,16 @@ inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::Pro
 }
 
 template<typename T>
-template<typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count == 2, int>::type>
+template<typename F, typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type>
 inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::PromiseData<T>{}}
 {
+    // To prevent infinite recursion at runtime when resolving the QPromise template
+    // constructor, we don't explicitly check for ArgsOf<F>::count == 2 so that this
+    // method is called for ALL callbacks other than the ones with a single typed
+    // argument. This includes valid callbacks such as with two args, variadic or
+    // auto args (c++14) but also invalid callbacks which are not functions or with
+    // 0 or more than 2 arguments, in which case this method MUST fail to compile.
+
     QtPromisePrivate::PromiseResolver<T> resolver{*this};
 
     try {

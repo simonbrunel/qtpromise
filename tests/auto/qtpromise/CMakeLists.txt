@@ -1,6 +1,7 @@
 add_subdirectory(shared)
 
 add_subdirectory(benchmark)
+add_subdirectory(cpp14)
 add_subdirectory(deprecations)
 add_subdirectory(exceptions)
 add_subdirectory(future)
