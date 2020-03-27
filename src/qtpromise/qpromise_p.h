@@ -34,6 +34,14 @@ class QPromiseReject;
 
 namespace QtPromisePrivate {
 
+// Use std::invoke_result for C++17 and beyond
+#if (__cplusplus >= 201703L) || defined(_MSVC_LANG) && (_MSVC_LANG >= 201703L)
+using std::invoke_result;
+#else
+template<class F, class... ArgTypes>
+using invoke_result = std::result_of<F(ArgTypes...)>;
+#endif
+
 // https://stackoverflow.com/a/21653558
 template<typename F>
 static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
@@ -138,7 +146,7 @@ struct PromiseDeduce<QtPromise::QPromise<T>> : public PromiseDeduce<T>
 template<typename Functor, typename... Args>
 struct PromiseFunctor
 {
-    using ResultType = typename std::result_of<Functor(Args...)>::type;
+    using ResultType = typename invoke_result<Functor, Args...>::type;
     using PromiseType = typename PromiseDeduce<ResultType>::Type;
 };
 
@@ -231,7 +239,7 @@ struct PromiseDispatch<void>
 template<typename T, typename THandler, typename TArg = typename ArgsOf<THandler>::first>
 struct PromiseHandler
 {
-    using ResType = typename std::result_of<THandler(T)>::type;
+    using ResType = typename invoke_result<THandler, T>::type;
     using Promise = typename PromiseDeduce<ResType>::Type;
 
     template<typename TResolve, typename TReject>
@@ -247,7 +255,7 @@ struct PromiseHandler
 template<typename T, typename THandler>
 struct PromiseHandler<T, THandler, void>
 {
-    using ResType = typename std::result_of<THandler()>::type;
+    using ResType = typename invoke_result<THandler>::type;
     using Promise = typename PromiseDeduce<ResType>::Type;
 
     template<typename TResolve, typename TReject>
@@ -263,7 +271,7 @@ struct PromiseHandler<T, THandler, void>
 template<typename THandler>
 struct PromiseHandler<void, THandler, void>
 {
-    using ResType = typename std::result_of<THandler()>::type;
+    using ResType = typename invoke_result<THandler>::type;
     using Promise = typename PromiseDeduce<ResType>::Type;
 
     template<typename TResolve, typename TReject>
@@ -312,7 +320,7 @@ struct PromiseHandler<void, std::nullptr_t, void>
 template<typename T, typename THandler, typename TArg = typename ArgsOf<THandler>::first>
 struct PromiseCatcher
 {
-    using ResType = typename std::result_of<THandler(TArg)>::type;
+    using ResType = typename invoke_result<THandler, TArg>::type;
 
     template<typename TResolve, typename TReject>
     static std::function<void(const PromiseError&)>
@@ -333,7 +341,7 @@ struct PromiseCatcher
 template<typename T, typename THandler>
 struct PromiseCatcher<T, THandler, void>
 {
-    using ResType = typename std::result_of<THandler()>::type;
+    using ResType = typename invoke_result<THandler>::type;
 
     template<typename TResolve, typename TReject>
     static std::function<void(const PromiseError&)>
@@ -371,7 +379,7 @@ struct PromiseMapper
 template<typename T, typename F, template<typename, typename...> class Sequence, typename... Args>
 struct PromiseMapper<Sequence<T, Args...>, F>
 {
-    using ReturnType = typename std::result_of<F(T, int)>::type;
+    using ReturnType = typename invoke_result<F, T, int>::type;
     using ResultType = QVector<typename PromiseDeduce<ReturnType>::Type::Type>;
     using PromiseType = QtPromise::QPromise<ResultType>;
 };
