@@ -8,14 +8,15 @@
 #ifndef QTPROMISE_QPROMISECONNECTIONS_H
 #define QTPROMISE_QPROMISECONNECTIONS_H
 
-#include <QtCore/QSharedPointer>
+#include <QtCore/QObject>
+#include <memory>
 
 namespace QtPromise {
 
 class QPromiseConnections
 {
 public:
-    QPromiseConnections() : m_d(QSharedPointer<Data>::create()) { }
+    QPromiseConnections() : m_d(std::make_shared<Data>()) { }
 
     int count() const { return m_d->connections.count(); }
 
@@ -48,7 +49,7 @@ private:
         }
     };
 
-    QSharedPointer<Data> m_d;
+    std::shared_ptr<Data> m_d;
 };
 
 } // namespace QtPromise
