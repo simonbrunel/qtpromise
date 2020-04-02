@@ -32,7 +32,7 @@ static inline typename QtPromisePrivate::PromiseDeduce<T>::Type resolve(T&& valu
 template<typename T>
 static inline QPromise<T> resolve(QPromise<T> value)
 {
-    return std::move(value);
+    return value;
 }
 
 static inline QPromise<void> resolve()

@@ -283,7 +283,10 @@ void tst_qpromise_reduce::functorThrows()
 
 void tst_qpromise_reduce::sequenceTypes()
 {
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
+    // QLinkedList is deprecated since Qt 5.15.
     SequenceTester<QLinkedList<QPromise<int>>>::exec();
+#endif
     SequenceTester<QList<QPromise<int>>>::exec();
     SequenceTester<QVector<QPromise<int>>>::exec();
     SequenceTester<std::list<QPromise<int>>>::exec();
