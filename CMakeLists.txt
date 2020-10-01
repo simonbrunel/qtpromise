@@ -4,7 +4,7 @@ if(DEFINED PROJECT_NAME)
     set(SUBPROJECT ON)
 endif()
 
-project(qtpromise VERSION 0.5.0 LANGUAGES CXX)
+project(qtpromise VERSION 0.6.0 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 

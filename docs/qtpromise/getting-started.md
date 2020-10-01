@@ -28,7 +28,7 @@ installed either as a [`subtree`](#subtree) or a [`submodule`](#submodule). Read
 commands in ["Git: submodules vs subtrees"](https://nering.dev/2016/git-submodules-vs-subtrees/)
 which provides a good comparison between these two workflows.
 
-The following examples install QtPromise version 0.5.0 under the `3rdparty/qtpromise` subdirectory.
+The following examples install QtPromise version 0.6.0 under the `3rdparty/qtpromise` subdirectory.
 Note that the install directory is arbitrary and can be any empty directory under your repository.
 Once installed, refer to the [CMake](#cmake) or [qmake](#qmake) sections for details of integrating
 QtPromise into your project.
@@ -38,7 +38,7 @@ QtPromise into your project.
 ```sh
 cd <your/project/repository>
 git remote add qtpromise https://github.com/simonbrunel/qtpromise.git
-git subtree add -P 3rdparty/qtpromise qtpromise v0.5.0 --squash -m "Add QtPromise v0.5.0"
+git subtree add -P 3rdparty/qtpromise qtpromise v0.6.0 --squash -m "Add QtPromise v0.6.0"
 ```
 
 #### submodule
@@ -47,10 +47,10 @@ git subtree add -P 3rdparty/qtpromise qtpromise v0.5.0 --squash -m "Add QtPromis
 cd <your/project/repository>
 git submodule add https://github.com/simonbrunel/qtpromise.git 3rdparty/qtpromise
 cd 3rdparty/qtpromise
-git checkout v0.5.0
+git checkout v0.6.0
 cd ../..
 git add 3rdparty/qtpromise
-git commit -m "Add QtPromise v0.5.0"
+git commit -m "Add QtPromise v0.6.0"
 ```
 
 ### Download
