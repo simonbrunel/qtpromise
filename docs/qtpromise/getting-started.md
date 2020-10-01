@@ -97,7 +97,7 @@ include(FetchContent)
 
 FetchContent_Declare(qtpromise
   GIT_REPOSITORY https://github.com/simonbrunel/qtpromise.git
-  GIT_TAG origin/v0.6.0
+  GIT_TAG v0.6.0
   GIT_SHALLOW true
 )
 
@@ -207,5 +207,5 @@ download(url).then(&uncompress).then([](const Entries& entries) {
 });
 ```
 
-Note that `MalformedException` in the example above is thrown from a QtConcurrent thread and should 
+Note that `MalformedException` in the example above is thrown from a QtConcurrent thread and should
 meet [specific conditions](qtconcurrent.md#error).
