@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://www.qpm.io/packages/com.github.simonbrunel.qtpromise/index.html"><img src="https://img.shields.io/github/release/simonbrunel/qtpromise.svg?style=flat-square&label=qpm&colorB=4CAF50&maxAge=600" alt="Install"></a>
-    <a href="https://travis-ci.org/simonbrunel/qtpromise"><img src="https://img.shields.io/travis/simonbrunel/qtpromise/master.svg?style=flat-square&maxAge=600" alt="Builds"></a>
+    <a href="https://travis-ci.com/simonbrunel/qtpromise"><img src="https://img.shields.io/travis/simonbrunel/qtpromise/master.svg?style=flat-square&maxAge=600" alt="Builds"></a>
     <a href="https://codecov.io/gh/simonbrunel/qtpromise"><img src="https://img.shields.io/codecov/c/github/simonbrunel/qtpromise.svg?style=flat-square&maxAge=600" alt="Coverage"></a>
     <a href="https://marketplace.qt.io/products/qtpromise"><img src="https://img.shields.io/static/v1?style=flat-square&label=Qt&message=Marketplace&colorB=40cd52&maxAge=600" alt="Marketplace"></a>
 </p>
