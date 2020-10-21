@@ -329,8 +329,8 @@ struct PromiseCatcher
         return [=](const PromiseError& error) {
             try {
                 error.rethrow();
-            } catch (const TArg& error) {
-                PromiseDispatch<ResType>::call(resolve, reject, handler, error);
+            } catch (const TArg& argError) {
+                PromiseDispatch<ResType>::call(resolve, reject, handler, argError);
             } catch (...) {
                 reject(std::current_exception());
             }
