@@ -113,7 +113,7 @@ public:
 
     PromiseError() { }
     PromiseError(const std::exception_ptr& exception) : m_data{exception} { }
-    [[ noreturn ]] void rethrow() const { std::rethrow_exception(m_data); }
+    Q_NORETURN void rethrow() const { std::rethrow_exception(m_data); }
     bool isNull() const { return m_data == nullptr; }
 
 private:

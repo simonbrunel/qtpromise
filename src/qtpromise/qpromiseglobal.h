@@ -113,4 +113,14 @@ struct ArgsOf<R (T::*)(Args...) const volatile> : public ArgsTraits<Args...>
 
 } // namespace QtPromisePrivate
 
+
+// qtpromise still supports MSVC 2013 on CI/CD
+// -> MSVC 2013 does not support N2761, hence we need to wrap the noreturn attribute
+#if defined(_MSVC) &&  (_MSVC <= 1800)
+#define NO_RETURN
+#else
+#define NO_RETURN [[ noreturn ]]
+#endif
+
+
 #endif // QTPROMISE_QPROMISEGLOBAL_H
