@@ -40,6 +40,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wunused-local-typedefs
         -pedantic-errors
     )
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # https://clang.llvm.org/docs/DiagnosticsReference.html
+    add_compile_options(
+        -Wall
+        -Wextra
+        -Wpedantic
+
+        -Wsuggest-destructor-override
+        -Wsuggest-override
+    )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # https://docs.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level
     add_compile_options(
