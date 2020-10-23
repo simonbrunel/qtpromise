@@ -34,6 +34,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wall
         -Wextra
         -Wconversion
+        -Wshadow
         -Wsign-conversion
         -Wold-style-cast
         -Wunused-local-typedefs
