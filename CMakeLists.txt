@@ -36,8 +36,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
         -Wconversion
         -Wdouble-promotion
-        -Wduplicated-branches
-        -Wduplicated-cond
         -Wformat=2
         -Wlogical-op
         -Wmissing-noreturn
@@ -50,6 +48,20 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
         -pedantic-errors
     )
+
+    # https://github.com/Barro/compiler-warnings/blob/master/gcc/warnings-gcc-6.txt
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 6)
+        add_compile_options(
+            -Wduplicated-cond
+        )
+    endif()
+
+    # https://github.com/Barro/compiler-warnings/blob/master/gcc/warnings-gcc-7.txt
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7)
+        add_compile_options(
+            -Wduplicated-branches
+        )
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # https://clang.llvm.org/docs/DiagnosticsReference.html
     add_compile_options(
