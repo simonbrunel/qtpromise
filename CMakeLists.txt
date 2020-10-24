@@ -33,11 +33,21 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wpedantic
         -Wall
         -Wextra
+
         -Wconversion
+        -Wdouble-promotion
+        -Wduplicated-branches
+        -Wduplicated-cond
+        -Wformat=2
+        -Wlogical-op
+        -Wmissing-noreturn
+        -Wold-style-cast
         -Wshadow
         -Wsign-conversion
-        -Wold-style-cast
+        -Wswitch-default
         -Wunused-local-typedefs
+        -Wuseless-cast
+
         -pedantic-errors
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
