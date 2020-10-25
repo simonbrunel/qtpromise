@@ -35,6 +35,17 @@ output.then([]() {
 });
 ```
 
+Optionally, a signal with an argument can be converted to `QPromise<void>`:
+
+```cpp
+// [signal] Object::finished(const QByteArray&)
+QPromise<void> output = QtPromise::connect(obj, &QObject::finished);
+
+output.then([]() {
+    // {...}
+});
+```
+
 ::: tip NOTE
 QtPromise currently only supports single argument signals, which means that only the first argument
 is used to fulfill or reject the connected promise, other arguments being ignored.

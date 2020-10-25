@@ -68,3 +68,16 @@ promise.fail([]() {
     // { ... }
 })
 ```
+
+## Conversion to `QPromise<void>`
+
+*Since: 0.7.0*
+
+A `QPromise<void>` can be constructed from a non-void promise, if the fulfillment value needs to be
+ignored:
+
+```cpp
+QPromise<void> p = QPromise<int>{[](const QPromiseResolve<int>& resolve, const QPromiseReject<int>& reject) {
+    resolve(42);
+});
+```

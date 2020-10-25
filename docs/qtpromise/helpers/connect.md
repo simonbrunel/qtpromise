@@ -50,4 +50,42 @@ output.then([](const QByteArray& res) {
 });
 ```
 
+Optionally, if the signal's argument can be ignored, promises returned by `QtPromise::connect()`
+can be converted to `QPromise<void>`:
+
+```cpp
+QPromise<void> output = QtPromise::connect(sender, &Sender::finished, &Sender::error);
+
+output.then([]() {
+    // the first argument of the 'finished' signal is ignored.
+}).fail([](ErrorCode error) {
+    // 'error' is the first argument of the 'error' signal.
+}).fail([](const QPromiseContextException& error) {
+    // the 'sender' object has been destroyed before any of
+    // the 'finished' or 'error' signals have been emitted.
+});
+```
+
+Such a conversion is performed implicitly when returning a promise from a function:
+
+```cpp
+class Sender : public QObject
+{
+public:
+    QPromise<void> execute()
+    {
+        auto p = QtPromise::connect(this, &Sender::finished, &Sender::error);
+        executeImpl();
+        return p;
+    }
+    
+Q_SIGNALS:
+    void finished(const QByteArray&);
+    void error(ErrorCode);
+
+private:
+    void executeImpl() { /* ... */ }
+};
+```
+
 See also the [`Qt Signals`](../qtsignals.md) section for more examples.

@@ -33,6 +33,9 @@ public:
              typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
+    template<typename U, typename std::enable_if<!std::is_same<T, U>::value, int>::type = 0>
+    inline QPromiseBase(QPromise<U>&& other);
+
     QPromiseBase(const QPromiseBase<T>& other) : m_d{other.m_d} { }
     QPromiseBase(const QPromise<T>& other) : m_d{other.m_d} { }
     QPromiseBase(QPromiseBase<T>&& other) Q_DECL_NOEXCEPT { swap(other); }
@@ -99,6 +102,7 @@ protected:
     friend struct QtPromisePrivate::PromiseFulfill<QPromise<T>>;
     friend class QtPromisePrivate::PromiseResolver<T>;
     friend struct QtPromisePrivate::PromiseInspect;
+    friend class QPromiseBase<void>;
 
     QExplicitlySharedDataPointer<QtPromisePrivate::PromiseData<T>> m_d;
 };

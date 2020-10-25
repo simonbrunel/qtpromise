@@ -34,6 +34,9 @@ private Q_SLOTS:
     void rejectTwoSendersOneArg();
     void rejectTwoSendersManyArgs();
     void rejectTwoSendersDestroyed();
+
+    void resolveImplicitlyConvertedToPromiseVoid();
+    void rejectImplicitlyConvertedToPromiseVoid();
 };
 
 QTEST_MAIN(tst_helpers_connect)
@@ -212,4 +215,40 @@ void tst_helpers_connect::rejectTwoSendersDestroyed()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForValue(p, -1, 42), 42);
+}
+
+void tst_helpers_connect::resolveImplicitlyConvertedToPromiseVoid()
+{
+    Object sender;
+
+    auto helper = [&]() -> QPromise<void> {
+        return QtPromise::connect(&sender, &Object::noArgSignal, &Object::twoArgsSignal);
+    };
+
+    QtPromisePrivate::qtpromise_defer([&]() {
+        Q_EMIT sender.noArgSignal();
+    });
+
+    auto p = helper();
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
+    QCOMPARE(p.isPending(), true);
+    QCOMPARE(waitForValue(p, -1, 42), 42);
+}
+
+void tst_helpers_connect::rejectImplicitlyConvertedToPromiseVoid()
+{
+    Object sender;
+
+    auto helper = [&]() -> QPromise<void> {
+        return QtPromise::connect(&sender, &Object::noArgSignal, &Object::twoArgsSignal);
+    };
+
+    QtPromisePrivate::qtpromise_defer([&]() {
+        Q_EMIT sender.twoArgsSignal(42, "foo");
+    });
+
+    auto p = helper();
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
+    QCOMPARE(p.isPending(), true);
+    QCOMPARE(waitForError(p, -1), 42);
 }

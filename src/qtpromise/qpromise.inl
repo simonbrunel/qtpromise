@@ -47,6 +47,21 @@ inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::Pro
     }
 }
 
+template<>
+template<typename U, typename std::enable_if<!std::is_same<void, U>::value, int>::type>
+inline QPromiseBase<void>::QPromiseBase(QPromise<U>&& other)
+    : QPromiseBase<void>{
+        [=](const QPromiseResolve<void>& resolve, const QPromiseReject<void>& reject) {
+            other
+                .then([=]() {
+                    resolve();
+                })
+                .fail([=]() {
+                    reject(other.m_d->error());
+                });
+        }}
+{ }
+
 template<typename T>
 template<typename TFulfilled, typename TRejected>
 inline typename QtPromisePrivate::PromiseHandler<T, TFulfilled>::Promise
