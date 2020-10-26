@@ -35,10 +35,11 @@ private Q_SLOTS:
     void rejectTwoSendersManyArgs();
     void rejectTwoSendersDestroyed();
 
-#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
+    // QTPROMISE_SUPPORT_VOID_FROM_U
+    // The methods declarations cannot be excluded because they are processed by moc anyway.
+    // See https://bugreports.qt.io/browse/QTBUG-81536
     void resolveImplicitlyConvertedToPromiseVoid();
     void rejectImplicitlyConvertedToPromiseVoid();
-#endif
 };
 
 QTEST_MAIN(tst_helpers_connect)
@@ -219,9 +220,9 @@ void tst_helpers_connect::rejectTwoSendersDestroyed()
     QCOMPARE(waitForValue(p, -1, 42), 42);
 }
 
-#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
 void tst_helpers_connect::resolveImplicitlyConvertedToPromiseVoid()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     Object sender;
 
     auto helper = [&]() -> QPromise<void> {
@@ -236,10 +237,12 @@ void tst_helpers_connect::resolveImplicitlyConvertedToPromiseVoid()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForValue(p, -1, 42), 42);
+#endif
 }
 
 void tst_helpers_connect::rejectImplicitlyConvertedToPromiseVoid()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     Object sender;
 
     auto helper = [&]() -> QPromise<void> {
@@ -254,5 +257,5 @@ void tst_helpers_connect::rejectImplicitlyConvertedToPromiseVoid()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForError(p, -1), 42);
-}
 #endif // QTPROMISE_SUPPORT_VOID_FROM_U
+}

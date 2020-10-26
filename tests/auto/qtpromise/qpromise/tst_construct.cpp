@@ -40,13 +40,14 @@ private Q_SLOTS:
     void connectAndResolve();
     void connectAndReject();
 
-#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
+    // QTPROMISE_SUPPORT_VOID_FROM_U
+    // The methods declarations cannot be excluded because they are processed by moc anyway.
+    // See https://bugreports.qt.io/browse/QTBUG-81536
     void resolveAsyncOneArgToVoid();
     void resolveOneArgToVoid();
     void rejectAsyncOneArgToVoid();
     void rejectOneArgToVoid();
     void implicitCastToVoidPromise();
-#endif
 };
 
 QTEST_MAIN(tst_qpromise_construct)
@@ -341,9 +342,9 @@ void tst_qpromise_construct::connectAndReject()
     QCOMPARE(wptr.use_count(), 0l);
 }
 
-#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
 void tst_qpromise_construct::resolveAsyncOneArgToVoid()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     auto p = QPromise<void>{QPromise<int>{[](const QPromiseResolve<int>& resolve) {
         QtPromisePrivate::qtpromise_defer([=]() {
             resolve(42);
@@ -353,19 +354,23 @@ void tst_qpromise_construct::resolveAsyncOneArgToVoid()
     QVERIFY(p.isPending());
     QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U
 }
 
 void tst_qpromise_construct::resolveOneArgToVoid()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     auto p = QPromise<void>{QtPromise::resolve(42)};
 
     QVERIFY(p.isPending());
     QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U
 }
 
 void tst_qpromise_construct::rejectAsyncOneArgToVoid()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     auto p = QPromise<void>{
         QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
             QtPromisePrivate::qtpromise_defer([=]() {
@@ -376,10 +381,12 @@ void tst_qpromise_construct::rejectAsyncOneArgToVoid()
     QVERIFY(p.isPending());
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QVERIFY(p.isRejected());
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U
 }
 
 void tst_qpromise_construct::rejectOneArgToVoid()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     auto p = QPromise<void>{
         QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
             reject(QString{"foo"});
@@ -388,10 +395,12 @@ void tst_qpromise_construct::rejectOneArgToVoid()
     QVERIFY(p.isPending());
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
     QVERIFY(p.isRejected());
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U
 }
 
 void tst_qpromise_construct::implicitCastToVoidPromise()
 {
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     auto helper = []() -> QPromise<void> {
         return QtPromise::resolve(42);
     };
@@ -402,5 +411,5 @@ void tst_qpromise_construct::implicitCastToVoidPromise()
     QVERIFY(p.isPending());
     QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
-}
 #endif // QTPROMISE_SUPPORT_VOID_FROM_U
+}
