@@ -52,7 +52,7 @@ static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
     {
         Event(FType&& f) : QEvent{QEvent::None}, m_f{std::move(f)} { }
         Event(const FType& f) : QEvent{QEvent::None}, m_f{f} { }
-        ~Event() { m_f(); }
+        ~Event() override { m_f(); }
         FType m_f;
     };
 
@@ -113,7 +113,7 @@ public:
 
     PromiseError() { }
     PromiseError(const std::exception_ptr& exception) : m_data{exception} { }
-    void rethrow() const { std::rethrow_exception(m_data); }
+    Q_NORETURN void rethrow() const { std::rethrow_exception(m_data); }
     bool isNull() const { return m_data == nullptr; }
 
 private:
@@ -329,8 +329,8 @@ struct PromiseCatcher
         return [=](const PromiseError& error) {
             try {
                 error.rethrow();
-            } catch (const TArg& error) {
-                PromiseDispatch<ResType>::call(resolve, reject, handler, error);
+            } catch (const TArg& argError) {
+                PromiseDispatch<ResType>::call(resolve, reject, handler, argError);
             } catch (...) {
                 reject(std::current_exception());
             }

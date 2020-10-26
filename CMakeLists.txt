@@ -33,11 +33,44 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wpedantic
         -Wall
         -Wextra
+
         -Wconversion
-        -Wsign-conversion
+        -Wdouble-promotion
+        -Wformat=2
+        -Wlogical-op
+        -Wmissing-noreturn
         -Wold-style-cast
+#        -Wshadow                   # disabled due to many findings in the current code
+        -Wsign-conversion
+        -Wswitch-default
         -Wunused-local-typedefs
+#        -Wuseless-cast             # disabled due to Qt's moc warnings
+
         -pedantic-errors
+    )
+
+    # https://github.com/Barro/compiler-warnings/blob/master/gcc/warnings-gcc-6.txt
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 6)
+        add_compile_options(
+            -Wduplicated-cond
+        )
+    endif()
+
+    # https://github.com/Barro/compiler-warnings/blob/master/gcc/warnings-gcc-7.txt
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7)
+        add_compile_options(
+            -Wduplicated-branches
+        )
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # https://clang.llvm.org/docs/DiagnosticsReference.html
+    add_compile_options(
+        -Wall
+        -Wextra
+        -Wpedantic
+
+        -Wsuggest-destructor-override
+        -Wsuggest-override
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # https://docs.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level
