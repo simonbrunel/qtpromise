@@ -25,6 +25,11 @@ add_definitions(
     -DQT_NO_KEYWORDS
 )
 
+option(DISABLE_VOID_FROM_U "Disable QPromise<void>(QPromise<U>&&) conversion" OFF)
+if (DISABLE_VOID_FROM_U)
+    add_definitions(-DQTPROMISE_DISABLE_VOID_FROM_U)
+endif()
+
 # https://github.com/simonbrunel/qtpromise/issues/10
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html

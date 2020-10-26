@@ -114,6 +114,8 @@ struct ArgsOf<R (T::*)(Args...) const volatile> : public ArgsTraits<Args...>
 } // namespace QtPromisePrivate
 
 // Enable constructor QPromise<void>(QPromise<U>&&)
-#define QTPROMISE_SUPPORT_VOID_FROM_U (!defined(_MSC_VER) || _MSC_VER > 1800)
+#if (!defined(QTPROMISE_DISABLE_VOID_FROM_U) && (!defined(_MSC_VER) || _MSC_VER > 1800))
+#    define QTPROMISE_SUPPORT_VOID_FROM_U
+#endif
 
 #endif // QTPROMISE_QPROMISEGLOBAL_H
