@@ -50,7 +50,7 @@ inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::Pro
 template<>
 template<typename U>
 inline QPromiseBase<void>::QPromiseBase(QPromise<U>&& other)
-    : QPromiseBase<void>{
+    : QPromiseBase<void>(
         [=](const QPromiseResolve<void>& resolve, const QPromiseReject<void>& reject) {
             other
                 .then([=]() {
@@ -59,7 +59,7 @@ inline QPromiseBase<void>::QPromiseBase(QPromise<U>&& other)
                 .fail([=]() {
                     reject(other.m_d->error());
                 });
-        }}
+        })
 { }
 
 template<typename T>
