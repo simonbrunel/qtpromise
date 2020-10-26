@@ -33,8 +33,10 @@ public:
              typename std::enable_if<QtPromisePrivate::ArgsOf<F>::count != 1, int>::type = 0>
     inline QPromiseBase(F resolver);
 
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     template<typename U>
     inline QPromiseBase(QPromise<U>&& other);
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U
 
     QPromiseBase(const QPromiseBase<T>& other) : m_d{other.m_d} { }
     QPromiseBase(const QPromise<T>& other) : m_d{other.m_d} { }

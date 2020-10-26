@@ -81,3 +81,8 @@ QPromise<void> p = QPromise<int>{[](const QPromiseResolve<int>& resolve, const Q
     resolve(42);
 });
 ```
+
+::: warning IMPORTANT
+The conversion to `QtPromise<void>` is not supported on MSVC 2013. 
+:::
+

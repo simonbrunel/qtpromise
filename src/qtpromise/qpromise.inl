@@ -47,10 +47,11 @@ inline QPromiseBase<T>::QPromiseBase(F callback) : m_d{new QtPromisePrivate::Pro
     }
 }
 
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
 template<>
 template<typename U>
 inline QPromiseBase<void>::QPromiseBase(QPromise<U>&& other)
-    : QPromiseBase<void>(
+    : QPromiseBase<void>{
         [=](const QPromiseResolve<void>& resolve, const QPromiseReject<void>& reject) {
             other
                 .then([=]() {
@@ -59,8 +60,9 @@ inline QPromiseBase<void>::QPromiseBase(QPromise<U>&& other)
                 .fail([=]() {
                     reject(other.m_d->error());
                 });
-        })
+        }}
 { }
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U
 
 template<typename T>
 template<typename TFulfilled, typename TRejected>

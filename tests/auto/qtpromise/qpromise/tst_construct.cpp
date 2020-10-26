@@ -27,8 +27,6 @@ private Q_SLOTS:
     void resolveAsyncOneArg_void();
     void resolveAsyncTwoArgs();
     void resolveAsyncTwoArgs_void();
-    void resolveAsyncOneArgToVoid();
-    void resolveOneArgToVoid();
     void rejectThrowOneArg();
     void rejectThrowOneArg_void();
     void rejectThrowTwoArgs();
@@ -37,13 +35,18 @@ private Q_SLOTS:
     void rejectSync_void();
     void rejectAsync();
     void rejectAsync_void();
-    void rejectAsyncOneArgToVoid();
-    void rejectOneArgToVoid();
     void rejectUndefined();
     void rejectUndefined_void();
     void connectAndResolve();
     void connectAndReject();
+
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
+    void resolveAsyncOneArgToVoid();
+    void resolveOneArgToVoid();
+    void rejectAsyncOneArgToVoid();
+    void rejectOneArgToVoid();
     void implicitCastToVoidPromise();
+#endif
 };
 
 QTEST_MAIN(tst_qpromise_construct)
@@ -149,28 +152,6 @@ void tst_qpromise_construct::resolveAsyncTwoArgs_void()
     QCOMPARE(p.isFulfilled(), true);
 }
 
-void tst_qpromise_construct::resolveAsyncOneArgToVoid()
-{
-    auto p = QPromise<void>{QPromise<int>{[](const QPromiseResolve<int>& resolve) {
-        QtPromisePrivate::qtpromise_defer([=]() {
-            resolve(42);
-        });
-    }}};
-
-    QVERIFY(p.isPending());
-    QCOMPARE(waitForValue(p, -1, 42), 42);
-    QVERIFY(p.isFulfilled());
-}
-
-void tst_qpromise_construct::resolveOneArgToVoid()
-{
-    auto p = QPromise<void>{QtPromise::resolve(42)};
-
-    QVERIFY(p.isPending());
-    QCOMPARE(waitForValue(p, -1, 42), 42);
-    QVERIFY(p.isFulfilled());
-}
-
 void tst_qpromise_construct::rejectSync()
 {
     QPromise<int> p{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
@@ -263,32 +244,6 @@ void tst_qpromise_construct::rejectThrowTwoArgs_void()
     QCOMPARE(p.isRejected(), true);
     QCOMPARE(waitForValue(p, -1, 42), -1);
     QCOMPARE(waitForError(p, QString{}), QString{"foo"});
-}
-
-void tst_qpromise_construct::rejectAsyncOneArgToVoid()
-{
-    auto p = QPromise<void>{
-        QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-            QtPromisePrivate::qtpromise_defer([=]() {
-                reject(QString{"foo"});
-            });
-        }}};
-
-    QVERIFY(p.isPending());
-    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
-    QVERIFY(p.isRejected());
-}
-
-void tst_qpromise_construct::rejectOneArgToVoid()
-{
-    auto p = QPromise<void>{
-        QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
-            reject(QString{"foo"});
-        }}};
-
-    QVERIFY(p.isPending());
-    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
-    QVERIFY(p.isRejected());
 }
 
 void tst_qpromise_construct::rejectUndefined()
@@ -386,6 +341,55 @@ void tst_qpromise_construct::connectAndReject()
     QCOMPARE(wptr.use_count(), 0l);
 }
 
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
+void tst_qpromise_construct::resolveAsyncOneArgToVoid()
+{
+    auto p = QPromise<void>{QPromise<int>{[](const QPromiseResolve<int>& resolve) {
+        QtPromisePrivate::qtpromise_defer([=]() {
+            resolve(42);
+        });
+    }}};
+
+    QVERIFY(p.isPending());
+    QCOMPARE(waitForValue(p, -1, 42), 42);
+    QVERIFY(p.isFulfilled());
+}
+
+void tst_qpromise_construct::resolveOneArgToVoid()
+{
+    auto p = QPromise<void>{QtPromise::resolve(42)};
+
+    QVERIFY(p.isPending());
+    QCOMPARE(waitForValue(p, -1, 42), 42);
+    QVERIFY(p.isFulfilled());
+}
+
+void tst_qpromise_construct::rejectAsyncOneArgToVoid()
+{
+    auto p = QPromise<void>{
+        QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+            QtPromisePrivate::qtpromise_defer([=]() {
+                reject(QString{"foo"});
+            });
+        }}};
+
+    QVERIFY(p.isPending());
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
+    QVERIFY(p.isRejected());
+}
+
+void tst_qpromise_construct::rejectOneArgToVoid()
+{
+    auto p = QPromise<void>{
+        QPromise<int>{[](const QPromiseResolve<int>&, const QPromiseReject<int>& reject) {
+            reject(QString{"foo"});
+        }}};
+
+    QVERIFY(p.isPending());
+    QCOMPARE(waitForError(p, QString{}), QString{"foo"});
+    QVERIFY(p.isRejected());
+}
+
 void tst_qpromise_construct::implicitCastToVoidPromise()
 {
     auto helper = []() -> QPromise<void> {
@@ -399,3 +403,4 @@ void tst_qpromise_construct::implicitCastToVoidPromise()
     QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
 }
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U

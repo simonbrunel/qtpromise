@@ -35,8 +35,10 @@ private Q_SLOTS:
     void rejectTwoSendersManyArgs();
     void rejectTwoSendersDestroyed();
 
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
     void resolveImplicitlyConvertedToPromiseVoid();
     void rejectImplicitlyConvertedToPromiseVoid();
+#endif
 };
 
 QTEST_MAIN(tst_helpers_connect)
@@ -217,6 +219,7 @@ void tst_helpers_connect::rejectTwoSendersDestroyed()
     QCOMPARE(waitForValue(p, -1, 42), 42);
 }
 
+#ifdef QTPROMISE_SUPPORT_VOID_FROM_U
 void tst_helpers_connect::resolveImplicitlyConvertedToPromiseVoid()
 {
     Object sender;
@@ -252,3 +255,4 @@ void tst_helpers_connect::rejectImplicitlyConvertedToPromiseVoid()
     QCOMPARE(p.isPending(), true);
     QCOMPARE(waitForError(p, -1), 42);
 }
+#endif // QTPROMISE_SUPPORT_VOID_FROM_U

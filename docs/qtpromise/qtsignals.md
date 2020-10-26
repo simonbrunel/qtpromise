@@ -46,6 +46,10 @@ output.then([]() {
 });
 ```
 
+::: warning IMPORTANT
+The conversion to `QtPromise<void>` is not supported on MSVC 2013. 
+:::
+
 ::: tip NOTE
 QtPromise currently only supports single argument signals, which means that only the first argument
 is used to fulfill or reject the connected promise, other arguments being ignored.

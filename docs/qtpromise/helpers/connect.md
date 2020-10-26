@@ -88,4 +88,9 @@ private:
 };
 ```
 
+::: warning IMPORTANT
+The conversion to `QtPromise<void>` is not supported on MSVC 2013. 
+:::
+
+
 See also the [`Qt Signals`](../qtsignals.md) section for more examples.
