@@ -167,6 +167,13 @@ inline QPromise<T> QPromiseBase<T>::wait() const
 }
 
 template<typename T>
+template<typename U>
+inline QPromise<U> QPromiseBase<T>::as() const
+{
+    return QtPromisePrivate::PromiseConverter<T, U>::call(*this);
+}
+
+template<typename T>
 template<typename E>
 inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 {

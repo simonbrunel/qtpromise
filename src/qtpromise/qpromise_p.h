@@ -17,6 +17,7 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QThread>
+#include <QtCore/QVariant>
 #include <QtCore/QVector>
 
 namespace QtPromise {
@@ -29,6 +30,8 @@ class QPromiseResolve;
 
 template<typename T>
 class QPromiseReject;
+
+class QPromiseConversionException;
 
 } // namespace QtPromise
 

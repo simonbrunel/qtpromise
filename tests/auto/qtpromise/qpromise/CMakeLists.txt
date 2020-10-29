@@ -14,4 +14,5 @@ qtpromise_add_tests(qpromise
         tst_tapfail.cpp
         tst_then.cpp
         tst_timeout.cpp
+        tst_as.cpp
 )

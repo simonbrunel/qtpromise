@@ -91,6 +91,9 @@ public:
 
     inline QPromise<T> wait() const;
 
+    template<typename U>
+    inline QPromise<U> as() const;
+
 public: // STATIC
     template<typename E>
     inline static QPromise<T> reject(E&& error);
