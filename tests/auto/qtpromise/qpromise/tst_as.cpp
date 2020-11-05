@@ -68,7 +68,7 @@ void tst_qpromise_as::fulfillTAsU()
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
 
-        QCOMPARE(waitForValue(p, {}), QString{"foo"});
+        QCOMPARE(waitForValue(p, QString{}), QString{"foo"});
         QVERIFY(p.isFulfilled());
     }
 }
