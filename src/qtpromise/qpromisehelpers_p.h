@@ -88,61 +88,6 @@ void connectDestroyedToReject(const QtPromise::QPromiseConnections& connections,
     });
 }
 
-template<typename T, typename U>
-struct AreArithmeticTypes
-    : std::integral_constant<bool, std::is_arithmetic<T>::value && std::is_arithmetic<U>::value>
-{ };
-
-template<typename From, typename To, bool = AreArithmeticTypes<From, To>::value>
-struct PromiseConverter;
-
-template<typename From, typename To>
-struct PromiseConverter<From, To, false>
-{
-    static inline QtPromise::QPromise<To> call(const QtPromise::QPromise<From>& p)
-    {
-        return p.then([](const From& value) {
-            return To{value};
-        });
-    }
-};
-
-template<typename From, typename To>
-struct PromiseConverter<From, To, true>
-{
-    static inline QtPromise::QPromise<To> call(const QtPromise::QPromise<From>& p)
-    {
-        return p.then([](From value) {
-            return static_cast<To>(value);
-        });
-    }
-};
-
-template<typename From>
-struct PromiseConverter<From, void, false>
-{
-    static inline QtPromise::QPromise<void> call(const QtPromise::QPromise<From>& p)
-    {
-        return p.then([]() {});
-    }
-};
-
-template<typename To>
-struct PromiseConverter<QVariant, To, false>
-{
-    static inline QtPromise::QPromise<To> call(const QtPromise::QPromise<QVariant>& p)
-    {
-        return p.then([](QVariant value) {
-            // https://doc.qt.io/qt-5/qvariant.html#using-canconvert-and-convert-consecutively
-            if (value.canConvert<To>() && value.convert(qMetaTypeId<To>())) {
-                return value.value<To>();
-            } else {
-                throw QtPromise::QPromiseConversionException{};
-            }
-        });
-    }
-};
-
 } // namespace QtPromisePrivate
 
 #endif // QTPROMISE_QPROMISEHELPERS_P_H

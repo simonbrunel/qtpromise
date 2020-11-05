@@ -11,6 +11,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
+#include <QtCore/QVariant>
 
 namespace QtPromise {
 
@@ -170,7 +171,7 @@ template<typename T>
 template<typename U>
 inline QPromise<U> QPromiseBase<T>::as() const
 {
-    return QtPromisePrivate::PromiseConverter<T, U>::call(*this);
+    return then(QtPromisePrivate::PromiseConverter<T, U>::create());
 }
 
 template<typename T>
