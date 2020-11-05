@@ -1,6 +1,5 @@
 /*
  * Copyright (c) Simon Brunel, https://github.com/simonbrunel
- * Copyright (c) Dmitriy Purgin, https://github.com/dpurgin
  *
  * This source code is licensed under the MIT license found in
  * the LICENSE file in the root directory of this source tree.
@@ -20,12 +19,12 @@ class tst_qpromise_as : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
-    void fulfillIntAsReal();
-    void fulfillRealAsInt();
-    void fulfillIntAsVoid();
-    void fulfillQVariantAsInt();
-    void fulfillQVariantQStringAsInt();
-    void fulfillQByteArrayAsQString();
+    void fulfillTAsU();
+    void fulfillTAsVoid();
+    void fulfillTAsQVariant();
+    void fulfillQVariantAsT();
+    void fulfillQVariantAsVoid();
+    void fulfillVoidAsQVariant();
 
     void rejectUnconvertibleQVariant();
 };
@@ -33,27 +32,48 @@ private Q_SLOTS:
 QTEST_MAIN(tst_qpromise_as)
 #include "tst_as.moc"
 
-void tst_qpromise_as::fulfillIntAsReal()
+namespace {
+struct Foo
 {
-    auto p = QtPromise::resolve(42).as<qreal>();
+    Foo() = default;
+    Foo(int bar_) : bar{bar_} { }
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<qreal>>::value));
+    int bar{-1};
+};
 
-    QCOMPARE(waitForValue(p, -1.0), 42.0);
-    QVERIFY(p.isFulfilled());
+bool operator==(const Foo& lhs, const Foo& rhs)
+{
+    return lhs.bar == rhs.bar;
+}
+} // namespace
+
+Q_DECLARE_METATYPE(Foo)
+
+void tst_qpromise_as::fulfillTAsU()
+{
+    // Static cast between primitive types
+    {
+        auto p = QtPromise::resolve(42.13).as<int>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+
+        QCOMPARE(waitForValue(p, -1), 42);
+        QVERIFY(p.isFulfilled());
+    }
+
+    // Converting constructor
+    // https://en.cppreference.com/w/cpp/language/converting_constructor
+    {
+        auto p = QtPromise::resolve(QByteArray{"foo"}).as<QString>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+
+        QCOMPARE(waitForValue(p, {}), QString{"foo"});
+        QVERIFY(p.isFulfilled());
+    }
 }
 
-void tst_qpromise_as::fulfillRealAsInt()
-{
-    auto p = QtPromise::resolve(42.13).as<int>();
-
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
-
-    QCOMPARE(waitForValue(p, -1), 42);
-    QVERIFY(p.isFulfilled());
-}
-
-void tst_qpromise_as::fulfillIntAsVoid()
+void tst_qpromise_as::fulfillTAsVoid()
 {
     auto p = QtPromise::resolve(42).as<void>();
 
@@ -63,41 +83,102 @@ void tst_qpromise_as::fulfillIntAsVoid()
     QVERIFY(p.isFulfilled());
 }
 
-void tst_qpromise_as::fulfillQVariantAsInt()
+void tst_qpromise_as::fulfillTAsQVariant()
 {
-    auto p = QtPromise::resolve(QVariant{42}).as<int>();
+    // Primitive type to QVariant
+    {
+        auto p = QtPromise::resolve(42).as<QVariant>();
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVariant>>::value));
 
-    QCOMPARE(waitForValue(p, -1), 42);
+        QCOMPARE(waitForValue(p, QVariant{}), QVariant{42});
+        QVERIFY(p.isFulfilled());
+    }
+
+    // Non-Qt user-defined type to QVariant
+    {
+        auto p = QtPromise::resolve(Foo{42}).as<QVariant>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVariant>>::value));
+
+        QVariant value = waitForValue(p, QVariant{});
+        QCOMPARE(value, QVariant::fromValue(Foo{42}));
+        QCOMPARE(value.value<Foo>().bar, 42);
+        QVERIFY(p.isFulfilled());
+    }
+}
+
+void tst_qpromise_as::fulfillQVariantAsT()
+{
+    // Test whether a directly stored value can be extracted
+    {
+        auto p = QtPromise::resolve(QVariant{42}).as<int>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+
+        QCOMPARE(waitForValue(p, -1), 42);
+        QVERIFY(p.isFulfilled());
+    }
+
+    // Test automatic conversion from string performed by QVariant
+    // https://doc.qt.io/qt-5/qvariant.html#toInt
+    {
+        auto p = QtPromise::resolve(QVariant{"42"}).as<int>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+
+        QCOMPARE(waitForValue(p, -1), 42);
+        QVERIFY(p.isFulfilled());
+    }
+
+    // Non-Qt user-defined type
+    {
+        auto p = QtPromise::resolve(QVariant::fromValue(Foo{42})).as<Foo>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Foo>>::value));
+
+        QCOMPARE(waitForValue(p, Foo{}), Foo{42});
+        QVERIFY(p.isFulfilled());
+    }
+}
+
+void tst_qpromise_as::fulfillQVariantAsVoid()
+{
+    auto p = QtPromise::resolve(QVariant{42}).as<void>();
+
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
+
+    QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
 }
 
-void tst_qpromise_as::fulfillQVariantQStringAsInt()
+void tst_qpromise_as::fulfillVoidAsQVariant()
 {
-    auto p = QtPromise::resolve(QVariant{"42"}).as<int>();
+    auto p = QtPromise::resolve().as<QVariant>();
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVariant>>::value));
 
-    QCOMPARE(waitForValue(p, -1), 42);
-    QVERIFY(p.isFulfilled());
-}
-
-void tst_qpromise_as::fulfillQByteArrayAsQString()
-{
-    auto p = QtPromise::resolve(QByteArray{"foo"}).as<QString>();
-
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
-
-    QCOMPARE(waitForValue(p, {}), QString{"foo"});
+    QCOMPARE(waitForValue(p, QVariant{42}), QVariant{});
     QVERIFY(p.isFulfilled());
 }
 
 void tst_qpromise_as::rejectUnconvertibleQVariant()
 {
-    auto p = QtPromise::resolve(QVariant{"42foo"}).as<int>();
+    // User-defined type incompatible with int
+    {
+        auto p = QtPromise::resolve(QVariant{"42foo"}).as<int>();
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
 
-    QVERIFY(waitForRejected<QPromiseConversionException>(p));
+        QVERIFY(waitForRejected<QPromiseConversionException>(p));
+    }
+
+    // Incompatible user-defined types
+    {
+        auto p = QtPromise::resolve(QVariant::fromValue(Foo{42})).as<QString>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+
+        QVERIFY(waitForRejected<QPromiseConversionException>(p));
+    }
 }

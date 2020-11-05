@@ -1,5 +1,6 @@
 qtpromise_add_tests(qpromise
     SOURCES
+        tst_as.cpp
         tst_construct.cpp
         tst_delay.cpp
         tst_each.cpp
@@ -14,5 +15,4 @@ qtpromise_add_tests(qpromise
         tst_tapfail.cpp
         tst_then.cpp
         tst_timeout.cpp
-        tst_as.cpp
 )
