@@ -11,7 +11,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTimer>
-#include <QtCore/QVariant>
 
 namespace QtPromise {
 

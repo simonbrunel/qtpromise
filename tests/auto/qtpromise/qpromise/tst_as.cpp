@@ -22,9 +22,8 @@ private Q_SLOTS:
     void fulfillTAsU();
     void fulfillTAsVoid();
     void fulfillTAsQVariant();
-    void fulfillQVariantAsT();
+    void fulfillQVariantAsU();
     void fulfillQVariantAsVoid();
-    void fulfillVoidAsQVariant();
 
     void rejectUnconvertibleQVariant();
 };
@@ -36,14 +35,14 @@ namespace {
 struct Foo
 {
     Foo() = default;
-    Foo(int bar_) : bar{bar_} { }
+    Foo(int bar) : m_bar{bar} { }
 
-    int bar{-1};
+    int m_bar{-1};
 };
 
 bool operator==(const Foo& lhs, const Foo& rhs)
 {
-    return lhs.bar == rhs.bar;
+    return lhs.m_bar == rhs.m_bar;
 }
 } // namespace
 
@@ -103,12 +102,12 @@ void tst_qpromise_as::fulfillTAsQVariant()
 
         QVariant value = waitForValue(p, QVariant{});
         QCOMPARE(value, QVariant::fromValue(Foo{42}));
-        QCOMPARE(value.value<Foo>().bar, 42);
+        QCOMPARE(value.value<Foo>().m_bar, 42);
         QVERIFY(p.isFulfilled());
     }
 }
 
-void tst_qpromise_as::fulfillQVariantAsT()
+void tst_qpromise_as::fulfillQVariantAsU()
 {
     // Test whether a directly stored value can be extracted
     {
@@ -149,16 +148,6 @@ void tst_qpromise_as::fulfillQVariantAsVoid()
     Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
 
     QCOMPARE(waitForValue(p, -1, 42), 42);
-    QVERIFY(p.isFulfilled());
-}
-
-void tst_qpromise_as::fulfillVoidAsQVariant()
-{
-    auto p = QtPromise::resolve().as<QVariant>();
-
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVariant>>::value));
-
-    QCOMPARE(waitForValue(p, QVariant{42}), QVariant{});
     QVERIFY(p.isFulfilled());
 }
 

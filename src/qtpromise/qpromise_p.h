@@ -556,17 +556,8 @@ struct PromiseInspect
     }
 };
 
-template<typename T, typename U, typename Enable = void>
-struct PromiseConverter;
-
 template<typename T, typename U>
-struct PromiseConverter<
-    T,
-    U,
-    typename std::enable_if<!std::is_same<T, void>::value && !std::is_same<U, void>::value
-                                && !std::is_same<T, QVariant>::value
-                                && !std::is_same<U, QVariant>::value,
-                            void>::type>
+struct PromiseConverter
 {
     static std::function<U(const T&)> create()
     {
@@ -576,19 +567,8 @@ struct PromiseConverter<
     }
 };
 
-template<typename T>
-struct PromiseConverter<T, void>
-{
-    static std::function<void(const T&)> create()
-    {
-        return [](const T&) {};
-    }
-};
-
 template<typename U>
-struct PromiseConverter<QVariant,
-                        U,
-                        typename std::enable_if<!std::is_same<U, void>::value, void>::type>
+struct PromiseConverter<QVariant, U>
 {
     static std::function<U(QVariant)> create()
     {
@@ -597,10 +577,19 @@ struct PromiseConverter<QVariant,
             // https://doc.qt.io/qt-5/qvariant.html#using-canconvert-and-convert-consecutively
             if (value.canConvert<U>() && value.convert(qMetaTypeId<U>())) {
                 return value.value<U>();
-            } else {
-                throw QtPromise::QPromiseConversionException{};
             }
+
+            throw QtPromise::QPromiseConversionException{};
         };
+    }
+};
+
+template<>
+struct PromiseConverter<QVariant, void>
+{
+    static std::function<void(const QVariant&)> create()
+    {
+        return [](const QVariant& value) {};
     }
 };
 
@@ -611,17 +600,6 @@ struct PromiseConverter<T, QVariant>
     {
         return [](const T& value) {
             return QVariant::fromValue(value);
-        };
-    }
-};
-
-template<>
-struct PromiseConverter<void, QVariant>
-{
-    static std::function<QVariant()> create()
-    {
-        return []() {
-            return QVariant{};
         };
     }
 };
