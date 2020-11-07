@@ -589,7 +589,7 @@ struct PromiseConverter<QVariant, void>
 {
     static std::function<void(const QVariant&)> create()
     {
-        return [](const QVariant& value) {};
+        return [](const QVariant&) {};
     }
 };
 
