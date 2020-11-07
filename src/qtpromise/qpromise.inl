@@ -170,6 +170,9 @@ template<typename T>
 template<typename U>
 inline QPromise<U> QPromiseBase<T>::as() const
 {
+    Q_STATIC_ASSERT_X((!std::is_same<T, void>::value),
+                      "Conversion from QPromise<void> is not supported.");
+
     return then(QtPromisePrivate::PromiseConverter<T, U>::create());
 }
 
