@@ -36,20 +36,20 @@ QTEST_MAIN(tst_qpromise_convert)
 namespace {
 struct Foo
 {
-    constexpr Foo() = default;
-    constexpr Foo(int foo) : m_foo{foo} { }
+    Foo() = default;
+    Foo(int foo) : m_foo{foo} { }
 
-    constexpr bool operator==(const Foo& rhs) const { return m_foo == rhs.m_foo; }
+    bool operator==(const Foo& rhs) const { return m_foo == rhs.m_foo; }
 
     int m_foo{-1};
 };
 
 struct Bar
 {
-    constexpr Bar() = default;
-    constexpr Bar(const Foo& other) : m_bar{other.m_foo} { }
+    Bar() = default;
+    Bar(const Foo& other) : m_bar{other.m_foo} { }
 
-    constexpr bool operator==(const Bar& rhs) const { return m_bar == rhs.m_bar; }
+    bool operator==(const Bar& rhs) const { return m_bar == rhs.m_bar; }
 
     int m_bar{-1};
 };
