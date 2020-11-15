@@ -2,13 +2,11 @@
 
 *Since: 0.7.0*
 
-This exception is thrown whenever a promise conversion using `QPromise<T>::convert<U>()` fails, for 
-example: 
+This exception is thrown whenever a promise result conversion fails, for example: 
 
 ```cpp
-QVariant input = ...;
-
-QtPromise::resolve(input).convert<int>()
+QPromise<QVariant> input = {...};
+auto output = input.convert<int>()
     .fail([](const QPromiseconversionException& e) {
         // conversion may file because input could not be converted to number
     });
