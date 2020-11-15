@@ -556,8 +556,11 @@ struct PromiseInspect
     }
 };
 
+template<typename T, typename U, bool IsConvertibleViaStaticCast>
+struct PromiseConverterBase;
+
 template<typename T, typename U>
-struct PromiseConverter
+struct PromiseConverterBase<T, U, true>
 {
     static std::function<U(const T&)> create()
     {
@@ -567,16 +570,17 @@ struct PromiseConverter
     }
 };
 
-template<typename U>
-struct PromiseConverter<QVariant, U>
+template<typename T, typename U>
+struct PromiseConverterBase<T, U, false>
 {
-    static std::function<U(QVariant)> create()
+    static std::function<U(const T&)> create()
     {
-        // value is not const QVariant& because convert() is a non-const method
-        return [](QVariant value) {
+        return [](const T& value) {
+            auto tmp = QVariant::fromValue(value);
+
             // https://doc.qt.io/qt-5/qvariant.html#using-canconvert-and-convert-consecutively
-            if (value.canConvert<U>() && value.convert(qMetaTypeId<U>())) {
-                return value.value<U>();
+            if (tmp.canConvert(qMetaTypeId<U>()) && tmp.convert(qMetaTypeId<U>())) {
+                return qvariant_cast<U>(tmp);
             }
 
             throw QtPromise::QPromiseConversionException{};
@@ -584,17 +588,8 @@ struct PromiseConverter<QVariant, U>
     }
 };
 
-template<>
-struct PromiseConverter<QVariant, void>
-{
-    static std::function<void(const QVariant&)> create()
-    {
-        return [](const QVariant&) {};
-    }
-};
-
 template<typename T>
-struct PromiseConverter<T, QVariant>
+struct PromiseConverterBase<T, QVariant, false>
 {
     static std::function<QVariant(const T&)> create()
     {
@@ -603,6 +598,20 @@ struct PromiseConverter<T, QVariant>
         };
     }
 };
+
+template<typename T, typename U>
+struct PromiseConverter
+    : PromiseConverterBase<T,
+                           U,
+                           // Fundamental types and converting constructors.
+                           std::is_convertible<T, U>::value ||
+                               // Conversion to void.
+                               std::is_same<U, void>::value ||
+                               // Conversion between enums and arithmetic types.
+                               ((std::is_enum<T>::value && std::is_arithmetic<U>::value)
+                                || (std::is_arithmetic<T>::value && std::is_enum<U>::value)
+                                || (std::is_enum<T>::value && std::is_enum<U>::value))>
+{ };
 
 } // namespace QtPromisePrivate
 

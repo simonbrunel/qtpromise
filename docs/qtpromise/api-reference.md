@@ -3,7 +3,7 @@
 ## Functions
 
 - [`QPromise<T>::QPromise`](qpromise/constructor.md)
-- [`QPromise<T>::as`](qpromise/as.md)
+- [`QPromise<T>::convert`](qpromise/convert.md)
 - [`QPromise<T>::delay`](qpromise/delay.md)
 - [`QPromise<T>::each`](qpromise/each.md)
 - [`QPromise<T>::fail`](qpromise/fail.md)

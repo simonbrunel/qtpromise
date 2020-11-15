@@ -91,9 +91,6 @@ public:
 
     inline QPromise<T> wait() const;
 
-    template<typename U>
-    inline QPromise<U> as() const;
-
 public: // STATIC
     template<typename E>
     inline static QPromise<T> reject(E&& error);
@@ -113,6 +110,9 @@ public:
     template<typename F>
     QPromise(F&& resolver) : QPromiseBase<T>(std::forward<F>(resolver))
     { }
+
+    template<typename U>
+    inline QPromise<U> convert() const;
 
     template<typename Functor>
     inline QPromise<T> each(Functor fn);

@@ -40,7 +40,7 @@ module.exports = {
                         title: 'QPromise',
                         children: [
                             '/qtpromise/qpromise/constructor',
-                            '/qtpromise/qpromise/as',
+                            '/qtpromise/qpromise/convert',
                             '/qtpromise/qpromise/delay',
                             '/qtpromise/qpromise/each',
                             '/qtpromise/qpromise/fail',

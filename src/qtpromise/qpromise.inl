@@ -167,16 +167,6 @@ inline QPromise<T> QPromiseBase<T>::wait() const
 }
 
 template<typename T>
-template<typename U>
-inline QPromise<U> QPromiseBase<T>::as() const
-{
-    Q_STATIC_ASSERT_X((!std::is_same<T, void>::value),
-                      "Conversion from QPromise<void> is not supported.");
-
-    return then(QtPromisePrivate::PromiseConverter<T, U>::create());
-}
-
-template<typename T>
 template<typename E>
 inline QPromise<T> QPromiseBase<T>::reject(E&& error)
 {
@@ -250,6 +240,13 @@ template<template<typename, typename...> class Sequence, typename... Args>
 inline QPromise<QVector<T>> QPromise<T>::all(const Sequence<QPromise<T>, Args...>& promises)
 {
     return QtPromise::all(promises);
+}
+
+template<typename T>
+template<typename U>
+inline QPromise<U> QPromise<T>::convert() const
+{
+    return QPromiseBase<T>::then(QtPromisePrivate::PromiseConverter<T, U>::create());
 }
 
 template<typename T>
