@@ -27,7 +27,7 @@ private Q_SLOTS:
     void fulfillQVariantAsU();
     void fulfillQVariantAsVoid();
 
-    void rejectUnconvertibleQVariant();
+    void rejectUnconvertibleTypes();
 };
 
 QTEST_MAIN(tst_qpromise_convert)
@@ -235,22 +235,31 @@ void tst_qpromise_convert::fulfillQVariantAsVoid()
     QVERIFY(p.isFulfilled());
 }
 
-void tst_qpromise_convert::rejectUnconvertibleQVariant()
+void tst_qpromise_convert::rejectUnconvertibleTypes()
 {
-    // User-defined type incompatible with int.
+    // A string incompatible with int due to its value.
     {
-        auto p = QtPromise::resolve(QVariant{"42foo"}).convert<int>();
+        auto p = QtPromise::resolve(QString{"42foo"}).convert<int>();
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
 
         QVERIFY(waitForRejected<QPromiseConversionException>(p));
     }
 
-    // Incompatible user-defined types.
+    // A user-defined type unconvertible to string because there is no converter.
     {
         auto p = QtPromise::resolve(QVariant::fromValue(Bar{42})).convert<QString>();
 
         Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+
+        QVERIFY(waitForRejected<QPromiseConversionException>(p));
+    }
+
+    // A standard library type unconvertible to a primitive type because there is no converter.
+    {
+        auto p = QtPromise::resolve(std::vector<int>{42, -42}).convert<int>();
+
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
 
         QVERIFY(waitForRejected<QPromiseConversionException>(p));
     }
