@@ -111,6 +111,9 @@ public:
     QPromise(F&& resolver) : QPromiseBase<T>(std::forward<F>(resolver))
     { }
 
+    template<typename U>
+    inline QPromise<U> convert() const;
+
     template<typename Functor>
     inline QPromise<T> each(Functor fn);
 
