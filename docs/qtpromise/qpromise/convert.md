@@ -31,7 +31,8 @@ output.then([](double value) {
 ```
 
 If `U` has a [converting constructor](https://en.cppreference.com/w/cpp/language/converting_constructor) 
-from `T`, it is used to convert the value:
+from `T`, i.e., a non-explicit constructor with a single argument accepting `T`, it is used to
+convert the value:
 
 ```cpp
 QPromise<QByteArray> input = {...}
@@ -43,6 +44,11 @@ output.then([](const QString& value) {
     // the value has been converted using static_cast that effectively calls QString(QByteArray)
 });
 ```
+
+::: tip NOTE
+When using this method to convert to your own classes, make sure that the constructor meeting the 
+converting constructor criteria actually performs conversion.
+:::
 
 ::: tip NOTE 
 If `U` is `void`, the resolved value of `QPromise<T>` is dropped. 
@@ -109,7 +115,7 @@ output.then([](const QString& value) {
     // value contains a result produced by the custom converter
 })
 .fail([](const QPromiseConversionException& e) {
-    // QVariant was unable convert Foo to QString 
+    // QVariant was unable to convert Foo to QString 
 })
 ```
 

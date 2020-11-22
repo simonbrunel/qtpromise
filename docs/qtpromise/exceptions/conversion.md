@@ -8,6 +8,6 @@ This exception is thrown whenever a promise result conversion fails, for example
 QPromise<QVariant> input = {...};
 auto output = input.convert<int>()
     .fail([](const QPromiseconversionException& e) {
-        // conversion may file because input could not be converted to number
+        // conversion may fail because input could not be converted to number
     });
 ```
