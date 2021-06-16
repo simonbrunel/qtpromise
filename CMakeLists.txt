@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 
 if(DEFINED PROJECT_NAME)
     set(SUBPROJECT ON)
+else()
+    set(SUBPROJECT OFF)
 endif()
 
 project(qtpromise VERSION 0.6.0 LANGUAGES CXX)
@@ -9,6 +11,11 @@ project(qtpromise VERSION 0.6.0 LANGUAGES CXX)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(Qt5 5.6.0 REQUIRED COMPONENTS Core)
+
+option(qtpromise_BuildTests "Build Test Programs" ON)
+if (${SUBPROJECT})
+set(qtpromise_BuildTests OFF)
+endif()
 
 include(GNUInstallDirs)
 
@@ -125,7 +132,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/include/QtPromise
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtpromise/include)
 
 
-if(NOT SUBPROJECT)
+if(qtpromise_BuildTests)
     enable_testing()
     add_subdirectory(tests)
 endif()
