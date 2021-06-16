@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 
 if(DEFINED PROJECT_NAME)
     set(SUBPROJECT ON)
+else()
+    set(SUBPROJECT OFF)
 endif()
 
 project(qtpromise VERSION 0.6.0 LANGUAGES CXX)
@@ -9,6 +11,13 @@ project(qtpromise VERSION 0.6.0 LANGUAGES CXX)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(Qt5 5.6.0 REQUIRED COMPONENTS Core)
+
+option(qtpromise_BuildTests "Build Test Programs" ON)
+if (${SUBPROJECT})
+set(qtpromise_BuildTests OFF)
+endif()
+
+include(GNUInstallDirs)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -18,7 +27,11 @@ add_library(qtpromise INTERFACE)
 add_library(qtpromise::qtpromise ALIAS qtpromise)
 
 target_link_libraries(qtpromise INTERFACE Qt5::Core)
-target_include_directories(qtpromise INTERFACE "${CMAKE_CURRENT_LIST_DIR}/include")
+target_include_directories(qtpromise
+    INTERFACE
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtpromise/include>"
+)
 
 add_definitions(
     -DQT_DEPRECATED_WARNINGS
@@ -79,7 +92,47 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     )
 endif()
 
-if(NOT SUBPROJECT)
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}_Targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Runtime
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime
+    )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "qtpromiseConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/cmake/qtpromiseConfig.cmake.in"
+    "${PROJECT_BINARY_DIR}/qtpromiseConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/qtpromise/cmake
+)
+
+install(
+    EXPORT ${PROJECT_NAME}_Targets
+    FILE qtpromiseTargets.cmake
+    NAMESPACE qtpromise::
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/qtpromise/cmake
+)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/qtpromiseConfig.cmake"
+          "${PROJECT_BINARY_DIR}/qtpromiseConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/qtpromise/cmake
+    )
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/qtpromise
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtpromise/src)
+install(FILES ${PROJECT_SOURCE_DIR}/include/QtPromise
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtpromise/include)
+
+
+if(qtpromise_BuildTests)
     enable_testing()
     add_subdirectory(tests)
 endif()
