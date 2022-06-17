@@ -114,6 +114,9 @@ public:
     template<typename U>
     inline QPromise<U> convert() const;
 
+    template<typename U>
+    inline QPromise<U> convert(std::function<U(T)>) const;
+
     template<typename Functor>
     inline QPromise<T> each(Functor fn);
 

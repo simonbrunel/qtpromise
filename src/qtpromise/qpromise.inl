@@ -250,6 +250,12 @@ inline QPromise<U> QPromise<T>::convert() const
 }
 
 template<typename T>
+template<typename U>
+inline QPromise<U> QPromise<T>::convert(std::function<U(T)> converter) const {
+    return QPromiseBase<T>::then(std::move(converter));
+}
+
+template<typename T>
 inline QPromise<T> QPromise<T>::resolve(const T& value)
 {
     return QPromise<T>{[&](const QPromiseResolve<T>& resolve) {
