@@ -12,8 +12,6 @@
 
 #include <chrono>
 
-using namespace QtPromise;
-
 class tst_qpromise_convert : public QObject
 {
     Q_OBJECT
@@ -76,7 +74,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(42.13).convert<int>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<int>>::value));
 
         QCOMPARE(waitForValue(p, -1), 42);
         QVERIFY(p.isFulfilled());
@@ -86,7 +84,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(Enum1::Value1).convert<int>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<int>>::value));
 
         QCOMPARE(waitForValue(p, -1), 1);
         QVERIFY(p.isFulfilled());
@@ -96,7 +94,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(1).convert<Enum1>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Enum1>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<Enum1>>::value));
 
         QCOMPARE(waitForValue(p, Enum1::Value0), Enum1::Value1);
         QVERIFY(p.isFulfilled());
@@ -106,7 +104,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(Enum1::Value1).convert<Enum2>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Enum2>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<Enum2>>::value));
 
         QCOMPARE(waitForValue(p, Enum2::Value0), Enum2::Value1);
         QVERIFY(p.isFulfilled());
@@ -117,7 +115,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(QByteArray{"foo"}).convert<QString>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<QString>>::value));
 
         QCOMPARE(waitForValue(p, QString{}), QString{"foo"});
         QVERIFY(p.isFulfilled());
@@ -128,7 +126,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(Foo{42}).convert<Bar>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Bar>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<Bar>>::value));
 
         QCOMPARE(waitForValue(p, Bar{}), Bar{42});
         QVERIFY(p.isFulfilled());
@@ -138,7 +136,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(42).convert<QString>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<QString>>::value));
 
         QCOMPARE(waitForValue(p, QString{}), QString{"42"});
         QVERIFY(p.isFulfilled());
@@ -149,7 +147,7 @@ void tst_qpromise_convert::fulfillTAsU()
     {
         auto p = QtPromise::resolve(Foo{42}).convert<QString>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<QString>>::value));
 
         QCOMPARE(waitForValue(p, QString{}), QString{"Foo{42}"});
         QVERIFY(p.isFulfilled());
@@ -160,7 +158,7 @@ void tst_qpromise_convert::fulfillTAsVoid()
 {
     auto p = QtPromise::resolve(42).convert<void>();
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<void>>::value));
 
     QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
@@ -172,7 +170,7 @@ void tst_qpromise_convert::fulfillTAsQVariant()
     {
         auto p = QtPromise::resolve(42).convert<QVariant>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVariant>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<QVariant>>::value));
 
         QCOMPARE(waitForValue(p, QVariant{}), QVariant{42});
         QVERIFY(p.isFulfilled());
@@ -182,7 +180,7 @@ void tst_qpromise_convert::fulfillTAsQVariant()
     {
         auto p = QtPromise::resolve(Foo{42}).convert<QVariant>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QVariant>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<QVariant>>::value));
 
         QVariant value = waitForValue(p, QVariant{});
         QCOMPARE(value, QVariant::fromValue(Foo{42}));
@@ -197,7 +195,7 @@ void tst_qpromise_convert::fulfillQVariantAsU()
     {
         auto p = QtPromise::resolve(QVariant{42}).convert<int>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<int>>::value));
 
         QCOMPARE(waitForValue(p, -1), 42);
         QVERIFY(p.isFulfilled());
@@ -208,7 +206,7 @@ void tst_qpromise_convert::fulfillQVariantAsU()
     {
         auto p = QtPromise::resolve(QVariant{"42"}).convert<int>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<int>>::value));
 
         QCOMPARE(waitForValue(p, -1), 42);
         QVERIFY(p.isFulfilled());
@@ -218,7 +216,7 @@ void tst_qpromise_convert::fulfillQVariantAsU()
     {
         auto p = QtPromise::resolve(QVariant::fromValue(Foo{42})).convert<Foo>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<Foo>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<Foo>>::value));
 
         QCOMPARE(waitForValue(p, Foo{}), Foo{42});
         QVERIFY(p.isFulfilled());
@@ -229,7 +227,7 @@ void tst_qpromise_convert::fulfillQVariantAsVoid()
 {
     auto p = QtPromise::resolve(QVariant{42}).convert<void>();
 
-    Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<void>>::value));
+    Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<void>>::value));
 
     QCOMPARE(waitForValue(p, -1, 42), 42);
     QVERIFY(p.isFulfilled());
@@ -241,26 +239,26 @@ void tst_qpromise_convert::rejectUnconvertibleTypes()
     {
         auto p = QtPromise::resolve(QString{"42foo"}).convert<int>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<int>>::value));
 
-        QVERIFY(waitForRejected<QPromiseConversionException>(p));
+        QVERIFY(waitForRejected<QtPromise::QPromiseConversionException>(p));
     }
 
     // A user-defined type unconvertible to string because there is no converter.
     {
         auto p = QtPromise::resolve(QVariant::fromValue(Bar{42})).convert<QString>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<QString>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<QString>>::value));
 
-        QVERIFY(waitForRejected<QPromiseConversionException>(p));
+        QVERIFY(waitForRejected<QtPromise::QPromiseConversionException>(p));
     }
 
     // A standard library type unconvertible to a primitive type because there is no converter.
     {
         auto p = QtPromise::resolve(std::vector<int>{42, -42}).convert<int>();
 
-        Q_STATIC_ASSERT((std::is_same<decltype(p), QPromise<int>>::value));
+        Q_STATIC_ASSERT((std::is_same<decltype(p), QtPromise::QPromise<int>>::value));
 
-        QVERIFY(waitForRejected<QPromiseConversionException>(p));
+        QVERIFY(waitForRejected<QtPromise::QPromiseConversionException>(p));
     }
 }

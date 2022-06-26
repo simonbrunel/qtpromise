@@ -578,11 +578,18 @@ struct PromiseConverterBase<T, U, false>
         return [](const T& value) {
             auto tmp = QVariant::fromValue(value);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            // https://doc.qt.io/qt-6/qvariant.html#using-canconvert-and-convert-consecutively
+            if (tmp.canConvert(QMetaType{qMetaTypeId<U>()})
+                && tmp.convert(QMetaType{qMetaTypeId<U>()})) {
+                return qvariant_cast<U>(tmp);
+            }
+#else
             // https://doc.qt.io/qt-5/qvariant.html#using-canconvert-and-convert-consecutively
             if (tmp.canConvert(qMetaTypeId<U>()) && tmp.convert(qMetaTypeId<U>())) {
                 return qvariant_cast<U>(tmp);
             }
-
+#endif
             throw QtPromise::QPromiseConversionException{};
         };
     }
