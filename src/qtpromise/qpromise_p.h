@@ -20,6 +20,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
 
+#include <memory>
+
 namespace QtPromise {
 
 template<typename T>
@@ -92,13 +94,13 @@ class PromiseValue
 {
 public:
     PromiseValue() { }
-    PromiseValue(const T& data) : m_data(QSharedPointer<T>::create(data)) { }
-    PromiseValue(T&& data) : m_data(QSharedPointer<T>::create(std::forward<T>(data))) { }
-    bool isNull() const { return m_data.isNull(); }
+    PromiseValue(const T& data) : m_data(std::make_shared<T>(data)) { }
+    PromiseValue(T&& data) : m_data(std::make_shared<T>(std::forward<T>(data))) { }
+    bool isNull() const { return m_data == nullptr; }
     const T& data() const { return *m_data; }
 
 private:
-    QSharedPointer<T> m_data;
+    std::shared_ptr<T> m_data;
 };
 
 class PromiseError
