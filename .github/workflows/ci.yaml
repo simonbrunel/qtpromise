@@ -1,0 +1,43 @@
+# https://docs.github.com/actions/reference/workflow-syntax-for-github-actions
+# https://doc.qt.io/qt-6/supported-platforms.html
+# https://ddalcino.github.io/aqt-list-server/
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        qt:
+          - 5.9.9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ matrix.qt }}
+          archives: qtbase icu
+          tools: tools_cmake
+          arch: gcc_64
+          host: linux
+      - run: |
+          qmake --version
+          cmake --version
+          gcc --version
+          g++ --version
+      - run: |
+          cmake -G "Unix Makefiles"
+          cmake --build . -- -j12
+          cmake --build . --target test
+      - run: |
+          sudo apt-get install lcov > /dev/null
+          lcov --version
+          lcov --capture --directory . -o coverage.info
+          lcov -e coverage.info '**/src/**/*' -o coverage.info
+      - uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: coverage.info
