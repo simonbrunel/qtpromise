@@ -57,7 +57,7 @@ static void qtpromise_defer(F&& f, const QPointer<QThread>& thread)
     {
         Event(FType&& f) : QEvent{QEvent::None}, m_f{std::move(f)} { }
         Event(const FType& f) : QEvent{QEvent::None}, m_f{f} { }
-        ~Event() override { m_f(); }
+        ~Event() override { if (!QCoreApplication::closingDown()) {m_f();} }
         FType m_f;
     };
 
