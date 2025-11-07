@@ -17,11 +17,11 @@ Requires [Qt 5.6](https://doc.qt.io/qt-5/) (or later) with [C++11 support enable
 
 ## Documentation
 
-- [Getting Started](https://qtpromise.netlify.com/qtpromise/getting-started.html)
-- [Qt Concurrent](https://qtpromise.netlify.com/qtpromise/qtconcurrent.html)
-- [Qt Signals](https://qtpromise.netlify.com/qtpromise/qtsignals.html)
-- [Thread-Safety](https://qtpromise.netlify.com/qtpromise/thread-safety.html)
-- [API Reference](https://qtpromise.netlify.com/qtpromise/api-reference.html)
+- [Getting Started](https://qtpromise.netlify.app/qtpromise/getting-started.html)
+- [Qt Concurrent](https://qtpromise.netlify.app/qtpromise/qtconcurrent.html)
+- [Qt Signals](https://qtpromise.netlify.app/qtpromise/qtsignals.html)
+- [Thread-Safety](https://qtpromise.netlify.app/qtpromise/thread-safety.html)
+- [API Reference](https://qtpromise.netlify.app/qtpromise/api-reference.html)
 
 ## License
 
